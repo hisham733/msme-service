@@ -1,0 +1,435 @@
+{
+  "meta": {
+    "provider": "deepseek",
+    "model": "deepseek-flash",
+    "cases": 6,
+    "versions": [
+      "v0",
+      "v1"
+    ],
+    "archive": "all_emails"
+  },
+  "summary": {
+    "v0": {
+      "cases": 6,
+      "errors": 0,
+      "ready_ok": 6,
+      "flags_ok": 34,
+      "flags_total": 36,
+      "flag_counts": {
+        "hasArticle": 6,
+        "hasPic": 5,
+        "hasLogo": 6,
+        "hasLogoInArticle": 5,
+        "hasImageInArticle": 6,
+        "subjectMatch": 6
+      },
+      "avg_preview_sim": 0.554,
+      "avg_full_sim": 0.987,
+      "avg_len_ratio": 0.986,
+      "avg_body_len": 6832.2,
+      "tokens": 76555,
+      "seconds": 164.4
+    },
+    "v1": {
+      "cases": 6,
+      "errors": 0,
+      "ready_ok": 6,
+      "flags_ok": 34,
+      "flags_total": 36,
+      "flag_counts": {
+        "hasArticle": 6,
+        "hasPic": 5,
+        "hasLogo": 6,
+        "hasLogoInArticle": 5,
+        "hasImageInArticle": 6,
+        "subjectMatch": 6
+      },
+      "avg_preview_sim": 0.556,
+      "avg_full_sim": 0.97,
+      "avg_len_ratio": 0.974,
+      "avg_body_len": 6759.8,
+      "tokens": 67099,
+      "seconds": 128.5
+    },
+    "winners": {
+      "v0": 0,
+      "v1": 1,
+      "tie": 5
+    }
+  },
+  "comparisons": [
+    {
+      "subject": "Fwd: [FOR IMMEDIATE RELEASE] Pink October MoU Signing: Hospital Picaso, College of Radiology Malaysia & BD Join Forces to Strengthen Breast Cancer Care",
+      "date": "Mon, 5 Oct",
+      "ready_expected": true,
+      "source": "attachment",
+      "originals": 9,
+      "images": 11,
+      "runs": {
+        "v0": {
+          "ready": "true",
+          "ready_ok": true,
+          "flags_ok": 6,
+          "flags_total": 6,
+          "bad_flags": [],
+          "flags": {
+            "hasArticle": true,
+            "hasPic": true,
+            "hasLogo": true,
+            "hasLogoInArticle": true,
+            "hasImageInArticle": true,
+            "subjectMatch": true
+          },
+          "score_delta": 9,
+          "preview_sim": 0.524,
+          "full_sim": 0.992,
+          "len_ratio": 0.997,
+          "body_len": 10273,
+          "article_source": "attachment_docx",
+          "chosen_candidate": "C1",
+          "tokens": 18361,
+          "elapsed": 32.6,
+          "error": ""
+        },
+        "v1": {
+          "ready": "true",
+          "ready_ok": true,
+          "flags_ok": 6,
+          "flags_total": 6,
+          "bad_flags": [],
+          "flags": {
+            "hasArticle": true,
+            "hasPic": true,
+            "hasLogo": true,
+            "hasLogoInArticle": true,
+            "hasImageInArticle": true,
+            "subjectMatch": true
+          },
+          "score_delta": 10,
+          "preview_sim": 0.524,
+          "full_sim": 0.992,
+          "len_ratio": 0.997,
+          "body_len": 10273,
+          "article_source": "attachment_docx",
+          "chosen_candidate": "C1",
+          "tokens": 16212,
+          "elapsed": 26.0,
+          "error": ""
+        }
+      },
+      "winner": "tie"
+    },
+    {
+      "subject": "Fwd: Article proposal: why Malaysian SMEs lose WhatsApp leads after the first reply",
+      "date": "Mon, 5 Oct",
+      "ready_expected": false,
+      "source": "attachment",
+      "originals": 1,
+      "images": 0,
+      "runs": {
+        "v0": {
+          "ready": "false",
+          "ready_ok": true,
+          "flags_ok": 6,
+          "flags_total": 6,
+          "bad_flags": [],
+          "flags": {
+            "hasArticle": true,
+            "hasPic": true,
+            "hasLogo": true,
+            "hasLogoInArticle": true,
+            "hasImageInArticle": true,
+            "subjectMatch": true
+          },
+          "score_delta": 2,
+          "preview_sim": 0.5,
+          "full_sim": 1.0,
+          "len_ratio": 1.0,
+          "body_len": 7171,
+          "article_source": "attachment_docx",
+          "chosen_candidate": "C1",
+          "tokens": 7851,
+          "elapsed": 15.7,
+          "error": ""
+        },
+        "v1": {
+          "ready": "false",
+          "ready_ok": true,
+          "flags_ok": 6,
+          "flags_total": 6,
+          "bad_flags": [],
+          "flags": {
+            "hasArticle": true,
+            "hasPic": true,
+            "hasLogo": true,
+            "hasLogoInArticle": true,
+            "hasImageInArticle": true,
+            "subjectMatch": true
+          },
+          "score_delta": 0,
+          "preview_sim": 0.5,
+          "full_sim": 1.0,
+          "len_ratio": 1.0,
+          "body_len": 7171,
+          "article_source": "attachment_docx",
+          "chosen_candidate": "C1",
+          "tokens": 7574,
+          "elapsed": 19.5,
+          "error": ""
+        }
+      },
+      "winner": "tie"
+    },
+    {
+      "subject": "Fwd: [PRESS RELEASE] Monash University Malaysia Leads Triple Alliance’s Flagship Mental Health Initiative To Strengthen Student Wellbeing",
+      "date": "Fri, 9 Oct",
+      "ready_expected": true,
+      "source": "attachment",
+      "originals": 7,
+      "images": 6,
+      "runs": {
+        "v0": {
+          "ready": "true",
+          "ready_ok": true,
+          "flags_ok": 4,
+          "flags_total": 6,
+          "bad_flags": [
+            "hasPic",
+            "hasLogoInArticle"
+          ],
+          "flags": {
+            "hasArticle": true,
+            "hasPic": false,
+            "hasLogo": true,
+            "hasLogoInArticle": false,
+            "hasImageInArticle": true,
+            "subjectMatch": true
+          },
+          "score_delta": 0,
+          "preview_sim": 0.581,
+          "full_sim": 0.969,
+          "len_ratio": 0.958,
+          "body_len": 6431,
+          "article_source": "attachment_pdf",
+          "chosen_candidate": "C1",
+          "tokens": 12362,
+          "elapsed": 27.6,
+          "error": ""
+        },
+        "v1": {
+          "ready": "true",
+          "ready_ok": true,
+          "flags_ok": 4,
+          "flags_total": 6,
+          "bad_flags": [
+            "hasPic",
+            "hasLogoInArticle"
+          ],
+          "flags": {
+            "hasArticle": true,
+            "hasPic": false,
+            "hasLogo": true,
+            "hasLogoInArticle": false,
+            "hasImageInArticle": true,
+            "subjectMatch": true
+          },
+          "score_delta": 0,
+          "preview_sim": 0.591,
+          "full_sim": 1.0,
+          "len_ratio": 1.0,
+          "body_len": 6718,
+          "article_source": "attachment_pdf",
+          "chosen_candidate": "C1",
+          "tokens": 10496,
+          "elapsed": 16.1,
+          "error": ""
+        }
+      },
+      "winner": "v1"
+    },
+    {
+      "subject": "Fwd: Research pitch: what Malaysian SMEs should verify in an AI supplier shortlist",
+      "date": "Fri, 16 Oc",
+      "ready_expected": false,
+      "source": "attachment",
+      "originals": 1,
+      "images": 0,
+      "runs": {
+        "v0": {
+          "ready": "false",
+          "ready_ok": true,
+          "flags_ok": 6,
+          "flags_total": 6,
+          "bad_flags": [],
+          "flags": {
+            "hasArticle": true,
+            "hasPic": true,
+            "hasLogo": true,
+            "hasLogoInArticle": true,
+            "hasImageInArticle": true,
+            "subjectMatch": true
+          },
+          "score_delta": 0,
+          "preview_sim": 0.6,
+          "full_sim": 1.0,
+          "len_ratio": 0.996,
+          "body_len": 5737,
+          "article_source": "attachment_pdf",
+          "chosen_candidate": "C1",
+          "tokens": 8263,
+          "elapsed": 20.6,
+          "error": ""
+        },
+        "v1": {
+          "ready": "false",
+          "ready_ok": true,
+          "flags_ok": 6,
+          "flags_total": 6,
+          "bad_flags": [],
+          "flags": {
+            "hasArticle": true,
+            "hasPic": true,
+            "hasLogo": true,
+            "hasLogoInArticle": true,
+            "hasImageInArticle": true,
+            "subjectMatch": true
+          },
+          "score_delta": 3,
+          "preview_sim": 0.6,
+          "full_sim": 1.0,
+          "len_ratio": 1.001,
+          "body_len": 5764,
+          "article_source": "attachment_pdf",
+          "chosen_candidate": "C1",
+          "tokens": 6595,
+          "elapsed": 15.8,
+          "error": ""
+        }
+      },
+      "winner": "tie"
+    },
+    {
+      "subject": "Fwd: For Immediate Release (ENG&BM): PIALA PEMBANGUNAN 2026 NURTURES MORE THAN 100 HIGH-POTENTIAL YOUNG LEADERS TO ADVANCE MALAYSIA’S NATIONAL SUSTAINABILITY AGENDA",
+      "date": "Thu, 15 Oc",
+      "ready_expected": true,
+      "source": "attachment",
+      "originals": 6,
+      "images": 3,
+      "runs": {
+        "v0": {
+          "ready": "true",
+          "ready_ok": true,
+          "flags_ok": 6,
+          "flags_total": 6,
+          "bad_flags": [],
+          "flags": {
+            "hasArticle": true,
+            "hasPic": true,
+            "hasLogo": true,
+            "hasLogoInArticle": true,
+            "hasImageInArticle": true,
+            "subjectMatch": true
+          },
+          "score_delta": 0,
+          "preview_sim": 0.548,
+          "full_sim": 0.963,
+          "len_ratio": 0.965,
+          "body_len": 6134,
+          "article_source": "attachment_pdf",
+          "chosen_candidate": "C1",
+          "tokens": 14163,
+          "elapsed": 33.8,
+          "error": ""
+        },
+        "v1": {
+          "ready": "true",
+          "ready_ok": true,
+          "flags_ok": 6,
+          "flags_total": 6,
+          "bad_flags": [],
+          "flags": {
+            "hasArticle": true,
+            "hasPic": true,
+            "hasLogo": true,
+            "hasLogoInArticle": true,
+            "hasImageInArticle": true,
+            "subjectMatch": true
+          },
+          "score_delta": 2,
+          "preview_sim": 0.548,
+          "full_sim": 0.828,
+          "len_ratio": 0.847,
+          "body_len": 5385,
+          "article_source": "attachment_pdf",
+          "chosen_candidate": "C1",
+          "tokens": 12575,
+          "elapsed": 28.6,
+          "error": ""
+        }
+      },
+      "winner": "tie"
+    },
+    {
+      "subject": "Fwd: SIARAN MEDIA: Anak Sulung Najib, YB Dato' Mohamad Nizar Bawa Teknologi 'Lembah Silikon' untuk Perkasa Anak Pahang",
+      "date": "Mon, 5 Oct",
+      "ready_expected": false,
+      "source": "attachment",
+      "originals": 1,
+      "images": 0,
+      "runs": {
+        "v0": {
+          "ready": "false",
+          "ready_ok": true,
+          "flags_ok": 6,
+          "flags_total": 6,
+          "bad_flags": [],
+          "flags": {
+            "hasArticle": true,
+            "hasPic": true,
+            "hasLogo": true,
+            "hasLogoInArticle": true,
+            "hasImageInArticle": true,
+            "subjectMatch": true
+          },
+          "score_delta": 0,
+          "preview_sim": 0.574,
+          "full_sim": 1.0,
+          "len_ratio": 1.0,
+          "body_len": 5247,
+          "article_source": "attachment_pdf",
+          "chosen_candidate": "C1",
+          "tokens": 15555,
+          "elapsed": 34.1,
+          "error": ""
+        },
+        "v1": {
+          "ready": "false",
+          "ready_ok": true,
+          "flags_ok": 6,
+          "flags_total": 6,
+          "bad_flags": [],
+          "flags": {
+            "hasArticle": true,
+            "hasPic": true,
+            "hasLogo": true,
+            "hasLogoInArticle": true,
+            "hasImageInArticle": true,
+            "subjectMatch": true
+          },
+          "score_delta": 7,
+          "preview_sim": 0.574,
+          "full_sim": 1.0,
+          "len_ratio": 1.0,
+          "body_len": 5248,
+          "article_source": "attachment_pdf",
+          "chosen_candidate": "C1",
+          "tokens": 13647,
+          "elapsed": 22.5,
+          "error": ""
+        }
+      },
+      "winner": "tie"
+    }
+  ]
+}

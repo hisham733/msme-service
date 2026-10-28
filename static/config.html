@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Filter Config — Jev Editorial Judge</title>
+<style>
+  :root{
+    --bg:#0b1020; --card:#141a2e; --card2:#1a2138; --border:#232b45;
+    --text:#e5e9f5; --muted:#8b93ab; --teal:#2dd4bf; --green:#34d399;
+    --red:#f87171; --amber:#fbbf24; --purple:#a78bfa;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;font-size:14px;padding:28px;max-width:1100px;margin:0 auto}
+  h1{font-size:20px;font-weight:700}
+  .sub{color:var(--muted);font-size:13px;margin-top:4px}
+  .nav{display:flex;gap:8px;margin:18px 0 22px;flex-wrap:wrap}
+  .nav a{color:var(--muted);text-decoration:none;font-size:13px;padding:6px 14px;border:1px solid var(--border);border-radius:8px;background:var(--card)}
+  .nav a.on{color:var(--teal);border-color:var(--teal)}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:18px}
+  .card h2{font-size:14px;font-weight:700;margin-bottom:12px;color:var(--teal)}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+  @media(max-width:700px){.grid{grid-template-columns:1fr}}
+  .fld{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px 12px}
+  .fld .k{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+  .fld .v{font-size:15px;font-weight:700;margin-top:2px;font-family:ui-monospace,monospace}
+  .mono{font-family:ui-monospace,monospace;font-size:12px;color:var(--muted)}
+  .note{background:rgba(45,212,191,.08);border:1px solid rgba(45,212,191,.25);border-radius:10px;padding:12px;font-size:12.5px;color:var(--muted);margin-bottom:14px}
+
+  /* clickable rule cards */
+  .rules{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  @media(max-width:700px){.rules{grid-template-columns:1fr}}
+  .rule{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:12px 14px;cursor:pointer;transition:all .2s;position:relative}
+  .rule:hover{border-color:var(--teal);transform:translateY(-1px)}
+  .rule.gate{border-left:3px solid var(--red)}
+  .rule.score{border-left:3px solid var(--green)}
+  .rule.open{border-color:var(--teal);box-shadow:0 0 0 1px var(--teal) inset}
+  .rule .top{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  .rule .nm{font-weight:700;font-size:13px;color:var(--text)}
+  .rule .tag{font-size:10px;padding:1px 8px;border-radius:10px;font-weight:700}
+  .rule.gate .tag{background:rgba(248,113,113,.15);color:var(--red)}
+  .rule.score .tag{background:rgba(52,211,153,.15);color:var(--green)}
+  .rule .w{font-size:11px;color:var(--purple);font-weight:700;margin-left:auto}
+  .rule .instr{color:var(--muted);font-size:12px;line-height:1.4}
+  .rule .chev{color:var(--muted);font-size:12px;margin-left:auto}
+  .rule .body{display:none;margin-top:10px;border-top:1px dashed var(--border);padding-top:10px}
+  .rule.open .body{display:block}
+  .rule label{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.04em;margin:8px 0 4px}
+  .rule textarea{width:100%;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:8px;font:12px/1.5 ui-monospace,monospace;resize:vertical;min-height:56px}
+  .rule .save{background:var(--teal);color:#06231e;border:none;border-radius:8px;padding:6px 14px;font-weight:700;font-size:12px;cursor:pointer;margin-top:8px}
+  .rule .saved{color:var(--green);font-size:12px;margin-left:8px}
+  .mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .w-input{width:64px;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:6px 8px;font-weight:700;text-align:center}
+  .crit{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:6px 8px;font:12px/1.4 ui-monospace,monospace;color:var(--muted);min-height:26px}
+  body.embed { padding: 0; background: transparent; }
+  body.embed h1, body.embed .sub, body.embed .nav { display: none; }
+  body.embed .card:first-of-type { margin-top: 0; }
+</style>
+</head>
+<body>
+  <h1>Filter Config</h1>
+  <div class="sub">Live settings for the Jev editorial judge · click a rule card to edit it · <span id="gen">—</span></div>
+  <div class="nav">
+    <a href="/filter.html">Filter</a>
+    <a href="/verdicts.html">Verdicts</a>
+    <a class="on" href="/config.html">Config</a>
+    <a href="/lab.html">Jev Lab</a>
+  </div>
+
+  <div class="note">Click any gate or criterion card to expand and edit its wording.
+    Each <b>gate</b> has a <span class="mono">thr</span> (threshold) input; each <b>score</b> has a <span class="mono">%</span> weight input — <b>weights should total 100%</b>.
+    Changes are saved to <span class="mono">data/filter_settings.json</span> and apply to the <b>next</b> judgement — no restart needed.</div>
+
+  <div class="card">
+    <h2>Settings</h2>
+    <div class="grid" id="settingsGrid">loading…</div>
+  </div>
+
+  <div class="card">
+    <h2>LLM assist (DeepSeek)</h2>
+    <div class="note">
+      <b>ON</b> — DeepSeek preprocesses the text and gives a second opinion on ambiguous weak gates / borderline scores.<br>
+      <b>OFF (no-LLM mode)</b> — no external model is called; Jev judges the raw text and any uncertainty goes to a human (<b>EDITOR REVIEW</b>).
+    </div>
+    <div style="display:flex;gap:12px;align-items:center">
+      <button id="llmToggle" style="background:var(--teal);color:#06231e;border:none;border-radius:8px;padding:8px 18px;font-weight:700;cursor:pointer" onclick="toggleLLM()">…</button>
+      <span id="llmState" class="mono"></span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Hard gates <span style="font-size:11px;color:var(--muted);font-weight:400">(POSITIVE: high YES = good; fires when the good is ABSENT → REJECT)</span>
+      <button style="float:right;background:var(--teal);color:#06231e;border:none;border-radius:8px;padding:6px 12px;font-weight:700;font-size:12px;cursor:pointer" onclick="addRule('gate')">+ Add gate</button></h2>
+    <div class="rules" id="gates">loading…</div>
+  </div>
+
+  <div class="card">
+    <h2>Scored criteria <span style="font-size:11px;color:var(--muted);font-weight:400">(% weights sum to 100 → weighted ≥ threshold → ACCEPT)</span>
+      <span id="wTotal" style="font-size:12px;font-weight:700;margin-left:12px">Total weight: —</span>
+      <button style="margin-left:12px;background:var(--teal);color:#06231e;border:none;border-radius:8px;padding:6px 12px;font-weight:700;font-size:12px;cursor:pointer" onclick="saveAllScores()">Save weights</button>
+      <span id="saveWeightsMsg" style="font-size:12px;font-weight:700;margin-left:8px"></span>
+      <button style="float:right;background:var(--teal);color:#06231e;border:none;border-radius:8px;padding:6px 12px;font-weight:700;font-size:12px;cursor:pointer" onclick="addRule('score')">+ Add criterion</button></h2>
+    <div class="rules" id="scores">loading…</div>
+  </div>
+
+<script>
+if (location.search.indexOf("embed=1") !== -1) document.body.classList.add("embed");
+const esc = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const $ = id => document.getElementById(id);
+
+function gateCard(name, g){
+  const crit = typeof g.criteria === 'object' && !Array.isArray(g.criteria)
+    ? Object.entries(g.criteria).map(([k,v])=>{
+        const txt = typeof v==='object' ? (v.what||JSON.stringify(v)) : v;
+        return `${k.toUpperCase()}: ${txt}`;
+      }).join('\n\n')
+    : (Array.isArray(g.criteria) ? g.criteria.map((c,i)=>`${i}: ${typeof c==='object'?(c.what||JSON.stringify(c)):c}`).join('\n') : '');
+  return `<div class="rule gate" id="r-${esc(name)}" onclick="toggleRule('${esc(name)}','gate')">
+    <div class="top"><span class="tag">gate</span><span class="nm">${esc(g.label||name)}</span>
+      <span class="mono" style="color:var(--muted);font-size:10px;margin-left:6px">${esc(name)}</span>
+      <span class="w">thr=<input type="number" min="0" max="1" step="0.01" class="w-input" id="t-${esc(name)}" value="${esc(g.threshold==null?0.85:g.threshold)}" onclick="event.stopPropagation()"></span>
+      <span title="delete this gate" onclick="event.stopPropagation();delRule('gate','${esc(name)}')" style="color:var(--red);font-weight:700;cursor:pointer;padding:0 6px">✕</span>
+      <span class="chev">▼</span></div>
+    <div class="instr">${esc(g.instructions||'')}</div>
+    <div class="body" onclick="event.stopPropagation()">
+      <label>Instruction (the question Jev answers)</label>
+      <textarea id="i-${esc(name)}">${esc(g.instructions||'')}</textarea>
+      <label>Criteria (TRUE / FALSE — optional; can be empty)</label>
+      <textarea id="c-${esc(name)}" style="min-height:90px">${esc(crit)}</textarea>
+      <button class="save" onclick="saveGate('${esc(name)}')">Save</button><span class="saved" id="s-${esc(name)}"></span>
+    </div>
+  </div>`;
+}
+
+function scoreCard(name, s){
+  // criteria is now a dict {true:.., false:..} (noul), same as gates
+  const crit = Object.entries(s.criteria||{}).map(([k,v])=>{
+    const txt = typeof v==='object' ? (v.what||JSON.stringify(v)) : v;
+    return `${k.toUpperCase()}: ${txt}`;
+  }).join('\n');
+  return `<div class="rule score" id="r-${esc(name)}" onclick="toggleRule('${esc(name)}','score')">
+    <div class="top"><span class="tag">score</span><span class="nm">${esc(name)}</span>
+      <span class="w">%=<input type="number" min="0" max="100" class="w-input" id="w-${esc(name)}" value="${esc(s.weight||0)}" oninput="updateTotalLive()" onclick="event.stopPropagation()"></span>
+      <span title="delete this criterion" onclick="event.stopPropagation();delRule('score','${esc(name)}')" style="color:var(--red);font-weight:700;cursor:pointer;padding:0 6px">✕</span>
+      <span class="chev">▼</span></div>
+    <div class="instr">${esc(s.instructions||'')}</div>
+    <div class="body" onclick="event.stopPropagation()">
+      <label>Instruction (negative question — HIGH "no" = good/accept)</label>
+      <textarea id="si-${esc(name)}">${esc(s.instructions||'')}</textarea>
+      <label>Criteria (TRUE / FALSE — optional; can be empty)</label>
+      <textarea id="sc-${esc(name)}" style="min-height:80px">${esc(crit)}</textarea>
+      <button class="save" onclick="saveScore('${esc(name)}')">Save</button><span class="saved" id="s-${esc(name)}"></span>
+    </div>
+  </div>`;
+}
+
+let DATA = null;
+
+// sum of the current weight inputs (score weight inputs have id "w-<name>")
+function currentTotal(overName, overVal){
+  let sum = 0;
+  document.querySelectorAll('input[id^="w-"]').forEach(inp=>{
+    const nm = inp.id.slice(2);
+    const v = (nm === overName) ? overVal : (parseInt(inp.value,10)||0);
+    sum += v;
+  });
+  return sum;
+}
+
+function saveAllScores(){
+  const msg = document.getElementById('saveWeightsMsg');
+  const total = currentTotal();
+  if(total !== 100){
+    if(msg){ msg.textContent = `blocked — total ${total}% (must be 100)`; msg.style.color='var(--red)'; }
+    updateTotalLive();
+    return;
+  }
+  const scores = {};
+  document.querySelectorAll('#scores .rule.score').forEach(card=>{
+    const name = card.id.slice(2);
+    const instr = document.getElementById('si-'+name).value;
+    const weight = parseInt(document.getElementById('w-'+name).value,10)||0;
+    const crit = parseCriteria(document.getElementById('sc-'+name).value, false);
+    scores[name] = {instructions:instr, weight:weight, criteria:crit};
+  });
+  if(msg){ msg.textContent = 'saving…'; msg.style.color='var(--muted)'; }
+  fetch('/config.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({scores:scores})})
+    .then(r=>r.json()).then(d=>{
+      const m=document.getElementById('saveWeightsMsg');
+      if(m){ m.textContent = d.ok ? 'saved ✓' : 'error: '+(d.error||''); m.style.color = d.ok ? 'var(--green)' : 'var(--red)'; }
+      if(d.ok) load();
+    });
+}
+
+function updateTotalLive(){
+  const tot = currentTotal();
+  const wt = document.getElementById('wTotal');
+  if(!wt) return;
+  wt.textContent = 'Total weight: ' + tot + '%' + (tot === 100 ? ' ✓' : ' (must be 100)');
+  wt.style.color = tot === 100 ? 'var(--green)' : 'var(--red)';
+}
+
+function toggleRule(name, type){
+  const el = document.getElementById('r-'+name);
+  if(!el) return;
+  const wasOpen = el.classList.contains('open');
+  document.querySelectorAll('.rule.open').forEach(r=>r.classList.remove('open'));
+  if(!wasOpen) el.classList.add('open');
+}
+
+function parseCriteria(text, isArray){
+  // "TRUE: desc" / "FALSE: desc" for gates; "0: desc" for arrays.
+  // Continuation lines belong to the previous key, so multi-line examples survive.
+  const out = isArray ? [] : {};
+  let key = null, buf = [];
+  const flush = () => {
+    if (key === null) return;
+    const val = buf.join('\n').trim();
+    if (val) {
+      if (isArray) out[parseInt(key,10)] = { what: val };
+      else out[key] = { what: val };
+    }
+    key = null; buf = [];
+  };
+  String(text || '').split(/\r?\n/).forEach(line => {
+    const m = line.match(/^\s*(TRUE|FALSE|[A-Za-z_]+|\d+)\s*:\s*(.*)$/);
+    if (!m) { if (key !== null) buf.push(line); return; }
+    flush();
+    key = m[1].toUpperCase();
+    buf = [m[2]];
+  });
+  flush();
+  return out;
+}
+
+function saveGate(name){
+  const instr = document.getElementById('i-'+name).value;
+  const thrRaw = document.getElementById('t-'+name).value;
+  const threshold = Math.max(0, Math.min(1, parseFloat(thrRaw)));
+  const crit = parseCriteria(document.getElementById('c-'+name).value, false);
+  fetch('/config.json', {method:'PUT', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({gates:{[name]:{instructions:instr, threshold:threshold, criteria:crit}}})})
+    .then(r=>r.json()).then(d=>{
+      const el=document.getElementById('s-'+name);
+      el.textContent = d.ok ? 'saved ✓' : 'error: '+(d.error||'');
+      if(d.ok) load();
+    });
+}
+
+function saveScore(name, opts){
+  opts = opts || {};
+  const el = document.getElementById('s-'+name);
+  const total = currentTotal();
+  if(total !== 100){
+    if(el){ el.textContent = `blocked — weights total ${total}% (must be 100)`; el.style.color='var(--red)'; }
+    updateTotalLive();
+    return Promise.resolve({ok:false, error:'weights_total_'+total});
+  }
+  if(el) el.style.color = '';
+  const instr = document.getElementById('si-'+name).value;
+  const weight = parseInt(document.getElementById('w-'+name).value,10)||0;
+  const crit = parseCriteria(document.getElementById('sc-'+name).value, false); // dict {TRUE,FALSE}
+  return fetch('/config.json', {method:'PUT', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({scores:{[name]:{instructions:instr, weight:weight, criteria:crit}}})})
+    .then(r=>r.json()).then(d=>{
+      const el2=document.getElementById('s-'+name);
+      if(el2) el2.textContent = d.ok ? 'saved ✓' : 'error: '+(d.error||'');
+      if(d.ok && !opts.noReload) load();
+      return d;
+    });
+}
+
+function slug(s){
+  return String(s||'').trim().toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'');
+}
+
+function addRule(type){
+  const kind = type==='gate' ? 'gate' : 'criterion';
+  const raw = prompt('Name of the new '+kind+' (letters/numbers/underscore, e.g. legal_risk):');
+  if(raw===null) return;
+  const name = slug(raw);
+  if(!name){ alert('Please enter a valid name.'); return; }
+  const existing = new Set([...Object.keys((DATA&&DATA.battery&&DATA.battery.gates)||{}),
+                            ...Object.keys((DATA&&DATA.battery&&DATA.battery.scores)||{})]);
+  if(existing.has(name)){ alert('"'+name+'" already exists. Edit it instead.'); return; }
+  const body = type==='gate'
+    ? {gates:{[name]:{threshold:0.85, deleted:false}}}
+    : {scores:{[name]:{weight:0, deleted:false}}};
+  fetch('/config.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
+    .then(r=>r.json()).then(d=>{
+      if(!d.ok){ alert('error: '+(d.error||'')); return; }
+      load();
+      setTimeout(()=>{ const el=document.getElementById('r-'+name); if(el) el.classList.add('open'); }, 300);
+    });
+}
+
+function delRule(type,name){
+  if(!confirm('Delete "'+name+'"? It will be hidden from the battery (saved as deleted, restorable by re-adding the same name).')) return;
+  const body = type==='gate' ? {gates:{[name]:{deleted:true}}} : {scores:{[name]:{deleted:true}}};
+  fetch('/config.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
+    .then(r=>r.json()).then(d=>{ if(!d.ok){ alert('error: '+(d.error||'')); return; } load(); });
+}
+
+let LLM_ON = false;
+function renderLLM(on){
+  LLM_ON = !!on;
+  $('llmState').textContent = on
+    ? 'ON — DeepSeek preprocess + second opinion'
+    : 'OFF — no-LLM mode: uncertainty → EDITOR REVIEW';
+  $('llmState').style.color = on ? 'var(--green)' : 'var(--amber)';
+  $('llmToggle').textContent = on ? 'Turn OFF' : 'Turn ON';
+}
+function toggleLLM(){
+  const next = !LLM_ON;
+  fetch('/config.json', {method:'PUT', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({settings:{ENABLE_LLM_ASSIST: next}})})
+    .then(r=>r.json()).then(d=>{
+      if(d.ok){ renderLLM(next); }
+      else { alert('error: '+(d.error||'')); }
+    }).catch(e=>alert('error: '+e.message));
+}
+
+function saveAccept(){
+  const el = $('acceptThreshold'), msg = $('acceptMsg');
+  const n = Number(el.value);
+  if(!Number.isFinite(n) || n < 0 || n > 100){
+    msg.textContent='0–100 only'; msg.style.color='var(--red)'; return;
+  }
+  msg.textContent='saving…'; msg.style.color='var(--muted)';
+  fetch('/config.json', {method:'PUT', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({settings:{ACCEPT_THRESHOLD:n}})})
+    .then(r=>r.json()).then(d=>{
+      msg.textContent = d.ok ? 'saved ✓' : 'error: '+(d.error||'');
+      msg.style.color = d.ok ? 'var(--green)' : 'var(--red)';
+      if(d.ok) el.value = n;
+    })
+    .catch(e=>{ msg.textContent='error: '+e.message; msg.style.color='var(--red)'; });
+}
+
+function load(){
+  const openId = (document.querySelector('.rule.open')||{}).id || '';
+  fetch('/config.json').then(r=>r.json()).then(d=>{
+    DATA = d;
+    $('gen').textContent = new Date().toLocaleTimeString();
+    const c = d.config||{};
+    const acc = (c.acceptThreshold==null ? 60 : c.acceptThreshold);
+    $('settingsGrid').innerHTML = `
+      <div class="fld"><div class="k">Model</div><div class="v">${esc(c.model||'—')}</div></div>
+      <div class="fld"><div class="k">Accept threshold</div>
+        <div class="v" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+          <input id="acceptThreshold" type="number" min="0" max="100" step="1" class="w-input" value="${esc(acc)}">
+          <span>%</span>
+          <button onclick="saveAccept()" style="background:var(--teal);color:#06231e;border:none;border-radius:8px;padding:5px 12px;font-weight:700;font-size:12px;cursor:pointer">Save</button>
+          <span id="acceptMsg" style="font-size:11px"></span>
+        </div>
+      </div>
+      <div class="fld"><div class="k">API key</div><div class="v">${esc(c.apiKeyMasked||'—')}</div></div>
+      <div class="fld"><div class="k">Base URL</div><div class="v">${esc(c.baseUrl||'—')}</div></div>`;
+    renderLLM(c.llmAssist);
+    const b = d.battery||{};
+    const gates = b.gates||{};
+    const scores = b.scores||{};
+    $('gates').innerHTML = Object.entries(gates).map(([k,g])=>gateCard(k,g)).join('');
+    $('scores').innerHTML = Object.entries(scores).map(([k,s])=>scoreCard(k,s)).join('');
+    if(openId){ const openEl=document.getElementById(openId); if(openEl) openEl.classList.add('open'); }
+    updateTotalLive();
+  }).catch(()=>{ $('settingsGrid').innerHTML='failed to load'; });
+}
+load();
+</script>
+</body>
+</html>

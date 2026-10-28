@@ -1,0 +1,635 @@
+{
+  "generated": "2026-10-13T11:02:58",
+  "articles": [
+    "ACCA Five Priorities Malaysian Businesses Need from Budget 2027",
+    "ACCCIM\u2019s PRESS STATEMENT ON THE NATIONAL BUDGET 2027/ACCCIM\u2019s PRESS STATEMENT ON THE NATIONAL BUDGET 2027",
+    "Among the Giants Aventra Group Unveils Pioneering ISO 42001 AI Framework to Smash Enterpri",
+    "Article proposal why Malaysian SMEs lose WhatsApp leads after the first reply",
+    "Asia\u2019s No. 1 business school uses AI to sharpen judgement in leaders/Asia\u2019s No. 1 business school uses AI to sharpen judgement in leaders",
+    "Budget 2027 Commentary- Commentary on Budget 2027 Measures to lower the cost of, and widen access to, MSME financing - Chai Kien Poon, Country Head, Funding Societies Malaysia/Budget 2027 Commentary- Commentary on Budget 2027 Measures to lower the cost of, and widen access to, MSME financing - Chai Kien Poon, Country Head, Funding Societies Malaysia",
+    "Budget 2027- Commentary from redBus/Budget 2027- Commentary from redBus",
+    "ConverXion KL 2026 Returns to Put AI in Action at the Centre of the Business Conversation",
+    "EY Media Release EY and SAINS forge strategic collaboration to advance digital and AI tran",
+    "FCM Travel launches Proactive Analytics to catch cost and compliance risks before they esc"
+  ],
+  "overall": [
+    {
+      "variant": "base",
+      "min": 8,
+      "max": 99,
+      "mean": 82,
+      "n": 140
+    },
+    {
+      "variant": "1",
+      "min": 8,
+      "max": 99,
+      "mean": 78,
+      "n": 140
+    },
+    {
+      "variant": "2",
+      "min": 5,
+      "max": 99,
+      "mean": 78,
+      "n": 140
+    },
+    {
+      "variant": "3",
+      "min": 8,
+      "max": 99,
+      "mean": 79,
+      "n": 140
+    }
+  ],
+  "filters": [
+    {
+      "name": "royal_respect",
+      "kind": "gate",
+      "variants": [
+        {
+          "min": 98,
+          "max": 99,
+          "mean": 98,
+          "n": 10,
+          "variant": "base",
+          "best": true,
+          "worst": false
+        },
+        {
+          "min": 98,
+          "max": 98,
+          "mean": 98,
+          "n": 10,
+          "variant": "1",
+          "best": true,
+          "worst": false
+        },
+        {
+          "min": 99,
+          "max": 99,
+          "mean": 99,
+          "n": 10,
+          "variant": "2",
+          "best": false,
+          "worst": true
+        },
+        {
+          "min": 99,
+          "max": 99,
+          "mean": 99,
+          "n": 10,
+          "variant": "3",
+          "best": false,
+          "worst": true
+        }
+      ]
+    },
+    {
+      "name": "religious_respect",
+      "kind": "gate",
+      "variants": [
+        {
+          "min": 95,
+          "max": 99,
+          "mean": 98,
+          "n": 10,
+          "variant": "base",
+          "best": true,
+          "worst": false
+        },
+        {
+          "min": 97,
+          "max": 99,
+          "mean": 98,
+          "n": 10,
+          "variant": "1",
+          "best": true,
+          "worst": false
+        },
+        {
+          "min": 98,
+          "max": 99,
+          "mean": 99,
+          "n": 10,
+          "variant": "2",
+          "best": false,
+          "worst": true
+        },
+        {
+          "min": 98,
+          "max": 99,
+          "mean": 99,
+          "n": 10,
+          "variant": "3",
+          "best": false,
+          "worst": true
+        }
+      ]
+    },
+    {
+      "name": "racial_respect",
+      "kind": "gate",
+      "variants": [
+        {
+          "min": 94,
+          "max": 99,
+          "mean": 98,
+          "n": 10,
+          "variant": "base",
+          "best": false,
+          "worst": false
+        },
+        {
+          "min": 94,
+          "max": 99,
+          "mean": 98,
+          "n": 10,
+          "variant": "1",
+          "best": false,
+          "worst": false
+        },
+        {
+          "min": 96,
+          "max": 98,
+          "mean": 98,
+          "n": 10,
+          "variant": "2",
+          "best": false,
+          "worst": false
+        },
+        {
+          "min": 94,
+          "max": 98,
+          "mean": 98,
+          "n": 10,
+          "variant": "3",
+          "best": false,
+          "worst": false
+        }
+      ]
+    },
+    {
+      "name": "sme_relevance",
+      "kind": "score",
+      "variants": [
+        {
+          "min": 40,
+          "max": 99,
+          "mean": 77,
+          "n": 10,
+          "variant": "base",
+          "best": false,
+          "worst": false
+        },
+        {
+          "min": 40,
+          "max": 99,
+          "mean": 77,
+          "n": 10,
+          "variant": "1",
+          "best": false,
+          "worst": false
+        },
+        {
+          "min": 39,
+          "max": 99,
+          "mean": 77,
+          "n": 10,
+          "variant": "2",
+          "best": false,
+          "worst": false
+        },
+        {
+          "min": 39,
+          "max": 99,
+          "mean": 77,
+          "n": 10,
+          "variant": "3",
+          "best": false,
+          "worst": false
+        }
+      ]
+    },
+    {
+      "name": "sme_voice_business_updates",
+      "kind": "score",
+      "variants": [
+        {
+          "min": 24,
+          "max": 96,
+          "mean": 69,
+          "n": 10,
+          "variant": "base",
+          "best": false,
+          "worst": false
+        },
+        {
+          "min": 56,
+          "max": 88,
+          "mean": 71,
+          "n": 10,
+          "variant": "1",
+          "best": false,
+          "worst": true
+        },
+        {
+          "min": 10,
+          "max": 86,
+          "mean": 38,
+          "n": 10,
+          "variant": "2",
+          "best": true,
+          "worst": false
+        },
+        {
+          "min": 11,
+          "max": 85,
+          "mean": 38,
+          "n": 10,
+          "variant": "3",
+          "best": true,
+          "worst": false
+        }
+      ]
+    },
+    {
+      "name": "commercial_intent",
+      "kind": "score",
+      "variants": [
+        {
+          "min": 54,
+          "max": 97,
+          "mean": 88,
+          "n": 10,
+          "variant": "base",
+          "best": false,
+          "worst": true
+        },
+        {
+          "min": 8,
+          "max": 66,
+          "mean": 29,
+          "n": 10,
+          "variant": "1",
+          "best": true,
+          "worst": false
+        },
+        {
+          "min": 9,
+          "max": 71,
+          "mean": 36,
+          "n": 10,
+          "variant": "2",
+          "best": false,
+          "worst": false
+        },
+        {
+          "min": 8,
+          "max": 66,
+          "mean": 30,
+          "n": 10,
+          "variant": "3",
+          "best": false,
+          "worst": false
+        }
+      ]
+    },
+    {
+      "name": "substance",
+      "kind": "score",
+      "variants": [
+        {
+          "min": 57,
+          "max": 91,
+          "mean": 77,
+          "n": 10,
+          "variant": "base",
+          "best": false,
+          "worst": false
+        },
+        {
+          "min": 86,
+          "max": 95,
+          "mean": 91,
+          "n": 10,
+          "variant": "1",
+          "best": false,
+          "worst": true
+        },
+        {
+          "min": 7,
+          "max": 96,
+          "mean": 74,
+          "n": 10,
+          "variant": "2",
+          "best": true,
+          "worst": false
+        },
+        {
+          "min": 83,
+          "max": 94,
+          "mean": 89,
+          "n": 10,
+          "variant": "3",
+          "best": false,
+          "worst": false
+        }
+      ]
+    },
+    {
+      "name": "source_attribution",
+      "kind": "score",
+      "variants": [
+        {
+          "min": 86,
+          "max": 97,
+          "mean": 95,
+          "n": 10,
+          "variant": "base",
+          "best": false,
+          "worst": true
+        },
+        {
+          "min": 54,
+          "max": 95,
+          "mean": 86,
+          "n": 10,
+          "variant": "1",
+          "best": true,
+          "worst": false
+        },
+        {
+          "min": 40,
+          "max": 98,
+          "mean": 90,
+          "n": 10,
+          "variant": "2",
+          "best": false,
+          "worst": false
+        },
+        {
+          "min": 42,
+          "max": 98,
+          "mean": 90,
+          "n": 10,
+          "variant": "3",
+          "best": false,
+          "worst": false
+        }
+      ]
+    },
+    {
+      "name": "claims_statistics",
+      "kind": "score",
+      "variants": [
+        {
+          "min": 21,
+          "max": 94,
+          "mean": 73,
+          "n": 10,
+          "variant": "base",
+          "best": false,
+          "worst": false
+        },
+        {
+          "min": 8,
+          "max": 64,
+          "mean": 22,
+          "n": 10,
+          "variant": "1",
+          "best": true,
+          "worst": false
+        },
+        {
+          "min": 11,
+          "max": 96,
+          "mean": 79,
+          "n": 10,
+          "variant": "2",
+          "best": false,
+          "worst": true
+        },
+        {
+          "min": 10,
+          "max": 96,
+          "mean": 79,
+          "n": 10,
+          "variant": "3",
+          "best": false,
+          "worst": true
+        }
+      ]
+    },
+    {
+      "name": "timeliness",
+      "kind": "score",
+      "variants": [
+        {
+          "min": 53,
+          "max": 81,
+          "mean": 68,
+          "n": 10,
+          "variant": "base",
+          "best": true,
+          "worst": false
+        },
+        {
+          "min": 52,
+          "max": 86,
+          "mean": 68,
+          "n": 10,
+          "variant": "1",
+          "best": true,
+          "worst": false
+        },
+        {
+          "min": 5,
+          "max": 97,
+          "mean": 74,
+          "n": 10,
+          "variant": "2",
+          "best": false,
+          "worst": true
+        },
+        {
+          "min": 52,
+          "max": 85,
+          "mean": 68,
+          "n": 10,
+          "variant": "3",
+          "best": true,
+          "worst": false
+        }
+      ]
+    },
+    {
+      "name": "geographic_relevance",
+      "kind": "score",
+      "variants": [
+        {
+          "min": 61,
+          "max": 97,
+          "mean": 91,
+          "n": 10,
+          "variant": "base",
+          "best": false,
+          "worst": false
+        },
+        {
+          "min": 76,
+          "max": 98,
+          "mean": 93,
+          "n": 10,
+          "variant": "1",
+          "best": false,
+          "worst": true
+        },
+        {
+          "min": 16,
+          "max": 98,
+          "mean": 81,
+          "n": 10,
+          "variant": "2",
+          "best": true,
+          "worst": false
+        },
+        {
+          "min": 17,
+          "max": 98,
+          "mean": 81,
+          "n": 10,
+          "variant": "3",
+          "best": true,
+          "worst": false
+        }
+      ]
+    },
+    {
+      "name": "safety_reputation",
+      "kind": "score",
+      "variants": [
+        {
+          "min": 41,
+          "max": 95,
+          "mean": 86,
+          "n": 10,
+          "variant": "base",
+          "best": false,
+          "worst": false
+        },
+        {
+          "min": 42,
+          "max": 95,
+          "mean": 86,
+          "n": 10,
+          "variant": "1",
+          "best": false,
+          "worst": false
+        },
+        {
+          "min": 41,
+          "max": 95,
+          "mean": 86,
+          "n": 10,
+          "variant": "2",
+          "best": false,
+          "worst": false
+        },
+        {
+          "min": 42,
+          "max": 95,
+          "mean": 86,
+          "n": 10,
+          "variant": "3",
+          "best": false,
+          "worst": false
+        }
+      ]
+    },
+    {
+      "name": "political_advocacy",
+      "kind": "score",
+      "variants": [
+        {
+          "min": 8,
+          "max": 97,
+          "mean": 59,
+          "n": 10,
+          "variant": "base",
+          "best": true,
+          "worst": false
+        },
+        {
+          "min": 90,
+          "max": 99,
+          "mean": 97,
+          "n": 10,
+          "variant": "1",
+          "best": false,
+          "worst": true
+        },
+        {
+          "min": 91,
+          "max": 99,
+          "mean": 97,
+          "n": 10,
+          "variant": "2",
+          "best": false,
+          "worst": true
+        },
+        {
+          "min": 91,
+          "max": 99,
+          "mean": 97,
+          "n": 10,
+          "variant": "3",
+          "best": false,
+          "worst": true
+        }
+      ]
+    },
+    {
+      "name": "overall_editorial_test",
+      "kind": "score",
+      "variants": [
+        {
+          "min": 25,
+          "max": 94,
+          "mean": 71,
+          "n": 10,
+          "variant": "base",
+          "best": false,
+          "worst": false
+        },
+        {
+          "min": 26,
+          "max": 94,
+          "mean": 71,
+          "n": 10,
+          "variant": "1",
+          "best": false,
+          "worst": false
+        },
+        {
+          "min": 25,
+          "max": 94,
+          "mean": 71,
+          "n": 10,
+          "variant": "2",
+          "best": false,
+          "worst": false
+        },
+        {
+          "min": 25,
+          "max": 94,
+          "mean": 71,
+          "n": 10,
+          "variant": "3",
+          "best": false,
+          "worst": false
+        }
+      ]
+    }
+  ]
+}

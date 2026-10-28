@@ -1,0 +1,42 @@
+{
+  "article": "Pos Malaysia Launches SME Jumpstart Workshop 2026 to Help Malaysian SMEs Grow Beyond Onlin",
+  "old": {
+    "outcome": "ACCEPT",
+    "weighted": 81,
+    "fired": []
+  },
+  "new": {
+    "outcome": "ACCEPT",
+    "weighted": 77,
+    "fired": []
+  },
+  "results": {
+    "royalty": 0.01,
+    "religion": 0.01,
+    "race": 0.01,
+    "no_wider_value": 0.06,
+    "is_it_commercial_intent": 0.8,
+    "not_geographically_relevant": 0.01,
+    "no_substance": 0.13,
+    "not_identifiable": 0.01,
+    "unattributed_claims": 0.9,
+    "not_current": 0.1,
+    "no_editorial_value": 0.13,
+    "contact": 0.02,
+    "category_fit": 0.05,
+    "not_sme_voice": 0.09,
+    "old_not_sme_relevant": 0.09,
+    "old_defamatory": 0.13,
+    "old_political": 0.01,
+    "nsr_consumer": 0.02,
+    "nsr_single_company": 0.62,
+    "nsr_event": 0.73,
+    "nsr_education": 0.22,
+    "nsr_foreign_delegation": 0.02,
+    "disc_content": 0.02,
+    "unsubst_claims": 0.02,
+    "partisan_campaign": 0.02,
+    "attacks_government": 0.05,
+    "is_negative_or_attacking": 0.01
+  }
+}

@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-store">
+<title>MSME Editor — Articles</title>
+<style>
+  :root{
+    --bg:#f8fafc; --card:#ffffff; --line:#e2e8f0; --txt:#1f2937; --mut:#64748b;
+    --primary:#0c599e; --soft:#eff6ff;
+    --ok:#166534; --okbg:#dcfce7; --warn:#92400e; --warnbg:#fef3c7;
+    --bad:#991b1b; --badbg:#fee2e2; --info:#1e40af; --infobg:#dbeafe; --old:#475569; --oldbg:#e2e8f0;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font:15px/1.55 "Inter",-apple-system,"Segoe UI",Roboto,sans-serif;padding:24px}
+  a{color:var(--primary);text-decoration:none} a:hover{text-decoration:underline}
+  .top{max-width:1240px;margin:0 auto 18px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+  h1{font-size:22px;letter-spacing:-.02em}
+  .sub{color:var(--mut);font-size:13px}
+  .search{margin-left:auto;min-width:260px;flex:1;max-width:420px}
+  .search input{width:100%;padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:var(--card);font:14px inherit;color:var(--txt)}
+  button:focus,a:focus,input:focus{outline:3px solid #93c5fd;outline-offset:2px}
+  .link{font-size:13px;font-weight:700;color:var(--mut)}
+  .wrap{max-width:1240px;margin:0 auto}
+  .kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:16px}
+  @media(max-width:850px){.kpis{grid-template-columns:repeat(2,1fr)}}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+  .kpi .n{font-size:26px;font-weight:800;letter-spacing:-.03em}
+  .kpi .l{font-size:12px;color:var(--mut);margin-top:2px}
+  .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 18px}
+  .tab{border:1px solid var(--line);background:var(--card);color:var(--mut);border-radius:9px;padding:8px 14px;font:13px inherit;font-weight:700;cursor:pointer}
+  .tab.on{background:var(--soft);border-color:var(--primary);color:var(--primary)}
+  .list{display:grid;gap:12px}
+  .pager{display:flex;align-items:center;justify-content:center;gap:12px;margin:20px 0 8px;color:var(--mut);font-size:12.5px}
+  .pager button{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:8px 14px;font:12px inherit;font-weight:700;color:var(--txt);cursor:pointer}
+  .pager button:disabled{opacity:.45;cursor:not-allowed}
+  .item{display:grid;grid-template-columns:132px minmax(0,1fr);gap:16px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;cursor:pointer}
+  .item:hover{border-color:#b8c5d6;box-shadow:0 2px 10px rgba(15,23,42,.06)}
+  .thumb{width:132px;height:96px;border-radius:9px;background:#eef4fb;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:11px;font-weight:700;text-align:center}
+  .thumb img{width:100%;height:100%;object-fit:cover}
+  .item h2{font-size:15px;line-height:1.35;margin:2px 0 5px}
+  .meta{color:var(--mut);font-size:12px;display:flex;gap:10px;flex-wrap:wrap;margin-bottom:7px}
+  .reason{font-size:13px;color:#475569;margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .row-end{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .pill{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:3px 9px;font-size:11px;font-weight:800;white-space:nowrap}
+  .pill.ok{background:var(--okbg);color:var(--ok)} .pill.warn{background:var(--warnbg);color:var(--warn)}
+  .pill.bad{background:var(--badbg);color:var(--bad)} .pill.info{background:var(--infobg);color:var(--info)}
+  .pill.old{background:var(--oldbg);color:var(--old)}
+  .muted{color:var(--mut);font-size:12px}
+  .empty{background:var(--card);border:1px dashed var(--line);border-radius:12px;padding:28px;text-align:center;color:var(--mut)}
+  .drawer{display:none;position:fixed;inset:0;background:rgba(15,23,42,.35);z-index:20;justify-content:flex-end}
+  .drawer.open{display:flex}
+  .panel{background:var(--card);width:min(760px,100%);height:100%;overflow:auto;padding:24px;border-left:1px solid var(--line)}
+  .panel .close{float:right;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:5px 11px;cursor:pointer;font:12px inherit;color:var(--mut)}
+  .panel h2{font-size:20px;line-height:1.35;margin:4px 46px 6px 0}
+  .panel .subline{color:var(--mut);font-size:12.5px;margin-bottom:16px}
+  .timeline{display:grid;gap:10px;margin:16px 0}
+  .step{display:grid;grid-template-columns:22px minmax(0,1fr);gap:10px;align-items:start}
+  .dot{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;background:var(--oldbg);color:var(--old)}
+  .dot.ok{background:var(--okbg);color:var(--ok)} .dot.warn{background:var(--warnbg);color:var(--warn)}
+  .dot.bad{background:var(--badbg);color:var(--bad)} .dot.info{background:var(--infobg);color:var(--info)}
+  .step .t{font-weight:800;font-size:13px} .step .r{font-size:12px;color:var(--mut);margin-top:1px}
+  .section{margin-top:18px;border-top:1px solid var(--line);padding-top:14px}
+  .section h3{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--mut);margin-bottom:8px}
+  .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .kv{display:flex;justify-content:space-between;gap:10px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:12px}
+  .kv .k{color:var(--mut)} .kv .v{font-weight:700;text-align:right}
+  .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+  .btn{border:none;border-radius:8px;padding:10px 14px;min-height:40px;font:12px inherit;font-weight:800;cursor:pointer}
+  .btn.primary{background:var(--primary);color:#fff}
+  .btn.ghost{background:var(--card);border:1px solid var(--line);color:var(--txt)}
+  .btn:disabled{opacity:.55;cursor:not-allowed}
+  .versions{margin-top:10px;display:grid;gap:6px}
+  .ver{display:flex;justify-content:space-between;gap:10px;border:1px solid var(--line);border-radius:8px;padding:7px 10px;font-size:12px}
+  .ver.old{background:var(--oldbg);color:var(--old)}
+  .warnbox{background:var(--warnbg);border:1px solid #fde68a;color:var(--warn);border-radius:9px;padding:10px 12px;font-size:13px;margin-top:12px}
+  .notebox{background:var(--infobg);border:1px solid #bfdbfe;color:var(--info);border-radius:9px;padding:10px 12px;font-size:13px;margin-top:12px}
+  @media(max-width:600px){.item{grid-template-columns:1fr}.thumb{width:100%;height:140px}.panel{padding:18px}}
+</style>
+</head>
+<body>
+<div class="top">
+  <div><h1>MSME Editor</h1><div class="sub">Every received email · editorial check · local draft</div></div>
+  <div class="search"><input id="q" placeholder="Search title, subject or date…"></div>
+  <a class="link" href="checklist.html">Operations</a>
+  <a class="link" href="config.html">Config</a>
+</div>
+<div class="wrap">
+  <div class="kpis">
+    <div class="kpi"><div class="n" id="kAll">0</div><div class="l">Received emails</div></div>
+    <div class="kpi"><div class="n" id="kAttention">0</div><div class="l">Needs attention</div></div>
+    <div class="kpi"><div class="n" id="kDraft">0</div><div class="l">Drafting</div></div>
+    <div class="kpi"><div class="n" id="kReady">0</div><div class="l">Published Locally</div></div>
+    <div class="kpi"><div class="n" id="kPublished">0</div><div class="l">WordPress Publish</div></div>
+  </div>
+  <div class="tabs" id="tabs">
+    <button class="tab on" data-tab="all">All</button>
+    <button class="tab" data-tab="attention">Needs attention</button>
+    <button class="tab" data-tab="draft">Drafting</button>
+    <button class="tab" data-tab="ready">Published Locally</button>
+    <button class="tab" data-tab="published">WordPress Publish</button>
+  </div>
+  <div id="list" class="list"><div class="empty">Loading…</div></div>
+  <div class="pager" id="pager" style="display:none">
+    <button id="prev">Previous</button>
+    <span id="pageInfo"></span>
+    <button id="next">Next</button>
+  </div>
+</div>
+
+<div class="drawer" id="drawer" onclick="if(event.target===this)closeDrawer()">
+  <div class="panel">
+    <button class="close" onclick="closeDrawer()">Close</button>
+    <div id="detail"></div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const state = {items:[], tab:'all', q:'', page:1, pages:1, total:0, counts:{}, detail:null};
+
+const STAGE = {
+  processing:['Processing','info','…'],
+  receive:['Receive issue','bad','!'],
+  readiness:['Not ready to filter','warn','!'],
+  filter:['Editorial check','warn','!'],
+  repurpose:['Draft','warn','…'],
+  ready:['Published Locally','ok','✓'],
+  published:['WordPress Publish','ok','✓'],
+  received:['Received','info','•']
+};
+function pill(stage, outcome, repurpose){
+  let [label, cls, icon] = STAGE[stage] || [stage||'Unknown','info','•'];
+  if(stage==='filter'){
+    const o=String(outcome||'').toUpperCase();
+    if(o==='EDITOR REVIEW'){ label='Needs editor review'; cls='warn'; icon='!'; }
+    else if(o==='REJECT'){ label='Not accepted'; cls='bad'; icon='×'; }
+    else if(o==='ERROR'){ label='Check failed'; cls='bad'; icon='!'; }
+  }
+  if(stage==='repurpose' && ['hold','validate-failed','error'].includes(String(repurpose||'').toLowerCase())){ label='Draft needs attention'; cls='bad'; icon='!'; }
+  return `<span class="pill ${cls}">${icon} ${esc(label)}</span>`;
+}
+function receiveInfo(i){
+  const rs=String(i.runStatus||'').toLowerCase();
+  if(rs==='error'||rs==='ai_error') return ['Receive error','bad','!'];
+  if(rs==='needs_human') return ['Receive issue','bad','!'];
+  if(rs==='running') return ['Receiving','info','…'];
+  if(i.readyToFilter==='true') return ['Received','ok','✓'];
+  if(i.readyToFilter==='false') return ['Not ready to filter','warn','!'];
+  return ['Received','info','•'];
+}
+function filterInfo(i){
+  const o=String(i.filterOutcome||'').toUpperCase();
+  if(String(i.filterStatus||'').toLowerCase()==='error'||o==='ERROR') return ['Filter error','bad','!'];
+  if(o==='ACCEPT') return ['Accepted','ok','✓'];
+  if(o==='REJECT') return ['Not accepted','bad','×'];
+  if(o==='EDITOR REVIEW') return ['Needs editor review','warn','!'];
+  return ['Not filtered','info','–'];
+}
+function draftInfo(i){
+  const rs=String(i.repurposeStatus||'').toLowerCase();
+  if(rs==='rendered') return ['WordPress Publish','ok','✓'];
+  if(rs==='validated') return ['Published Locally','ok','✓'];
+  if(['hold','validate-failed','error'].includes(rs)) return ['Draft needs attention','bad','!'];
+  if(['queued','pending','drafting','drafted'].includes(rs)) return ['Drafting','warn','…'];
+  return ['Not started','info','–'];
+}
+function chips(i){
+  const r=receiveInfo(i), f=filterInfo(i), d=draftInfo(i);
+  return `<span class="pill ${r[1]}">${r[2]} Receive: ${esc(r[0])}</span>
+          <span class="pill ${f[1]}">${f[2]} Filter: ${esc(f[0])}</span>
+          <span class="pill ${d[1]}">${d[2]} Draft: ${esc(d[0])}</span>`;
+}
+function needs(i){ return ['bad','warn'].includes(receiveInfo(i)[1]) || ['bad','warn'].includes(filterInfo(i)[1]) || draftInfo(i)[0]==='Draft needs attention'; }
+function inDraft(i){ return i.stage==='repurpose' && !['hold','validate-failed','error'].includes(String(i.repurposeStatus||'').toLowerCase()); }
+function isReady(i){ return i.stage==='ready'; }
+function isPublished(i){ return i.stage==='published'; }
+
+function count(){
+  const c=state.counts||{};
+  $('kAll').textContent=c.all ?? state.total;
+  $('kAttention').textContent=c.attention ?? 0;
+  $('kDraft').textContent=c.draft ?? 0;
+  $('kReady').textContent=c.ready ?? 0;
+  $('kPublished').textContent=c.published ?? 0;
+}
+function render(){
+  count();
+  const items=state.items;
+  $('list').innerHTML=items.length?items.map(i=>`
+    <div class="item" onclick="openDetail('${esc(i.threadId)}')">
+      <div class="thumb">${i.imageUrl?`<img src="${esc(i.imageUrl)}" alt="">`:i.hasPic==='true'?'Draft image pending':'No image asset'}</div>
+      <div>
+        <div class="row-end">${chips(i)}<span class="muted">${esc(i.date||'')}</span></div>
+        <h2>${esc(i.subject||'(no subject)')}</h2>
+        <div class="meta"><span>${i.versions>1?`${i.versions} versions`:'1 version'}</span><span>Updated ${esc((i.editedAt||'').slice(0,10)||'—')}</span>${i.filterWeighted!=null?`<span>Score ${esc(i.filterWeighted)}%</span>`:''}${i.repurposeStatus?`<span>Draft: ${esc(i.repurposeStatus)}</span>`:''}</div>
+        <div class="reason">${esc(i.reason||'')}</div>
+        <div class="row-end"><span class="muted">Click to review the stage details</span></div>
+      </div>
+    </div>`).join(''):'<div class="empty">No emails in this view.</div>';
+  $('pager').style.display=state.total>20?'flex':'none';
+  $('pageInfo').textContent=`Page ${state.page} of ${state.pages} · ${state.total} email${state.total===1?'':'s'} · newest edit first`;
+  $('prev').disabled=state.page<=1;
+  $('next').disabled=state.page>=state.pages;
+}
+async function load(page=state.page){
+  try{
+    const qs=new URLSearchParams({page:String(page),page_size:'20',tab:state.tab,q:state.q});
+    const r=await fetch('/api/editor/articles?'+qs.toString()+'&_='+Date.now());
+    const d=await r.json();
+    state.items=d.items||[];
+    state.page=d.page||1; state.pages=d.pages||1; state.total=d.total??state.items.length;
+    state.counts=d.counts||{};
+    render();
+  }catch(e){ $('list').innerHTML='<div class="empty">Load failed: '+esc(e.message)+'</div>'; }
+}
+async function openDetail(threadId){
+  const i=state.items.find(x=>x.threadId===threadId);
+  if(!i) return;
+  $('drawer').classList.add('open');
+  $('detail').innerHTML='<div class="empty">Loading details…</div>';
+  let d=i;
+  try{
+    const r=await fetch('/api/editor/article?thread_id='+encodeURIComponent(threadId));
+    const j=await r.json();
+    if(j && !j.error) d=j;
+  }catch(e){}
+  state.detail=d;
+  renderDetail(d);
+}
+function step(st, label, reason, status, icon){
+  return `<div class="step"><div class="dot ${status||'info'}">${icon||'•'}</div><div><div class="t">${esc(label)}</div><div class="r">${esc(reason||'')}</div></div></div>`;
+}
+function renderDetail(i){
+  const o=String(i.filterOutcome||'').toUpperCase();
+  const rs=String(i.repurposeStatus||'').toLowerCase();
+  const recvFail=i.stage==='receive';
+  const readyFail=i.stage==='readiness';
+  const filterFail=i.stage==='filter';
+  const draftFail=['hold','validate-failed','error'].includes(rs);
+  const draftProgress=['queued','pending','drafting','drafted','drafting'].includes(rs);
+  const draftOk=['validated','rendered'].includes(rs);
+  const filterOk=o==='ACCEPT';
+  const timeline=[
+    step('receive','Received', recvFail ? i.reason : 'Email was received and normalized.', recvFail?'bad':'ok', recvFail?'!':'✓'),
+    step('readiness','Ready check', readyFail ? i.reason : (i.readyToFilter==='true'?'Article and media are ready.':'Not reached.'), readyFail?'bad':(i.readyToFilter==='true'?'ok':'info'), readyFail?'!':(i.readyToFilter==='true'?'✓':'•')),
+    step('filter','Editorial check', filterFail ? i.reason : (filterOk?'Passed the editorial check.':(o?'Needs editor review.':'Not reached.')), filterFail?'bad':(filterOk?'ok':'info'), filterFail?'!':(filterOk?'✓':'•')),
+    step('draft','Draft', draftFail ? i.reason : (draftOk?'Draft validated.':(draftProgress?'Draft in progress.':'Not reached.')), draftFail?'bad':(draftOk?'ok':(draftProgress?'warn':'info')), draftFail?'!':(draftOk?'✓':(draftProgress?'…':'•'))),
+    step('publish','Publish', i.stage==='published'?'WordPress Publish is not configured yet.':(i.stage==='ready'&&i.pageUrl?'Local page built. WordPress publish is not configured yet.':'Not published.'), i.stage==='published'?'ok':(i.stage==='ready'&&i.pageUrl?'ok':'info'), i.stage==='published'?'✓':(i.stage==='ready'&&i.pageUrl?'✓':'•'))
+  ].join('');
+  const flags=[
+    ['Article',i.hasArticle],['Picture',i.hasPic],['Logo',i.hasLogo],
+    ['Logo in article',i.hasLogoInArticle],['Image in article',i.hasImageInArticle],
+    ['Subject match',i.subjectMatch],['Subject score',i.subjectScore?i.subjectScore+'%':'—'],
+    ['Filter',i.filterWeighted!=null?i.filterWeighted+'%':'—']
+  ].map(([k,v])=>`<div class="kv"><span class="k">${esc(k)}</span><span class="v">${esc(v==='true'?'yes':v==='false'?'no':v||'—')}</span></div>`).join('');
+  const versions=(i.history||[]).map((v,idx)=>`<div class="ver ${idx?'old':''}"><span>${idx?'Previous version':'Current version'} · ${esc(v.date||'')}</span><span>${esc(v.filterOutcome||'—')} ${v.filterWeighted!=null?esc(v.filterWeighted)+'%':''} ${v.readyToFilter==='true'?'· ready':''}</span></div>`).join('');
+  const filterLink=i.id?`<a class="btn ghost" href="/filter-history.html?checklist_id=${esc(i.id)}" target="_blank" rel="noopener">Filter history</a>`:'';
+  const draftLink=i.pageUrl?`<a class="btn primary" href="${esc(i.pageUrl)}" target="_blank" rel="noopener">Open local draft</a>`:'';
+  const engine=`<a class="btn ghost" href="http://localhost:8765/" target="_blank" rel="noopener">Engine dashboard</a>`;
+  $('detail').innerHTML=`
+    <h2>${esc(i.subject||'(no subject)')}</h2>
+    <div class="subline">${chips(i)} · ${esc(i.date||'')} · ${i.versions||1} version(s)</div>
+    <div class="timeline">${timeline}</div>
+    ${i.stage==='receive'||i.stage==='readiness'||i.stage==='filter'?`<div class="warnbox"><b>Why it stopped:</b> ${esc(i.reason||'')}</div>`:''}
+    ${i.stage==='repurpose'&&i.repurposeFails?.length?`<div class="warnbox"><b>Draft rules failed:</b> ${i.repurposeFails.map(f=>esc(f.code)+': '+esc(f.detail||'')).join(' · ')}</div>`:''}
+    <div class="section"><h3>Receive result</h3>
+      <div class="grid">
+        <div class="kv"><span class="k">Status</span><span class="v">${esc(receiveInfo(i)[0])}</span></div>
+        <div class="kv"><span class="k">Ready to filter</span><span class="v">${esc(i.readyToFilter==='true'?'yes':'no')}</span></div>
+        <div class="kv"><span class="k">Article</span><span class="v">${esc(i.hasArticle==='true'?'yes':'no')}</span></div>
+        <div class="kv"><span class="k">Picture / logo</span><span class="v">${esc(i.hasPic==='true'?'picture':'no picture')} · ${esc(i.hasLogo==='true'?'logo':'no logo')}</span></div>
+      </div>
+      ${i.stage==='receive'||i.stage==='readiness'?`<div class="warnbox"><b>Why:</b> ${esc(i.reason||'')}</div>`:''}
+    </div>
+    <div class="section"><h3>Filter result</h3>
+      <div class="grid">
+        <div class="kv"><span class="k">Status</span><span class="v">${esc(filterInfo(i)[0])}</span></div>
+        <div class="kv"><span class="k">Weighted score</span><span class="v">${i.filterWeighted!=null?esc(i.filterWeighted)+'%':'—'}</span></div>
+        <div class="kv"><span class="k">Gate</span><span class="v">${esc(i.filterGate||'—')}</span></div>
+        <div class="kv"><span class="k">Filter error</span><span class="v">${esc(i.filterError||'—')}</span></div>
+      </div>
+      ${i.stage==='filter'?`<div class="warnbox"><b>Why:</b> ${esc(i.reason||'')}</div>`:''}
+    </div>
+    <div class="section"><h3>Draft result</h3>
+      <div class="grid">
+        <div class="kv"><span class="k">Status</span><span class="v">${esc(draftInfo(i)[0])}</span></div>
+        <div class="kv"><span class="k">Engine</span><span class="v">${esc(i.repurposeStatus||'—')}</span></div>
+      </div>
+      ${i.stage==='repurpose'?`<div class="warnbox"><b>Why:</b> ${esc(i.reason||'')}</div>`:''}
+    </div>
+    <div class="section"><h3>Article flags</h3><div class="grid">${flags}</div></div>
+    <div class="section"><h3>Versions for this email</h3><div class="versions">${versions||'<div class="muted">No history.</div>'}</div></div>
+    <div class="actions">
+      ${draftLink}
+      ${filterLink}
+      ${engine}
+      <button class="btn ghost" disabled title="WordPress publish/send is not configured yet">WordPress Publish / Send</button>
+    </div>
+    <div class="notebox">Published Locally is the current output. WordPress Publish / Send is intentionally disabled until the upload connector is added.</div>`;
+}
+function closeDrawer(){ $('drawer').classList.remove('open'); }
+let qTimer=null;
+$('q').addEventListener('input',e=>{ state.q=e.target.value; clearTimeout(qTimer); qTimer=setTimeout(()=>{ state.page=1; load(1); },250); });
+document.querySelectorAll('#tabs .tab').forEach(b=>b.addEventListener('click',()=>{
+  state.tab=b.dataset.tab; state.page=1;
+  document.querySelectorAll('#tabs .tab').forEach(x=>x.classList.toggle('on',x===b));
+  load(1);
+}));
+$('prev').addEventListener('click',()=>{ if(state.page>1) load(state.page-1); });
+$('next').addEventListener('click',()=>{ if(state.page<state.pages) load(state.page+1); });
+load(1);
+</script>
+</body>
+</html>

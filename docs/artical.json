@@ -1,0 +1,91 @@
+{
+  "state": {
+    "subject": "Pos Malaysia launches SME Jumpstart Workshop 2026",
+    "from": "Corporate Communications",
+    "date": "24 September 2026",
+    "bodyText": "Tealive revs up F1 season with ‘high-octane’ Orange Coffee\nTop Malaysian brand gears up for the coffee race with beans from 3 nations\n\nSEPANG, 29th September 2026: Tealive is gearing up to capture a larger share of Malaysia's coffee market with a limited-time Orange Coffee series launched in conjunction with the Formula 1 Gulf Air Bahrain Grand Prix this weekend at the Petronas Sepang International Circuit (SIC) here.\nThis top Malaysian brand is adding a citrus twist to its “high-octane” coffee powered by beans from Ethiopia, Indonesia, and China, to create its new Orange Americano and Orange Latte, available at Tealive outlets nationwide.\nBlending 60% Yunnan beans for chocolate depth, 20% high-altitude Ethiopian arabica for bright fruit notes, and 20% Sumatra-grown Mandheling for a smooth finish, this formulation delivers a complex cup. The balanced blend shifts seamlessly from fruity to nutty notes, offering a depth typically found across multiple single-origins.\nThe drinks will be rolled out from 1st October, in line with International Coffee Day, and will be available until 29th October. To mark this launch, Tealive will be having a special pop-up store offering these Orange Coffee drinks to all F1 fans at the SIC Mall from 2nd to 4th October. \nTealive, which is Southeast Asia’s top lifestyle tea brand, currently operates over 1,000 outlets worldwide and serves more than five million consumers per month in Malaysia alone.\nLoob Holding Sdn Bhd Founder and Chief Executive Officer Bryan Loo said with this Orange Coffee series, Tealive customers would experience a caffeine shot that hits differently. This would hopefully endear the brand to more coffee lovers.\nCoffee has always been part of Malaysians' daily routines, and we want to give them more choices when they come to Tealive,\" he said. \"This series allows us to offer our customers another reason to choose Tealive when they want coffee, not just tea.\"\nThe Orange Americano combines the coffee with sweet orange juice for a refreshing profile with natural acidity and fruity notes. The Orange Latte balances espresso and orange juice with milk for a creamier alternative.\nFor us, innovation is about constantly finding new ways to stay relevant to our consumers,\" Loo adds. \"From FMCG and ready-to-drink products to sparkling drinks and refreshing our menu, we continue to explore what comes next. Orange Coffee is the latest expression in this journey.\"\nDuring the F1 weekend, customers who purchase any two Orange Coffee drinks at the Tealive pop-up store will receive limited-edition Tealive merchandise, while stocks last."
+  },
+  "model": "jev-latest",
+  "questions": {
+    "not_sme_relevant": {
+      "type": "noul",
+      "instructions": "Is this submission not relevant to SMEs or the wider business ecosystem — for example, does it lack an SME, policy, financing, trade, technology, workforce or market-access angle?",
+      "criteria": {
+        "true": "Off-topic for an SME/business audience: consumer, lifestyle, entertainment, celebrity or sports content aimed at the general public; self-promotional company news with no sector or ecosystem bearing (internal awards, office moves, personal milestones, venue/product plugs); personal-finance, academic/medical research, or product reviews unrelated to running an SME.",
+        "false": "Relevant: affects how SMEs operate, earn, compete or comply — financing/capital access, government policy & regulation, tax, trade & exports, market access, digitalisation/technology, talent & workforce, supply chain/logistics, cost of doing business; industry or sector development with an SME angle. Factual government policy counts (partisan politics is a separate gate)."
+      }
+    },
+    "not_sme_relevant_1": {
+      "type": "noul",
+      "instructions": "Is this submission not relevant to SMEs or the wider business ecosystem — for example, does it lack an SME, policy, financing, trade, technology, workforce or market-access angle?",
+      "criteria": {
+        "true": "Off-topic for an SME/business audience: consumer, lifestyle, entertainment, celebrity or sports content aimed at the general public; self-promotional company news with no sector or ecosystem bearing (internal awards, office moves, personal milestones, venue/product plugs); personal-finance, academic/medical research, or product reviews unrelated to running an SME.",
+        "false": "opposite of the criteria of true"
+      }
+    },
+    "not_sme_relevant_2": {
+      "type": "noul",
+      "instructions": "Is  'bodyText' not relevant to SME's sub topic in policy, financing, trade, technology, workforce or market-access?",
+      "criteria": {
+        "true": "Off-topic for an SME/business audience: consumer, lifestyle, entertainment, celebrity or sports content aimed at the general public; self-promotional company news with no sector or ecosystem bearing (internal awards, office moves, personal milestones, venue/product plugs); personal-finance, academic/medical research, or product reviews unrelated to running an SME.",
+        "false": "opposite of the criteria of true"
+      }
+    },
+    "not_sme_relevant_3": {
+      "type": "noul",
+      "instructions": "Is 'bodyText' not relevant to SME?",
+      "criteria": {
+        "true": "",
+        "false": ""
+      }
+    },
+    "not_sme_relevant_4": {
+      "type": "noul",
+      "instructions": "Is 'bodyText' not relevant to SME's sub topic in policy, financing, trade, technology, workforce or market-access?",
+      "criteria": {
+        "true": "",
+        "false": "opposite of the criteria of true"
+      }
+    },
+    "not_sme_relevant_5": {
+      "type": "noul",
+      "instructions": "Is  'bodyText' not relevant to SME's sub topic in policy, financing, trade, technology, workforce or market-access?",
+      "criteria": {
+        "true": "deem related to consumer, lifestyle, entertainment, celebrity or sports content aimed at the general public.",
+        "false": ""
+      }
+    },
+    "not_sme_relevant_6": {
+      "type": "noul",
+      "instructions": "Is 'bodyText' not relevant to SME's sub topic in policy, financing, trade, technology, workforce or market-access?",
+      "criteria": {
+        "true": "",
+        "false": ""
+      }
+    },
+    "not_geographically_relevant": {
+      "type": "noul",
+      "instructions": "Is this an overseas or international development that has no meaningful relevance to Malaysian SMEs, ASEAN business, trade or accessible markets?",
+      "criteria": {
+        "true": "Overseas corporate announcements, or foreign/general news, with no Malaysian, ASEAN or regional SME angle and no accessible-market or trade relevance",
+        "false": "Malaysia-first content; or an international development with meaningful relevance to Malaysian SMEs, ASEAN business, trade or accessible markets — including a clearly transferable business impact on Malaysian/ASEAN SMEs. (Geographic scope only; topical SME relevance is the separate not_sme_relevant gate.)"
+      }
+    },
+    "not_geographically_relevant_1": {
+      "type": "noul",
+      "instructions": "Is 'bodyText' an overseas or international development that has no meaningful relevance to Malaysian SMEs, ASEAN business, trade or accessible markets?",
+      "criteria": {
+        "true": "Overseas corporate announcements, or foreign/general news, with no Malaysian, ASEAN or regional SME angle and no accessible-market or trade relevance",
+        "false": "opposite of the criteria of true"
+      }},
+      "not_geographically_relevant_2": {
+        "type": "noul",
+        "instructions": "Can the events described in 'bodyText' be considered non-Malaysian or outside the scope of the ASEAN region?",
+        "criteria": {
+          "true": "",
+          "false": ""
+        }
+      }
+    }
+  }
+

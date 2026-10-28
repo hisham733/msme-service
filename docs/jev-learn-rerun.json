@@ -1,0 +1,266 @@
+{
+  "royalty": {
+    "best": "royalty",
+    "auc": 0.51,
+    "base_auc": 0.51,
+    "cands": {
+      "royalty": 0.51
+    }
+  },
+  "religion": {
+    "best": "religion",
+    "auc": 0.536,
+    "base_auc": 0.536,
+    "cands": {
+      "religion": 0.536
+    }
+  },
+  "race": {
+    "best": "race",
+    "auc": 0.544,
+    "base_auc": 0.544,
+    "cands": {
+      "race": 0.544
+    }
+  },
+  "nsr_consumer": {
+    "best": "nsr_consumer_3",
+    "auc": 0.773,
+    "base_auc": 0.69,
+    "cands": {
+      "nsr_consumer": 0.69,
+      "nsr_consumer_1": 0.724,
+      "nsr_consumer_2": 0.75,
+      "nsr_consumer_3": 0.773,
+      "nsr_consumer_4": 0.713
+    }
+  },
+  "nsr_single_company": {
+    "best": "nsr_single_company_2",
+    "auc": 0.743,
+    "base_auc": 0.65,
+    "cands": {
+      "nsr_single_company": 0.65,
+      "nsr_single_company_1": 0.68,
+      "nsr_single_company_2": 0.743,
+      "nsr_single_company_3": 0.713,
+      "nsr_single_company_4": 0.703
+    }
+  },
+  "nsr_event": {
+    "best": "nsr_event_3",
+    "auc": 0.667,
+    "base_auc": 0.494,
+    "cands": {
+      "nsr_event": 0.494,
+      "nsr_event_1": 0.591,
+      "nsr_event_2": 0.582,
+      "nsr_event_3": 0.667,
+      "nsr_event_4": 0.625
+    }
+  },
+  "nsr_education": {
+    "best": "nsr_education",
+    "auc": 0.57,
+    "base_auc": 0.57,
+    "cands": {
+      "nsr_education": 0.57,
+      "nsr_education_1": 0.484,
+      "nsr_education_2": 0.491,
+      "nsr_education_3": 0.529,
+      "nsr_education_4": 0.539
+    }
+  },
+  "nsr_foreign_delegation": {
+    "best": "nsr_foreign_delegation_2",
+    "auc": 0.695,
+    "base_auc": 0.618,
+    "cands": {
+      "nsr_foreign_delegation": 0.618,
+      "nsr_foreign_delegation_1": 0.489,
+      "nsr_foreign_delegation_2": 0.695,
+      "nsr_foreign_delegation_3": 0.613,
+      "nsr_foreign_delegation_4": 0.583
+    }
+  },
+  "no_wider_value": {
+    "best": "no_wider_value_4",
+    "auc": 0.892,
+    "base_auc": 0.876,
+    "cands": {
+      "no_wider_value": 0.876,
+      "no_wider_value_1": 0.824,
+      "no_wider_value_2": 0.865,
+      "no_wider_value_3": 0.885,
+      "no_wider_value_4": 0.892
+    }
+  },
+  "is_it_commercial_intent": {
+    "best": "is_it_commercial_intent_3",
+    "auc": 0.832,
+    "base_auc": 0.809,
+    "cands": {
+      "is_it_commercial_intent": 0.809,
+      "is_it_commercial_intent_1": 0.727,
+      "is_it_commercial_intent_2": 0.741,
+      "is_it_commercial_intent_3": 0.832,
+      "is_it_commercial_intent_4": 0.771
+    }
+  },
+  "not_geographically_relevant": {
+    "best": "not_geographically_relevant_3",
+    "auc": 0.806,
+    "base_auc": 0.805,
+    "cands": {
+      "not_geographically_relevant": 0.805,
+      "not_geographically_relevant_1": 0.8,
+      "not_geographically_relevant_2": 0.683,
+      "not_geographically_relevant_3": 0.806,
+      "not_geographically_relevant_4": 0.586
+    }
+  },
+  "disc_content": {
+    "best": "disc_content",
+    "auc": 0.611,
+    "base_auc": 0.611,
+    "cands": {
+      "disc_content": 0.611,
+      "disc_content_1": 0.494,
+      "disc_content_2": 0.521,
+      "disc_content_3": 0.469,
+      "disc_content_4": 0.547
+    }
+  },
+  "unsubst_claims": {
+    "best": "unsubst_claims_3",
+    "auc": 0.63,
+    "base_auc": 0.62,
+    "cands": {
+      "unsubst_claims": 0.62,
+      "unsubst_claims_1": 0.588,
+      "unsubst_claims_2": 0.607,
+      "unsubst_claims_3": 0.63,
+      "unsubst_claims_4": 0.608
+    }
+  },
+  "partisan_campaign": {
+    "best": "partisan_campaign",
+    "auc": 0.63,
+    "base_auc": 0.63,
+    "cands": {
+      "partisan_campaign": 0.63,
+      "partisan_campaign_1": 0.5,
+      "partisan_campaign_2": 0.427,
+      "partisan_campaign_3": 0.501,
+      "partisan_campaign_4": 0.568
+    }
+  },
+  "attacks_government": {
+    "best": "attacks_government",
+    "auc": 0.617,
+    "base_auc": 0.617,
+    "cands": {
+      "attacks_government": 0.617,
+      "attacks_government_1": 0.5,
+      "attacks_government_2": 0.532,
+      "attacks_government_3": 0.499,
+      "attacks_government_4": 0.555
+    }
+  },
+  "no_substance": {
+    "best": "no_substance_1",
+    "auc": 0.982,
+    "base_auc": 0.892,
+    "cands": {
+      "no_substance": 0.892,
+      "no_substance_1": 0.982,
+      "no_substance_2": 0.913,
+      "no_substance_3": 0.935,
+      "no_substance_4": 0.951
+    }
+  },
+  "not_identifiable": {
+    "best": "not_identifiable_2",
+    "auc": 0.648,
+    "base_auc": 0.565,
+    "cands": {
+      "not_identifiable": 0.565,
+      "not_identifiable_1": 0.54,
+      "not_identifiable_2": 0.648,
+      "not_identifiable_3": 0.273,
+      "not_identifiable_4": 0.349
+    }
+  },
+  "unattributed_claims": {
+    "best": "unattributed_claims_2",
+    "auc": 0.587,
+    "base_auc": 0.577,
+    "cands": {
+      "unattributed_claims": 0.577,
+      "unattributed_claims_1": 0.556,
+      "unattributed_claims_2": 0.587,
+      "unattributed_claims_3": 0.475,
+      "unattributed_claims_4": 0.564
+    }
+  },
+  "not_current": {
+    "best": "not_current_4",
+    "auc": 0.904,
+    "base_auc": 0.809,
+    "cands": {
+      "not_current": 0.809,
+      "not_current_1": 0.839,
+      "not_current_2": 0.797,
+      "not_current_3": 0.848,
+      "not_current_4": 0.904
+    }
+  },
+  "no_editorial_value": {
+    "best": "no_editorial_value_4",
+    "auc": 0.878,
+    "base_auc": 0.851,
+    "cands": {
+      "no_editorial_value": 0.851,
+      "no_editorial_value_1": 0.855,
+      "no_editorial_value_2": 0.869,
+      "no_editorial_value_3": 0.805,
+      "no_editorial_value_4": 0.878
+    }
+  },
+  "contact": {
+    "best": "contact_4",
+    "auc": 0.013,
+    "base_auc": 0.011,
+    "cands": {
+      "contact": 0.011,
+      "contact_1": 0.012,
+      "contact_2": 0.007,
+      "contact_3": 0.006,
+      "contact_4": 0.013
+    }
+  },
+  "category_fit": {
+    "best": "category_fit_4",
+    "auc": 0.897,
+    "base_auc": 0.751,
+    "cands": {
+      "category_fit": 0.751,
+      "category_fit_1": 0.629,
+      "category_fit_2": 0.657,
+      "category_fit_3": 0.555,
+      "category_fit_4": 0.897
+    }
+  },
+  "not_sme_voice": {
+    "best": "not_sme_voice_4",
+    "auc": 0.885,
+    "base_auc": 0.881,
+    "cands": {
+      "not_sme_voice": 0.881,
+      "not_sme_voice_1": 0.884,
+      "not_sme_voice_2": 0.835,
+      "not_sme_voice_3": 0.822,
+      "not_sme_voice_4": 0.885
+    }
+  }
+}

@@ -1,0 +1,58 @@
+services:
+  msme-service:
+    build: .
+    container_name: msme-service
+    restart: always
+    ports:
+      - "8899:8899"   # one combined receive + filter app
+    environment:
+      - API_HOST=0.0.0.0
+      - API_PORT=8898
+      - DASH_PORT=8899
+      - FILTER_PORT=8900
+      # Polling is a fallback for missed Pub/Sub pushes; both feed one queue.
+      - ENABLE_AUTO=true
+      - ENABLE_AUTO_FILTER=true
+      - ENABLE_AUTO_REPURPOSE=true
+      - SCHEDULE_MINUTES=5
+      - DEEPSEEK_MODEL=deepseek-v4-flash
+      # Jev key comes from the gitignored .env (never hardcode it).
+      - TYPESAFE_API_KEY=${TYPESAFE_API_KEY:-}
+      - CHECKLIST_SHEET_ID=1T_XURPN4uuC8d7YqWbRFS-0QHLXW7-Y1UQ82rJPrQCo
+      - ARCHIVE_PARENT_FOLDER=1XbFjzVLOe8CVhd8YPRVKmKi2e2-JI2Lm
+      - GMAIL_QUERY=in:inbox is:unread -category:promotions
+      - WEB_FETCH_MODE=probe
+      - WEB_KNOWN_SITES=www.pitchmystory.com/newswire/,news.cision.com/r/,mynewsdesk.com
+      - WEB_PROBE_MAX_LINKS=2
+      - DB_ENGINE=sqlite
+      - SQLITE_PATH=data/msme.sqlite3
+      - REPURPOSE_INBOX=/app/repurpose_inbox
+      - REPURPOSE_SITE=/app/repurpose_site
+      - REPURPOSE_DASHBOARD=http://localhost:8765/
+      # Rejection replies go to the fixed test address while REPLY_MODE=fixed_email.
+      - REPLY_ENABLED=true
+      - REPLY_MODE=fixed_email
+      - REPLY_TO_EMAIL=fhwvdu@gmail.com
+      - LOCAL_ARCHIVE_DIR=/app/all_emails
+      - REPORT_ARCHIVE_DIR=/app/all_emails
+      # D27: v1 receive prompt packs (extract/verify/decide). Rollback: v0 or remove.
+      - PROMPT_VERSION=v1
+      # T-046: Gmail Push webhook (Cloudflare Tunnel -> POST /webhooks/gmail).
+      - ENABLE_WEBHOOK=true
+      - GMAIL_PUBSUB_TOPIC=projects/sme-ai-510803/topics/gmail-push
+      - WEBHOOK_AUDIENCE=https://hook.empi.site/webhooks/gmail
+      - WEBHOOK_SERVICE_ACCOUNT=msme-webhook-push@sme-ai-510803.iam.gserviceaccount.com
+    volumes:
+      - ./creds:/app/creds:ro
+      - ./prompts:/app/prompts:ro
+      - ./data:/app/data
+      - ./docs:/app/docs
+      - ./emails:/app/emails
+      - ./all_emails:/app/all_emails
+      - ./repurpose_inbox:/app/repurpose_inbox
+      - ./repurpose_site:/app/repurpose_site:ro
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8899/api/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3

@@ -1,0 +1,16 @@
+creds/*.json
+data/
+emails/
+all_emails/
+Resolt/
+__pycache__/
+*.pyc
+.~lock.*
+*.~lock
+~$*
+.DS_Store
+repurpose_inbox/
+repurpose_site/
+delet/
+.env
+docs/report-runs.jsonl

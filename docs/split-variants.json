@@ -1,0 +1,107 @@
+{
+  "royalty": [
+    "Does the article avoid disparaging or challenging Malaysia's royal institution (the Yang di-Pertuan Agong, the Sultans or the monarchy)?",
+    "Is the article clear of any disparagement or challenge to Malaysia's royal institution (the Yang di-Pertuan Agong, the Sultans or the monarchy)?",
+    "Does the article refrain from disparaging or challenging Malaysia's royal institution (the Yang di-Pertuan Agong, the Sultans or the monarchy)?"
+  ],
+  "religion": [
+    "Does the article avoid disparaging any religion?",
+    "Is the article devoid of disparagement toward any religion?",
+    "Does the article refrain from making disparaging statements about any religion?"
+  ],
+  "race": [
+    "Does the article refrain from racial or ethnic disparagement or discrimination?",
+    "Is the article devoid of racial or ethnic disparagement or discrimination?",
+    "Does the article lack racial or ethnic disparagement or discrimination?"
+  ],
+  "nsr_consumer": [
+    "Is this content centered on a business or its surrounding business ecosystem rather than general consumer or lifestyle subjects?",
+    "Does this material concern a business or the broader business environment, not general consumer or lifestyle fare?",
+    "Would this be categorized as business or business-ecosystem material instead of general consumer or lifestyle content?"
+  ],
+  "nsr_single_company": [
+    "Does this cover business developments involving more than one company?",
+    "Does this provide business news beyond a single company's own updates?",
+    "Is this business development content broader than one company's internal news?"
+  ],
+  "nsr_event": [
+    "Does this content offer business development or insight rather than being only an event, exhibition, or conference preview?",
+    "Is the primary purpose of this piece business development or insight instead of merely previewing an event, exhibition, or conference?",
+    "Does this go beyond event, exhibition, or conference preview material to provide business development or insight?"
+  ],
+  "nsr_education": [
+    "Does this content qualify as business or SME news rather than education, university, or edtech promotion?",
+    "Is this piece focused on business or SME news instead of education, university, or edtech promotion?",
+    "Would this be classified as business or SME news rather than education, university, or edtech promotional content?"
+  ],
+  "nsr_foreign_delegation": [
+    "Is this document focused on SME or business development rather than only a foreign trade-delegation or mission-visit report?",
+    "Does this report address SME or business development instead of merely recounting a foreign trade delegation or mission visit?",
+    "Is the primary content here about SME or business development, not just a foreign trade-delegation or mission-visit account?"
+  ],
+  "no_wider_value": [
+    "Does this offer a broader lesson that is relevant to other SME readers?",
+    "Does this provide a wider perspective that other SME readers would find useful?",
+    "Does this contain a development that matters to the wider SME audience?"
+  ],
+  "is_it_commercial_intent": [
+    "Does this constitute a genuine development rather than mainly promotional or PR material for the sender's product or service?",
+    "Is this an authentic development rather than primarily a marketing or PR plug for the sender's offering?",
+    "Is this real substantive progress rather than mainly an advertisement or PR pitch for the sender's product or service?"
+  ],
+  "not_geographically_relevant": [
+    "Does this pertain to Malaysia, ASEAN, or any market that Malaysian SMEs can reach?",
+    "Is this relevant to Malaysia, ASEAN, or markets accessible to Malaysian SMEs?",
+    "Does this involve Malaysia, ASEAN, or markets open to Malaysian SMEs?"
+  ],
+  "disc_content": [
+    "Is this factual and free of any disparaging or discriminatory content about a person or group?",
+    "Does this present factual information without disparaging or discriminating against any person or group?",
+    "Is this both factually accurate and respectful, with no disparaging or discriminatory content about a person or group?"
+  ],
+  "unsubst_claims": [
+    "Does the article provide substantiation for its damaging claims about an identifiable person or company?",
+    "Are the article's harmful assertions about a specific person or business supported by evidence?",
+    "Is there sufficient evidence backing the article's damaging allegations against a named individual or organization?"
+  ],
+  "partisan_campaign": [
+    "Is this factual, non-partisan coverage rather than party campaign material?",
+    "Does this content provide non-partisan, factual reporting instead of party campaign material?",
+    "Is this reporting non-partisan and factual, as opposed to party campaign material?"
+  ],
+  "attacks_government": [
+    "Is this article factual policy reporting rather than an attack or blame on the government or a leader?",
+    "Does this piece present factual policy reporting without attacking or blaming a government or leader?",
+    "Is the content factual reporting on policy, as opposed to an attack or blame directed at the government or a leader?"
+  ],
+  "no_substance": [
+    "Does this contain enough material to develop a story?",
+    "Is there a substantial foundation here for a story?",
+    "Is the material here substantial enough to support a story?"
+  ],
+  "not_identifiable": [
+    "Can the issuing organisation and any speakers be identified?",
+    "Are the source organisation and any speakers identifiable?",
+    "Is the identity of the issuing organisation and any speakers disclosed?"
+  ],
+  "unattributed_claims": [
+    "Does the article cite a source for its claims and figures?",
+    "Are the article's claims and figures backed by source attribution?",
+    "Does the article attribute its claims and figures to a source?"
+  ],
+  "not_current": [
+    "Is this a current development (recent or upcoming) or still-useful insight?",
+    "Is this a current development (recent or upcoming) or still-useful insight?",
+    "Is this a current development (recent or upcoming) or still-useful insight?"
+  ],
+  "no_editorial_value": [
+    "Does this submission teach an SME reader anything useful?",
+    "Would an SME reader find useful information in this submission?",
+    "Can an SME reader gain useful knowledge from this submission?"
+  ],
+  "not_sme_voice": [
+    "Does this provide a valuable takeaway for the broader SME community?",
+    "Would SMEs at large gain a useful insight from this?",
+    "Is this a useful contribution to the wider SME community?"
+  ]
+}

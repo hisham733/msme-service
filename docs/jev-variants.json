@@ -1,0 +1,529 @@
+{
+  "state": {
+    "subject": "Pos Malaysia launches SME Jumpstart Workshop 2026",
+    "from": "Corporate Communications",
+    "date": "24 September 2026",
+    "bodyText": "Tealive revs up F1 season with ‘high-octane’ Orange Coffee\nTop Malaysian brand gears up for the coffee race with beans from 3 nations\n\nSEPANG, 29th September 2026: Tealive is gearing up to capture a larger share of Malaysia's coffee market with a limited-time Orange Coffee series launched in conjunction with the Formula 1 Gulf Air Bahrain Grand Prix this weekend at the Petronas Sepang International Circuit (SIC) here.\nThis top Malaysian brand is adding a citrus twist to its “high-octane” coffee powered by beans from Ethiopia, Indonesia, and China, to create its new Orange Americano and Orange Latte, available at Tealive outlets nationwide.\nBlending 60% Yunnan beans for chocolate depth, 20% high-altitude Ethiopian arabica for bright fruit notes, and 20% Sumatra-grown Mandheling for a smooth finish, this formulation delivers a complex cup. The balanced blend shifts seamlessly from fruity to nutty notes, offering a depth typically found across multiple single-origins.\nThe drinks will be rolled out from 1st October, in line with International Coffee Day, and will be available until 29th October. To mark this launch, Tealive will be having a special pop-up store offering these Orange Coffee drinks to all F1 fans at the SIC Mall from 2nd to 4th October. \nTealive, which is Southeast Asia’s top lifestyle tea brand, currently operates over 1,000 outlets worldwide and serves more than five million consumers per month in Malaysia alone.\nLoob Holding Sdn Bhd Founder and Chief Executive Officer Bryan Loo said with this Orange Coffee series, Tealive customers would experience a caffeine shot that hits differently. This would hopefully endear the brand to more coffee lovers.\nCoffee has always been part of Malaysians' daily routines, and we want to give them more choices when they come to Tealive,\" he said. \"This series allows us to offer our customers another reason to choose Tealive when they want coffee, not just tea.\"\nThe Orange Americano combines the coffee with sweet orange juice for a refreshing profile with natural acidity and fruity notes. The Orange Latte balances espresso and orange juice with milk for a creamier alternative.\nFor us, innovation is about constantly finding new ways to stay relevant to our consumers,\" Loo adds. \"From FMCG and ready-to-drink products to sparkling drinks and refreshing our menu, we continue to explore what comes next. Orange Coffee is the latest expression in this journey.\"\nDuring the F1 weekend, customers who purchase any two Orange Coffee drinks at the Tealive pop-up store will receive limited-edition Tealive merchandise, while stocks last."
+  },
+  "model": "jev-latest",
+  "questions": {
+    "royal_respect": {
+      "type": "noul",
+      "instructions": "Is the article free of any disparagement of, disrespect toward, or challenge to the legitimacy or authority of Malaysia's royal institution (the Yang di-Pertuan Agong, the Sultans, or the monarchy)?",
+      "criteria": {}
+    },
+    "royal_respect_1": {
+      "type": "noul",
+      "instructions": "Is the article free of any disparagement or challenge to the royal institution (Agong, Sultans, monarchy)?",
+      "criteria": {
+        "true": "",
+        "false": ""
+      }
+    },
+    "religious_respect": {
+      "type": "noul",
+      "instructions": "Is the article free of disparagement of, disrespect toward, or mockery of any religion, religious practice, or religious group?",
+      "criteria": {}
+    },
+    "religious_respect_1": {
+      "type": "noul",
+      "instructions": "Does the article avoid disparaging any religion?",
+      "criteria": {
+        "true": "",
+        "false": ""
+      }
+    },
+    "racial_respect": {
+      "type": "noul",
+      "instructions": "Is the article free of racial or ethnic disparagement, discrimination, or incitement?",
+      "criteria": {}
+    },
+    "racial_respect_1": {
+      "type": "noul",
+      "instructions": "Does the article avoid racial or ethnic disparagement or discrimination?",
+      "criteria": {
+        "true": "",
+        "false": ""
+      }
+    },
+    "commercial_intent": {
+      "type": "noul",
+      "instructions": "Is the release a genuine development or informative announcement rather than a hard sell or promotion of the sender's product, discount or brand?",
+      "criteria": {}
+    },
+    "commercial_intent_1": {
+      "type": "noul",
+      "instructions": "Is this genuine news rather than an ad or PR plug for the sender's product?",
+      "criteria": {
+        "true": "A genuine development.",
+        "false": "Mainly an ad or PR plug for the sender."
+      }
+    },
+    "geographic_relevance": {
+      "type": "noul",
+      "instructions": "Does the release have a concrete Malaysian business/market connection rather than being overseas-only?",
+      "criteria": {}
+    },
+    "geographic_relevance_1": {
+      "type": "noul",
+      "instructions": "Is this relevant to Malaysia or ASEAN, or markets Malaysian SMEs can reach?",
+      "criteria": {
+        "true": "",
+        "false": ""
+      }
+    },
+    "substance": {
+      "type": "noul",
+      "instructions": "Does the release carry substantive content — concrete facts, figures, mechanisms or decisions — rather than vague promotional language?",
+      "criteria": {}
+    },
+    "substance_1": {
+      "type": "noul",
+      "instructions": "Does the body text contain enough to build a story from?",
+      "criteria": {
+        "true": "",
+        "false": ""
+      }
+    },
+    "source_attribution": {
+      "type": "noul",
+      "instructions": "Is the issuing organisation (and any speakers) identifiable, with important claims and quotations attributable?",
+      "criteria": {}
+    },
+    "source_attribution_1": {
+      "type": "noul",
+      "instructions": "Are the issuing organisation and any speakers clearly identified?",
+      "criteria": {
+        "true": "",
+        "false": ""
+      }
+    },
+    "claims_statistics": {
+      "type": "noul",
+      "instructions": "Are the release's material claims, statistics and comparisons reasonably supported and not apparently misleading based on the supplied content?",
+      "criteria": {}
+    },
+    "claims_statistics_1": {
+      "type": "noul",
+      "instructions": "Are the article's claims and figures sourced?",
+      "criteria": {
+        "true": "",
+        "false": ""
+      }
+    },
+    "timeliness": {
+      "type": "noul",
+      "instructions": "Does the release describe a current, recent or upcoming development that is still editorially relevant now?",
+      "criteria": {}
+    },
+    "timeliness_1": {
+      "type": "noul",
+      "instructions": "Is this timely (recent or upcoming) or still-useful insight?",
+      "criteria": {
+        "true": "",
+        "false": ""
+      }
+    },
+    "sme_voice_business_updates": {
+      "type": "noul",
+      "instructions": "Does the release give a meaningful business update or genuinely useful insight/lesson for the wider business community rather than just a company announcement?",
+      "criteria": {}
+    },
+    "sme_voice_business_updates_1": {
+      "type": "noul",
+      "instructions": "Does this give the wider SME community something to learn from?",
+      "criteria": {
+        "true": "",
+        "false": ""
+      }
+    },
+    "royal_respect_2": {
+      "type": "noul",
+      "instructions": "Does the article avoid any disparagement of or challenge to Malaysia's royal institution (the Yang di-Pertuan Agong, the Sultans or the monarchy)?",
+      "criteria": {
+        "true": "The article contains no criticism, mockery, insult, or call to challenge the authority of the Yang di-Pertuan Agong, the Sultans, or the monarchy.",
+        "false": "The article disparages or challenges the Yang di-Pertuan Agong, the Sultans, or the monarchy, even implicitly."
+      }
+    },
+    "royal_respect_3": {
+      "type": "noul",
+      "instructions": "Does the article avoid any disparagement of or challenge to Malaysia's royal institution (the Yang di-Pertuan Agong, the Sultans or the monarchy)?",
+      "criteria": {
+        "true": "The article contains no criticism, mockery, insult, or call to challenge the authority of the Yang di-Pertuan Agong, the Sultans, or the monarchy.",
+        "false": "The article disparages or challenges the Yang di-Pertuan Agong, the Sultans, or the monarchy, even implicitly."
+      }
+    },
+    "religious_respect_2": {
+      "type": "noul",
+      "instructions": "Does the article avoid disparaging, mocking, or condemning any religion or its adherents?",
+      "criteria": {
+        "true": "The article may critique religious beliefs or practices factually or neutrally, but expresses no contempt, ridicule, or blanket condemnation of a religion or its followers.",
+        "false": "The article mocks, ridicules, or broadly condemns a religion, its beliefs, or its adherents."
+      }
+    },
+    "religious_respect_3": {
+      "type": "noul",
+      "instructions": "Does the article avoid disparaging, mocking, or condemning any religion or its adherents?",
+      "criteria": {
+        "true": "The article may critique religious beliefs or practices factually or neutrally, but expresses no contempt, ridicule, or blanket condemnation of a religion or its followers.",
+        "false": "The article mocks, ridicules, or broadly condemns a religion, its beliefs, or its adherents."
+      }
+    },
+    "racial_respect_2": {
+      "type": "noul",
+      "instructions": "Does the article treat all racial and ethnic groups without disparagement, discrimination, or demeaning stereotypes?",
+      "criteria": {
+        "true": "No slurs, stereotypes, or discriminatory claims targeting any racial or ethnic group appear.",
+        "false": "The article contains racial or ethnic slurs, stereotypes, or claims that demean a racial or ethnic group."
+      }
+    },
+    "racial_respect_3": {
+      "type": "noul",
+      "instructions": "Is the article free of racial or ethnic disparagement or discrimination?",
+      "criteria": {
+        "true": "",
+        "false": ""
+      }
+    },
+    "commercial_intent_2": {
+      "type": "noul",
+      "instructions": "Is this email reporting a genuine news development that would be newsworthy to readers who are not already the sender's customers or contacts?",
+      "criteria": {
+        "true": "It announces or reports a concrete development, finding, launch, or milestone whose value does not depend on buying or covering the sender's offering.",
+        "false": "Its main purpose is to promote, plug, or solicit coverage for the sender's own product, service, or event, or it is a follow-up chasing a reply."
+      }
+    },
+    "commercial_intent_3": {
+      "type": "noul",
+      "instructions": "Is this genuine news rather than an ad or PR plug for the sender's product?",
+      "criteria": {
+        "true": "A genuine development.",
+        "false": "Mainly an ad or PR plug for the sender."
+      }
+    },
+    "geographic_relevance_2": {
+      "type": "noul",
+      "instructions": "Is this press release primarily about Malaysia, ASEAN, or a market that Malaysian SMEs can access?",
+      "criteria": {
+        "true": "The release's main subject, announcement or data is a Malaysian, ASEAN or otherwise SME-accessible market, event, policy or business development.",
+        "false": "Malaysia or the region appears only incidentally (e.g. a contact address, mailing list, sign-off or passing name-drop) while the release's main subject is a different market or purely internal correspondence."
+      }
+    },
+    "geographic_relevance_3": {
+      "type": "noul",
+      "instructions": "Is this press release primarily about Malaysia, ASEAN, or a market that Malaysian SMEs can access?",
+      "criteria": {
+        "true": "The release's main subject, announcement or data is a Malaysian, ASEAN or otherwise SME-accessible market, event, policy or business development.",
+        "false": "Malaysia or the region appears only incidentally (e.g. a contact address, mailing list, sign-off or passing name-drop) while the release's main subject is a different market or purely internal correspondence."
+      }
+    },
+    "substance_2": {
+      "type": "noul",
+      "instructions": "Does this email contain concrete, newsworthy substance — a specific announcement, dataset, or development with enough detail to build a story from?",
+      "criteria": {
+        "true": "Contains at least one specific, substantive news element (announcement, data point, launch, or development) with enough detail to report on.",
+        "false": "Contains only correspondence, follow-ups, requests for coverage, or vague previews/commentary without substantive news detail."
+      }
+    },
+    "substance_3": {
+      "type": "noul",
+      "instructions": "Is there substantial material here to build a story from?",
+      "criteria": {
+        "true": "",
+        "false": ""
+      }
+    },
+    "source_attribution_2": {
+      "type": "noul",
+      "instructions": "Does the press release clearly name the issuing organisation, and any quoted speakers, as identifiable entities?",
+      "criteria": {
+        "true": "The release explicitly names the organisation issuing it (and any speakers quoted) so a reader can tell exactly who is behind the announcement.",
+        "false": "The release is a vague pitch, generic email or follow-up with no clearly named issuing organisation or identifiable speakers."
+      }
+    },
+    "source_attribution_3": {
+      "type": "noul",
+      "instructions": "Does the press release clearly name the issuing organisation, and any quoted speakers, as identifiable entities?",
+      "criteria": {
+        "true": "The release explicitly names the organisation issuing it (and any speakers quoted) so a reader can tell exactly who is behind the announcement.",
+        "false": "The release is a vague pitch, generic email or follow-up with no clearly named issuing organisation or identifiable speakers."
+      }
+    },
+    "claims_statistics_2": {
+      "type": "noul",
+      "instructions": "Does the article attribute its key claims and figures to a specific, identifiable source (such as a named organisation, report, or spokesperson) rather than stating them without attribution?",
+      "criteria": {
+        "true": "Key claims and figures are tied to a specific, identifiable source (named organisation, report, study, or spokesperson).",
+        "false": "Key claims and figures appear with no attribution, only vague sourcing like 'sources say', or merely as the sender's own assertion."
+      }
+    },
+    "claims_statistics_3": {
+      "type": "noul",
+      "instructions": "Does the article attribute its key claims and figures to a specific, identifiable source (such as a named organisation, report, or spokesperson) rather than stating them without attribution?",
+      "criteria": {
+        "true": "Key claims and figures are tied to a specific, identifiable source (named organisation, report, study, or spokesperson).",
+        "false": "Key claims and figures appear with no attribution, only vague sourcing like 'sources say', or merely as the sender's own assertion."
+      }
+    },
+    "timeliness_2": {
+      "type": "noul",
+      "instructions": "Is this a current development — a recent or upcoming launch, event, report, or announcement — rather than a follow-up email, gated link, or evergreen commentary?",
+      "criteria": {
+        "true": "The release covers a specific recent or upcoming development (launch, event, report, projection) with a date or timeframe.",
+        "false": "The item is a follow-up email, coverage pitch, gated link requiring a click, or timeless commentary without a recent or upcoming development."
+      }
+    },
+    "timeliness_3": {
+      "type": "noul",
+      "instructions": "Is this timely (recent or upcoming) or still-useful insight?",
+      "criteria": {
+        "true": "",
+        "false": ""
+      }
+    },
+    "sme_voice_business_updates_2": {
+      "type": "noul",
+      "instructions": "Is this written as a substantive news item that speaks directly to SME owners' business interests, rather than an editor pitch, follow-up email, or generic commentary aimed at other audiences?",
+      "criteria": {
+        "true": "The item reads as editorial/news content whose subject matter and framing are directly relevant and useful to SME owners or operators.",
+        "false": "The item is a media pitch, coverage follow-up, or commentary addressed primarily to editors, analysts, or a non-SME audience rather than SMEs."
+      }
+    },
+    "sme_voice_business_updates_3": {
+      "type": "noul",
+      "instructions": "Is this written as a substantive news item that speaks directly to SME owners' business interests, rather than an editor pitch, follow-up email, or generic commentary aimed at other audiences?",
+      "criteria": {
+        "true": "The item reads as editorial/news content whose subject matter and framing are directly relevant and useful to SME owners or operators.",
+        "false": "The item is a media pitch, coverage follow-up, or commentary addressed primarily to editors, analysts, or a non-SME audience rather than SMEs."
+      }
+    },
+    "royal_respect_jev_learn": {
+      "type": "noul",
+      "instructions": "Is the article free of disparagement or challenge to Malaysia's royal institution (the Sultans or the monarchy)?",
+      "criteria": {
+        "true": "",
+        "false": ""
+      }
+    },
+    "religious_respect_jev_learn": {
+      "type": "noul",
+      "instructions": "Is the article free of disparagement of any religion?",
+      "criteria": {
+        "true": "",
+        "false": ""
+      }
+    },
+    "racial_respect_jev_learn": {
+      "type": "noul",
+      "instructions": "Is the article free of racial or ethnic disparagement or discrimination?",
+      "criteria": {
+        "true": "",
+        "false": ""
+      }
+    },
+    "sme_relevance": {
+      "type": "noul",
+      "instructions": "Does the release concern the Malaysian business/SME ecosystem — something that affects how businesses operate, compete, comply, finance, trade or reach markets?",
+      "criteria": {}
+    },
+    "sme_relevance_1": {
+      "type": "noul",
+      "instructions": "Is this relevant to SMEs or the wider business ecosystem — an SME, policy, financing, trade, technology, workforce or market-access angle?",
+      "criteria": {
+        "true": "Relevant: affects how SMEs operate/earn/compete/comply (financing, policy, tax, trade, market access, technology, talent, supply chain); industry/sector development.",
+        "false": "Off-topic: consumer/lifestyle; one company's own news; education/edtech; event previews; foreign delegation PR; consumer money-advice; overseas op-ed."
+      }
+    },
+    "sme_relevance_2": {
+      "type": "noul",
+      "instructions": "Is this relevant to SMEs or the wider business ecosystem — an SME, policy, financing, trade, technology, workforce or market-access angle?",
+      "criteria": {
+        "true": "Relevant: affects how SMEs operate/earn/compete/comply (financing, policy, tax, trade, market access, technology, talent, supply chain); industry/sector development.",
+        "false": "Off-topic: consumer/lifestyle; one company's own news; education/edtech; event previews; foreign delegation PR; consumer money-advice; overseas op-ed."
+      }
+    },
+    "sme_relevance_3": {
+      "type": "noul",
+      "instructions": "Is this relevant to SMEs or the wider business ecosystem — an SME, policy, financing, trade, technology, workforce or market-access angle?",
+      "criteria": {
+        "true": "Relevant: affects how SMEs operate/earn/compete/comply (financing, policy, tax, trade, market access, technology, talent, supply chain); industry/sector development.",
+        "false": "Off-topic: consumer/lifestyle; one company's own news; education/edtech; event previews; foreign delegation PR; consumer money-advice; overseas op-ed."
+      }
+    },
+    "sme_relevance_jev_learn": {
+      "type": "noul",
+      "instructions": "Is this relevant to SMEs or the wider business ecosystem — an SME, policy, financing, trade, technology, workforce or market-access angle?",
+      "criteria": {
+        "true": "Relevant: affects how SMEs operate/earn/compete/comply (financing, policy, tax, trade, market access, technology, talent, supply chain); industry/sector development.",
+        "false": "Off-topic: consumer/lifestyle; one company's own news; education/edtech; event previews; foreign delegation PR; consumer money-advice; overseas op-ed."
+      }
+    },
+    "sme_voice_business_updates_jev_learn": {
+      "type": "noul",
+      "instructions": "Does the submission contribute knowledge, experience or perspective for the wider SME community (updates, insights or opinion)?",
+      "criteria": {
+        "true": "",
+        "false": ""
+      }
+    },
+    "commercial_intent_jev_learn": {
+      "type": "noul",
+      "instructions": "Is this a genuine development rather than a hard sell of the sender's product or service (discounts, sales offers, direct customer acquisition)?",
+      "criteria": {
+        "true": "A genuine development (a product may be mentioned within a wider development).",
+        "false": "A hard sell of the sender's product/service (discounts, sales offers, direct customer acquisition)."
+      }
+    },
+    "substance_jev_learn": {
+      "type": "noul",
+      "instructions": "Is there sufficient factual material here to construct a meaningful article without adding external information?",
+      "criteria": {
+        "true": "",
+        "false": ""
+      }
+    },
+    "source_attribution_jev_learn": {
+      "type": "noul",
+      "instructions": "Is the issuing organisation (and any speakers) identifiable?",
+      "criteria": {
+        "true": "",
+        "false": ""
+      }
+    },
+    "claims_statistics_jev_learn": {
+      "type": "noul",
+      "instructions": "Are the article's claims and figures attributed to a source?",
+      "criteria": {
+        "true": "",
+        "false": ""
+      }
+    },
+    "timeliness_jev_learn": {
+      "type": "noul",
+      "instructions": "Is this a current development (recent or upcoming) or still-useful insight?",
+      "criteria": {
+        "true": "",
+        "false": ""
+      }
+    },
+    "geographic_relevance_jev_learn": {
+      "type": "noul",
+      "instructions": "Does this concern Malaysia, ASEAN or markets that Malaysian SMEs can access?",
+      "criteria": {
+        "true": "",
+        "false": ""
+      }
+    },
+    "safety_reputation": {
+      "type": "noul",
+      "instructions": "Is the release free of material legal, ethical, safety, privacy or reputational concerns ?",
+      "criteria": {}
+    },
+    "safety_reputation_1": {
+      "type": "noul",
+      "instructions": "Is the article free of reputational/legal risk (no defamatory, discriminatory or unsubstantiated claims about a person or company)?",
+      "criteria": {
+        "true": "No defamatory, discriminatory or unsubstantiated claims.",
+        "false": "Contains defamatory/discriminatory/unsubstantiated claims."
+      }
+    },
+    "safety_reputation_2": {
+      "type": "noul",
+      "instructions": "Is the article free of reputational/legal risk (no defamatory, discriminatory or unsubstantiated claims about a person or company)?",
+      "criteria": {
+        "true": "No defamatory, discriminatory or unsubstantiated claims.",
+        "false": "Contains defamatory/discriminatory/unsubstantiated claims."
+      }
+    },
+    "safety_reputation_3": {
+      "type": "noul",
+      "instructions": "Is the article free of reputational/legal risk (no defamatory, discriminatory or unsubstantiated claims about a person or company)?",
+      "criteria": {
+        "true": "No defamatory, discriminatory or unsubstantiated claims.",
+        "false": "Contains defamatory/discriminatory/unsubstantiated claims."
+      }
+    },
+    "safety_reputation_jev_learn": {
+      "type": "noul",
+      "instructions": "Is the article free of reputational/legal risk (no defamatory, discriminatory or unsubstantiated claims about a person or company)?",
+      "criteria": {
+        "true": "No defamatory, discriminatory or unsubstantiated claims.",
+        "false": "Contains defamatory/discriminatory/unsubstantiated claims."
+      }
+    },
+    "political_advocacy": {
+      "type": "noul",
+      "instructions": "Is the release primarily informative business communication rather than partisan political advocacy, persuasion or lobbying?",
+      "criteria": {}
+    },
+    "political_advocacy_1": {
+      "type": "noul",
+      "instructions": "Is this free of partisan/electoral politics and attacks on a party, leader or government?",
+      "criteria": {
+        "true": "",
+        "false": ""
+      }
+    },
+    "political_advocacy_2": {
+      "type": "noul",
+      "instructions": "Is this free of partisan/electoral politics and attacks on a party, leader or government?",
+      "criteria": {
+        "true": "",
+        "false": ""
+      }
+    },
+    "political_advocacy_3": {
+      "type": "noul",
+      "instructions": "Is this free of partisan/electoral politics and attacks on a party, leader or government?",
+      "criteria": {
+        "true": "",
+        "false": ""
+      }
+    },
+    "political_advocacy_jev_learn": {
+      "type": "noul",
+      "instructions": "Is this free of political/advocacy content (campaigning, endorsements, partisan messaging) and of bylined opinion pieces that need editor review?",
+      "criteria": {
+        "true": "",
+        "false": ""
+      }
+    },
+    "overall_editorial_test": {
+      "type": "noul",
+      "instructions": "Considering an editorial product for Malaysian SME/business readers, does this release provide enough genuine business value to be advanced to a human editor?",
+      "criteria": {}
+    },
+    "overall_editorial_test_1": {
+      "type": "noul",
+      "instructions": "Does an SME reader learn something from this submission — does it inform, add a useful SME perspective, or share a meaningful business update rather than mainly promote the sender?",
+      "criteria": {
+        "true": "Informs the reader / contributes a useful SME perspective or a meaningful business update.",
+        "false": "The only meaningful takeaway is a sales message about the sender's product or service."
+      }
+    },
+    "overall_editorial_test_2": {
+      "type": "noul",
+      "instructions": "Does an SME reader learn something from this submission — does it inform, add a useful SME perspective, or share a meaningful business update rather than mainly promote the sender?",
+      "criteria": {
+        "true": "Informs the reader / contributes a useful SME perspective or a meaningful business update.",
+        "false": "The only meaningful takeaway is a sales message about the sender's product or service."
+      }
+    },
+    "overall_editorial_test_3": {
+      "type": "noul",
+      "instructions": "Does an SME reader learn something from this submission — does it inform, add a useful SME perspective, or share a meaningful business update rather than mainly promote the sender?",
+      "criteria": {
+        "true": "Informs the reader / contributes a useful SME perspective or a meaningful business update.",
+        "false": "The only meaningful takeaway is a sales message about the sender's product or service."
+      }
+    },
+    "overall_editorial_test_jev_learn": {
+      "type": "noul",
+      "instructions": "Does an SME reader learn something from this submission — does it inform, add a useful SME perspective, or share a meaningful business update rather than mainly promote the sender?",
+      "criteria": {
+        "true": "Informs the reader / contributes a useful SME perspective or a meaningful business update.",
+        "false": "The only meaningful takeaway is a sales message about the sender's product or service."
+      }
+    }
+  }
+}

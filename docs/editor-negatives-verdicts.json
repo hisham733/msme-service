@@ -1,0 +1,135 @@
+[
+  {
+    "subject": "Fwd: [PRESS RELEASE] ICW AND BUILDXPO MALAYSIA 2026 PREVIEW: NEW PLATFORMS, IDEAS AND INNOVATIONS TAKE CENTRE STAGE",
+    "outcome": "ACCEPT",
+    "nsr": 0.7,
+    "nwv": 0.14,
+    "com": 0.28
+  },
+  {
+    "subject": "Fwd: Media Coverage Opportunity \u2013 EnerGex 2026 | PETRA Deputy Minister",
+    "outcome": "EDITOR REVIEW",
+    "nsr": 0.79,
+    "nwv": 0.44,
+    "com": 0.76
+  },
+  {
+    "subject": "Fwd: [PRESS RELEASE] Glem.ai establishes Beijing base to advance global enterprise AI expansion",
+    "outcome": "REJECT",
+    "nsr": 0.64,
+    "nwv": 0.29,
+    "com": 0.85
+  },
+  {
+    "subject": "Fwd: [PRESS RELEASE] Karaoke Manekineko Celebrates Opening 20 Outlets with New Promotions",
+    "outcome": "REJECT",
+    "nsr": 0.96,
+    "nwv": 0.87,
+    "com": 0.96
+  },
+  {
+    "subject": "Fwd: Data centers to use 31% of Peninsular Malaysia's power by 2035: Delta's efficiency figures from DCW Asia",
+    "outcome": "ACCEPT",
+    "nsr": 0.72,
+    "nwv": 0.26,
+    "com": 0.81
+  },
+  {
+    "subject": "Fwd: [PRESS RELEASE] Xerox Returns To Malaysia With New A4 Colour Portfolio Following Lexmark Integration",
+    "outcome": "REJECT",
+    "nsr": 0.83,
+    "nwv": 0.46,
+    "com": 0.92
+  },
+  {
+    "subject": "Fwd: MEDIA RELEASE: TOURISM MALAYSIA COLLABORATES WITH OPPO MALAYSIA TO SHOWCASE THE BEAUTY OF MALAYSIA THROUGH DIGITAL LENS",
+    "outcome": "REJECT",
+    "nsr": 0.87,
+    "nwv": 0.32,
+    "com": 0.24
+  },
+  {
+    "subject": "Fwd: [PRESS RELEASE] Monash University Malaysia Leads Triple Alliance\u2019s Flagship Mental Health Initiative To Strengthen Student Wellbeing",
+    "outcome": "REJECT",
+    "nsr": 0.96,
+    "nwv": 0.36,
+    "com": 0.13
+  },
+  {
+    "subject": "Fwd: Press Release - Fast Retailing Announces Record Performance for Fifth Consecutive Year",
+    "outcome": "REJECT",
+    "nsr": 0.95,
+    "nwv": 0.75,
+    "com": 0.46
+  },
+  {
+    "subject": "Fwd: [PRESS RELEASE] Ministry of Digital Provides Access to Coursera Courses Through Rakyat Digital for 100,000 Malaysians to Advance AI Nation 2030 Vision",
+    "outcome": "ACCEPT",
+    "nsr": 0.62,
+    "nwv": 0.11,
+    "com": 0.15
+  },
+  {
+    "subject": "Fwd: [PRESS RELEASE] Three lessons from Hangzhou, and one potential partnership to follow up: Sanct Social founder on China's Global Digital Trade Expo",
+    "outcome": "ACCEPT",
+    "nsr": 0.61,
+    "nwv": 0.12,
+    "com": 0.51
+  },
+  {
+    "subject": "Fwd: [PRESS RELEASE] Sanct Social, now available in Malaysia as a free download, joins Indonesian delegation to China's Global Digital Trade Expo to explore smart glasses and AI models",
+    "outcome": "ACCEPT",
+    "nsr": 0.76,
+    "nwv": 0.42,
+    "com": 0.84
+  },
+  {
+    "subject": "Fwd: [PRESS RELEASE] Indonesian delegation of 16 companies, four government bodies and two associations attends Global Digital Trade Expo in Hangzhou",
+    "outcome": "ACCEPT",
+    "nsr": 0.27,
+    "nwv": 0.16,
+    "com": 0.3
+  },
+  {
+    "subject": "Fwd: [KPMG Press Release] KPMG in Malaysia\u2019s Eco Dive Programme earns Malaysia Book of Records Recognition",
+    "outcome": "REJECT",
+    "nsr": 0.95,
+    "nwv": 0.77,
+    "com": 0.35
+  },
+  {
+    "subject": "Fwd: [PRESS RELEASE] IMAGO Technologies Unveils PaperSmart Dual-Mode Tablet With EdPrep.ai",
+    "outcome": "REJECT",
+    "nsr": 0.92,
+    "nwv": 0.61,
+    "com": 0.94
+  },
+  {
+    "subject": "Fwd: PRESS RELEASE: CelcomDigi to offer Protect+ with AppleCare Services",
+    "outcome": "REJECT",
+    "nsr": 0.96,
+    "nwv": 0.8,
+    "com": 0.94
+  },
+  {
+    "subject": "Fwd: Press Release and Photo - Allianz Life encourages Malaysians to turn breast cancer awareness into action",
+    "outcome": "REJECT",
+    "nsr": 0.96,
+    "nwv": 0.66,
+    "com": 0.63
+  },
+  {
+    "subject": "Fwd: [PRESS RELEASE] Novo Nordisk rebrands as \u2018Novo\u2019 in Malaysia amid growing focus on chronic disease prevention",
+    "outcome": "REJECT",
+    "nsr": 0.86,
+    "nwv": 0.27,
+    "com": 0.67
+  },
+  {
+    "subject": "Fwd: [FOR IMMEDIATE RELEASE] Pink October MoU Signing: Hospital Picaso, College of Radiology Malaysia & BD Join Forces to Strengthen Breast Cancer Care",
+    "outcome": "ACCEPT",
+    "nsr": 0.76,
+    "nwv": 0.38,
+    "com": 0.61
+  }
+]

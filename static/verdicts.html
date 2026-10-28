@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Filter Verdicts — Jev Editorial Judge</title>
+<style>
+  :root{
+    --bg:#0b1020; --card:#141a2e; --card2:#1a2138; --border:#232b45;
+    --text:#e5e9f5; --muted:#8b93ab; --teal:#2dd4bf; --green:#34d399;
+    --red:#f87171; --amber:#fbbf24;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;font-size:14px;padding:28px;max-width:1100px;margin:0 auto}
+  h1{font-size:20px;font-weight:700}
+  .sub{color:var(--muted);font-size:13px;margin-top:4px}
+  .nav{display:flex;gap:8px;margin:18px 0 22px}
+  .nav a{color:var(--muted);text-decoration:none;font-size:13px;padding:6px 14px;border:1px solid var(--border);border-radius:8px;background:var(--card)}
+  .nav a.on{color:var(--teal);border-color:var(--teal)}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+  th{color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+  tbody tr{cursor:pointer}
+  tbody tr:hover{background:var(--card2)}
+  tbody tr.sel{background:rgba(45,212,191,.08)}
+  .badge{display:inline-block;padding:2px 10px;border-radius:16px;font-weight:700;font-size:12px}
+  .b-accept{background:rgba(52,211,153,.15);color:var(--green)}
+  .b-reject{background:rgba(248,113,113,.15);color:var(--red)}
+  .b-review{background:rgba(251,191,36,.15);color:var(--amber)}
+  .b-err{background:rgba(251,191,36,.15);color:var(--amber)}
+  .mono{font-family:ui-monospace,monospace;font-size:12px;color:var(--muted)}
+  #empty{color:var(--muted);text-align:center;padding:40px 0}
+  .bar{height:5px;background:var(--card2);border-radius:3px;margin-top:3px;overflow:hidden}
+  .bar > div{height:100%}
+  .detail{display:none;margin-top:18px}
+  .detail.show{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:860px){.detail.show{grid-template-columns:1fr}}
+  .score-line{display:flex;justify-content:space-between;font-size:13px;margin:4px 0}
+  .score-line .k{color:var(--muted)}
+  .bar{height:6px;background:var(--card2);border-radius:4px;margin-top:3px;overflow:hidden}
+  .bar > div{height:100%;border-radius:4px}
+  .gates{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
+  @media(max-width:700px){.gates{grid-template-columns:1fr}}
+  .gate{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:8px 12px;font-size:12px}
+  .gate .g-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+  .gate .g-name{font-weight:700;color:var(--text);font-size:12px}
+  .gate .g-stat{font-size:11px;font-weight:700}
+  .gate .g-yes{color:var(--red)}
+  .gate .g-no{color:var(--green)}
+  .gate .g-bar{height:6px;background:var(--bg);border-radius:4px;overflow:hidden;display:flex}
+  .gate .g-bar .yes{background:var(--red);height:100%}
+  .gate .g-bar .no{background:var(--green);height:100%}
+  .gate.hot{border-color:var(--red);box-shadow:0 0 0 1px var(--red) inset}
+  .gate.hot .g-name{color:var(--red)}
+  .gates-head{font-size:12px;font-weight:700;color:var(--muted);margin:14px 0 6px;display:flex;align-items:center;gap:8px}
+  .gates-head .g-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green)}
+  .gates-head .g-dot.rej{background:var(--red)}
+  .meter{position:relative;height:14px;background:var(--card2);border-radius:8px;margin:10px 0 4px;overflow:hidden}
+  .meter > div{height:100%;background:linear-gradient(90deg,var(--red),var(--amber),var(--green))}
+  .meter .tick{position:absolute;top:0;bottom:0;width:2px;background:#fff;opacity:.7}
+  .small{color:var(--muted);font-size:12px}
+  /* radar (same as n8n) */
+  .radar-svg{text-align:center}
+  .radar-svg svg{background:#fff;border-radius:10px}
+  .radar-svg .meta{font-size:12px;color:var(--muted);margin-top:8px;text-align:center}
+  .axis-label{fill:#5b6b82;font-size:10px;font-weight:600}
+  .grid-line{stroke:#d7dfea;stroke-width:1}
+  .grid-outer{stroke:#b9c4d4;stroke-width:1.2}
+  .ring-label{fill:#9aa6b8;font-size:9px}
+  .val-label{fill:#fff;stroke:#1f2937;stroke-width:2.5;paint-order:stroke;font-size:10px;font-weight:700}
+  .radar-poly{fill-opacity:.4;stroke-width:2.5}
+  .radar-poly.ACC{fill:#2ea97e;stroke:#3ecb95}
+  .radar-poly.REJ{fill:#e4576b;stroke:#ff7d8e}
+  .radar-dot{fill:#fff;stroke-width:1.8}
+  .radar-dot.ACC{stroke:#3ecb95}
+  .radar-dot.REJ{stroke:#ff7d8e}
+  .radar-thresh{stroke:#e09a3e;stroke-width:1.6;stroke-dasharray:5 4;fill:none}
+</style>
+</head>
+<body>
+  <h1>Filter Verdicts</h1>
+  <div class="sub">Articles judged by Jev · <span id="gen">—</span> · click a row to see the radar + detail · auto-refresh 15s</div>
+  <div class="nav">
+    <a href="/filter.html">Filter</a>
+    <a class="on" href="/verdicts.html">Verdicts</a>
+    <a href="/config.html">Config</a>
+    <a href="/lab.html">Jev Lab</a>
+  </div>
+  <div style="display:flex;justify-content:flex-end;margin-bottom:10px">
+    <button id="clearBtn" style="background:rgba(248,113,113,.15);color:var(--red);border:1px solid var(--red);border-radius:8px;padding:6px 14px;font-weight:700;font-size:12px;cursor:pointer">🗑 Empty data</button>
+  </div>
+  <div class="card">
+    <table>
+      <thead><tr><th>When</th><th>Outcome</th><th>Weight</th><th>Gate</th><th>Subject</th><th>From</th></tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+    <div id="empty" style="display:none">No verdicts yet — judge an article from the Filter tab.</div>
+  </div>
+
+  <div class="detail" id="detail">
+    <div class="card">
+      <h2 style="font-size:14px;font-weight:700;color:var(--teal);margin-bottom:12px">Verdict</h2>
+      <div id="detailVerdict"></div>
+    </div>
+    <div class="card">
+      <h2 style="font-size:14px;font-weight:700;color:var(--teal);margin-bottom:12px">Radar</h2>
+      <div class="radar-svg">
+        <svg id="detailRadar" width="480" height="400" viewBox="0 0 480 400"></svg>
+        <div class="meta">Polygon = per-criterion scores (0–100) · dashed ring = accept threshold (60%)</div>
+      </div>
+    </div>
+  </div>
+
+<script>
+const esc = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const $ = id => document.getElementById(id);
+const SEL_KEY = 'msme_filter_sel';
+let SELECTED = localStorage.getItem(SEL_KEY) || '';
+let DATA = { verdicts: [] };
+
+function fmt(ts){
+  if(!ts) return '—';
+  const d = new Date(ts.replace('Z','Z'));
+  return isNaN(d) ? ts : d.toLocaleString();
+}
+
+const AXES = ['no_substance','not_identifiable','unattributed_claims','not_current','no_editorial_value','contact','category_fit','not_sme_voice'];
+const AXIS_LABELS = {no_substance:'Substance',not_identifiable:'Attribution',unattributed_claims:'Claims Attr.',not_current:'Timeliness',no_editorial_value:'Editorial Val.',contact:'Contact',category_fit:'Category Fit',not_sme_voice:'SME Voice'};
+function radarSVG(scores, outcome){
+  const n=AXES.length, cx=240, cy=200, R=120;
+  const ang=i=>-Math.PI/2 + i*2*Math.PI/n;
+  const pt=(i,r)=>[cx+r*Math.cos(ang(i)), cy+r*Math.sin(ang(i))];
+  let grid='';
+  for(let g=1;g<=5;g++){
+    const pts=AXES.map((_,i)=>pt(i,R*g/5).join(',')).join(' ');
+    const cls = g===5 ? 'grid-outer' : 'grid-line';
+    grid+=`<polygon class="${cls}" points="${pts}" fill="none"/>`;
+    const [lx,ly]=pt(0,R*g/5);
+    grid+=`<text class="ring-label" x="${lx-14}" y="${ly}" text-anchor="middle" dominant-baseline="middle">${g*20}</text>`;
+  }
+  let spokes='';
+  AXES.forEach((ax,i)=>{
+    const [x,y]=pt(i,R);
+    spokes+=`<line class="grid-line" x1="${cx}" y1="${cy}" x2="${x}" y2="${y}"/>`;
+    const [lx,ly]=pt(i,R+34);
+    const c=Math.cos(ang(i));
+    let anchor, off=0;
+    if(c > 0.3){ anchor='start'; off=10; }
+    else if(c < -0.3){ anchor='end'; off=-10; }
+    else { anchor='middle'; off=0; }
+    spokes+=`<text class="axis-label" x="${lx+off}" y="${ly}" text-anchor="${anchor}" dominant-baseline="middle">${(AXIS_LABELS[ax]||ax).replace(/_/g,' ')}</text>`;
+  });
+  const thr=0.60;
+  const thrPts = AXES.map((_,i)=>pt(i,thr*R).join(',')).join(' ');
+  const threshPoly=`<polygon class="radar-thresh" points="${thrPts}"/>`;
+  const colorCls = outcome==='ACCEPT'?'ACC':(outcome==='REJECT'?'REJ':'UNK');
+  const vals = AXES.map(ax=>Math.max(0,Math.min(1,Number((scores[ax]||{}).norm)||0)));
+  const dataPts = vals.map((v,i)=>pt(i,v*R).join(',')).join(' ');
+  const dots = AXES.map((ax,i)=>{
+    const [x,y]=pt(i,vals[i]*R);
+    const v=Math.round(Number((scores[ax]||{}).norm||0)*100);
+    return `<circle class="radar-dot ${colorCls}" cx="${x}" cy="${y}" r="3.5"/><text class="val-label" x="${x}" y="${y-7}" text-anchor="middle">${v}</text>`;
+  }).join('');
+  return `<polygon class="grid-outer" points="${AXES.map((_,i)=>pt(i,R).join(',')).join(' ')}"/>${grid}${spokes}${threshPoly}<polygon class="radar-poly ${colorCls}" points="${dataPts}"/>${dots}`;
+}
+
+function renderVerdictDetail(v){
+  if(!v) return;
+  const badge = v.outcome==='ACCEPT' ? 'b-accept' : (v.outcome==='REJECT'?'b-reject':'b-err');
+  const w = Number(v.weighted)||0;
+  const pct = x => Math.max(0, Math.min(100, x));
+  let scores='';
+  for(const [k,s] of Object.entries(v.scores||{})){
+    const p = pct((s.norm||0)*100);
+    const color = p>=60 ? 'var(--green)' : (p>=40?'var(--amber)':'var(--red)');
+    scores += `<div class="score-line"><span class="k">${esc(k.replace(/_/g,' '))}</span><span>${Math.round(p)}%</span></div>
+      <div class="bar"><div style="width:${p}%;background:${color}"></div></div>`;
+  }
+  let gates='';
+  for(const [k,p] of Object.entries(v.gates||{})){
+    const yes = Math.round(p*100);
+    const no  = 100 - yes;
+    const hot = p >= (((v.gate_thresholds||{})[k]) ?? 0.85);
+    const lbl = (v.gate_labels||{})[k] || k.replace(/_/g,' ');
+    gates += `<div class="gate ${hot?'hot':''}" title="YES = the defect is present · NO = clean">
+      <div class="g-top">
+        <span class="g-name">${esc(lbl)}</span>
+        <span class="g-stat"><span class="g-no">NO ${no}%</span> · <span class="g-yes">YES ${yes}%</span></span>
+      </div>
+      <div class="g-bar"><div class="yes" style="width:${yes}%"></div><div class="no" style="width:${no}%"></div></div>
+    </div>`;
+  }
+  const assist = v.assist||{};
+  const assistRows = Object.entries(assist).map(([k,a])=>
+    `<div class="kv"><span class="kk">${esc(k)}</span><span>${esc(a.judgment||'')}${a.reason?' — '+esc(a.reason):''}</span></div>`).join('');
+  const assistHtml = assistRows ? `<div style="margin-top:14px;font-size:12px;font-weight:700;color:var(--muted)">Second opinion (DeepSeek)</div><div>${assistRows}</div>` : '';
+  const pp = v.preprocess||{}; const det = v.deterministic||{};
+  const metaBits = [];
+  if(pp.language) metaBits.push('lang '+esc(pp.language));
+  if(pp.notes) metaBits.push(esc(pp.notes));
+  if(det.stale && det.stale.days_old!=null) metaBits.push('aged '+det.stale.days_old+'d');
+  const sponsoredKeys = Object.keys(det.sponsored||{});
+  if(sponsoredKeys.length) metaBits.push('sponsored: '+esc(sponsoredKeys.join(', ')));
+  const metaHtml = metaBits.length ? `<div class="small" style="margin-top:8px;color:var(--muted)">${metaBits.join(' · ')}</div>` : '';
+  const isReview = v.outcome==='EDITOR REVIEW';
+  $('detail').classList.add('show');
+  $('detailVerdict').innerHTML = `
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <span class="badge ${badge}">${esc(v.outcome||'')}</span>
+      ${v.gate ? `<span class="badge ${isReview?'b-review':'b-reject'}">${esc(v.gate)}</span>` : ''}
+      <span class="small">weighted ${w}% · threshold ${v.threshold} · confidence ${(v.confidence||0).toFixed(2)}</span>
+    </div>
+    <div class="meter">
+      <div style="width:${pct(w)}%"></div>
+      <div class="tick" style="left:${pct(v.threshold||60)}%"></div>
+    </div>
+    <div class="small">green = accept band · white tick = threshold</div>
+    ${v.reasons&&v.reasons.length ? `<div style="color:var(--amber);margin-top:10px">Reasons: ${esc(v.reasons.join(', '))}</div>` : ''}
+    ${metaHtml}
+    <div class="gates-head">🛡 Hard gates ${v.gate ? `<span class="g-dot ${isReview?'':'rej'}"></span><span style="color:var(--${isReview?'amber':'red'});font-size:11px">${isReview?'FLAGGED by ':'REJECTED by '}${esc(v.gate)}</span>` : '<span class="g-dot"></span><span style="color:var(--green);font-size:11px">all clear — no gate fired</span>'}</div>
+    <div class="gates">${gates}</div>
+    ${assistHtml}
+    <div style="margin-top:14px;font-size:12px;font-weight:700;color:var(--muted)">Scored criteria</div>
+    ${scores}
+    <div class="mono" style="margin-top:12px">${esc(v.model||'')} · input ${(v.usage||{}).input_tokens||0} tok · output ${(v.usage||{}).output_tokens||0} tok</div>
+    <div class="mono" style="margin-top:6px">${esc((v.subject||'').slice(0,80))}</div>
+  `;
+  $('detailRadar').innerHTML = radarSVG(v.scores||{}, v.outcome);
+}
+
+function render(){
+  const rows = DATA.verdicts || [];
+  $('empty').style.display = rows.length ? 'none' : 'block';
+  $('tbody').innerHTML = rows.slice().reverse().map((v,i)=>{
+    const idx = rows.length-1-i;
+    const badge = v.outcome==='ACCEPT'?'b-accept':(v.outcome==='REJECT'?'b-reject':(v.outcome==='EDITOR REVIEW'?'b-review':'b-err'));
+    const w = Number(v.weighted)||0;
+    const color = w>=60?'var(--green)':(w>=40?'var(--amber)':'var(--red)');
+    const key = String(v.ts||'') + '|' + String(v.subject||'');
+    const sel = SELECTED===key ? ' sel' : '';
+    return `<tr class="${sel}" data-idx="${idx}" title="click for detail">
+      <td class="mono" style="white-space:nowrap">${fmt(v.ts)}</td>
+      <td><span class="badge ${badge}">${esc(v.outcome||'')}</span></td>
+      <td style="min-width:90px">${w}%
+        <div class="bar"><div style="width:${Math.max(0,Math.min(100,w))}%;background:${color}"></div></div>
+      </td>
+      <td class="mono">${esc(v.gate||'—')}</td>
+      <td>${esc((v.subject||'').slice(0,90))}</td>
+      <td class="mono" style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(v.from||'')}</td>
+    </tr>`;
+  }).join('');
+  // row clicks -> show detail + persist selection
+  $('tbody').querySelectorAll('tr').forEach(tr=>{
+    tr.addEventListener('click', ()=>{
+      const v = DATA.verdicts[+tr.dataset.idx];
+      if(!v) return;
+      const key = String(v.ts||'') + '|' + String(v.subject||'');
+      SELECTED = key;
+      localStorage.setItem(SEL_KEY, key);
+      render();
+      renderVerdictDetail(v);
+    });
+  });
+  // restore selection if still present
+  const selRow = DATA.verdicts.find(v => (String(v.ts||'')+'|'+String(v.subject||'')) === SELECTED);
+  if(selRow){ renderVerdictDetail(selRow); }
+}
+
+function load(){
+  fetch('/verdicts').then(r=>r.json()).then(d=>{
+    DATA = d;
+    const g = $('gen');
+    if(g) g.textContent = new Date().toLocaleTimeString();
+    render();
+  }).catch(()=>{});
+}
+load();
+setInterval(load, 15000);
+
+document.getElementById('clearBtn').addEventListener('click', () => {
+  if(!confirm('Empty all filter verdict + error data? This cannot be undone.')) return;
+  fetch('/clear', {method:'POST'})
+    .then(r=>r.json())
+    .then(d=>{
+      alert(d.ok ? 'Data cleared ✓' : 'Error clearing data');
+      localStorage.removeItem(SEL_KEY);
+      SELECTED = '';
+      load();
+    })
+    .catch(e=>alert('clear failed: ' + e.message));
+});
+</script>
+</body>
+</html>

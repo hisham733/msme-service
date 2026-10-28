@@ -1,0 +1,17 @@
+{
+  "in_sample_base": 0.2,
+  "in_sample_opt": 0.303,
+  "chosen": {
+    "nsr_consumer": "nsr_consumer_1",
+    "nsr_single_company": "nsr_single_company",
+    "nsr_event": "nsr_event_1",
+    "nsr_education": "nsr_education",
+    "nsr_foreign_delegation": "nsr_foreign_delegation",
+    "disc_content": "disc_content",
+    "unsubst_claims": "unsubst_claims",
+    "partisan_campaign": "partisan_campaign",
+    "attacks_government": "attacks_government"
+  },
+  "cv_base": 0.17,
+  "cv_learn": 0.21
+}

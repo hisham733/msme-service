@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<meta charset="utf-8">
+<title>Workflow — MSME Newsbot</title>
+<style>
+  :root {
+    --bg:#0b1220; --card:#111827; --border:#1f2937; --text:#e5e7eb; --muted:#94a3b8;
+    --accent:#2dd4bf; --accent-soft:rgba(45,212,191,.12); --green:#34d399; --amber:#fbbf24;
+    --red:#f87171; --purple:#a78bfa; --purple-soft:rgba(167,139,250,.14); --cyan:#22d3ee;
+  }
+  * { box-sizing:border-box; }
+  body { font-family:"Inter",-apple-system,"Segoe UI",Roboto,sans-serif; background:var(--bg); color:var(--text); margin:0; padding:24px; }
+  h1 { font-size:20px; margin:0 0 4px; letter-spacing:-.01em; }
+  .sub { color:var(--muted); font-size:13px; margin-bottom:18px; }
+  .nav { display:flex; gap:6px; background:var(--card); border:1px solid var(--border); border-radius:10px; padding:6px; margin-bottom:22px; flex-wrap:wrap; width:fit-content; }
+  .nav a { color:var(--muted); text-decoration:none; padding:7px 14px; border-radius:7px; font-size:14px; font-weight:600; }
+  .nav a:hover { background:var(--accent-soft); color:var(--accent); }
+  .nav a.active { background:var(--accent); color:#062a26; font-weight:700; }
+
+  .wf { overflow-x:auto; background:var(--card); border:1px solid var(--border); border-radius:14px; padding:24px; box-shadow:0 1px 3px rgba(0,0,0,.3); }
+  .wf-inner { min-width:1150px; }
+  .col { display:flex; flex-direction:column; gap:12px; }
+  .rows { display:flex; gap:26px; align-items:flex-start; }
+  .lane { flex:1; min-width:170px; position:relative; }
+  .lane-label { font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); font-weight:600; margin-bottom:8px; text-align:center; }
+
+  .node { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:12px 10px; text-align:center; position:relative; cursor:pointer; transition:all .2s; }
+  .node:hover { border-color:var(--accent); transform:translateY(-2px); box-shadow:0 4px 14px rgba(45,212,191,.12); }
+  .node.ai { border-color:var(--purple); box-shadow:0 0 0 1px var(--purple) inset; }
+  .node.drive { border-color:var(--green); }
+  .node.finish { border-color:var(--amber); }
+  .node .ico { width:36px; height:36px; line-height:34px; margin:0 auto; font-size:18px; border-radius:10px;
+    background:linear-gradient(160deg,#1a2438,#0f172a); border:1px solid var(--border);
+    box-shadow:inset 0 0 14px rgba(45,212,191,.06); transition:all .25s ease; }
+  .node .nm { font-weight:600; font-size:12.5px; margin-top:5px; color:var(--text); }
+  .node .desc { color:var(--muted); font-size:10.5px; margin-top:2px; line-height:1.3; }
+  .node .st { display:inline-block; margin-top:6px; padding:1px 8px; border-radius:10px; font-size:10px; font-weight:600; }
+  .st.done { background:var(--accent-soft); color:var(--accent); }
+  .st.run { background:rgba(251,191,36,.15); color:var(--amber); animation:pulse 1s infinite; }
+  .st.idle { background:#1f2937; color:var(--muted); }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.45} }
+
+  /* live-trace states: active node glows amber, completed stays teal */
+  .node.active { border-color:var(--amber); box-shadow:0 0 0 1px var(--amber), 0 8px 24px rgba(251,191,36,.22); transform:translateY(-2px); z-index:1; }
+  .node.active .ico { border-color:var(--amber); box-shadow:0 0 16px rgba(251,191,36,.35); animation:pulse 1s infinite; }
+  .node.done { border-color:var(--accent); box-shadow:inset 0 0 0 1px rgba(45,212,191,.35), 0 0 14px rgba(45,212,191,.10); }
+  .node.done .ico { border-color:var(--accent); box-shadow:0 0 14px rgba(45,212,191,.28); }
+  .node.done .nm::after { content:' ✓'; color:var(--green); font-weight:700; }
+  /* dim the not-yet-reached nodes while the trace plays */
+  .wf.playing .node { opacity:.45; }
+  .wf.playing .node.active, .wf.playing .node.done { opacity:1; }
+
+  .branch { border:1px dashed #334155; border-radius:10px; padding:10px; background:#0f172a; }
+  .branch-label { font-size:10px; color:var(--cyan); text-transform:uppercase; letter-spacing:.05em; margin-bottom:6px; text-align:center; font-weight:600; }
+
+  /* connectors: flowing dashes + a travelling data packet */
+  .conn { position:relative; height:26px; display:flex; justify-content:center; }
+  .conn::before { content:''; position:absolute; top:0; bottom:0; width:2px; background:#243044; border-radius:2px; }
+  .conn::after { content:''; position:absolute; top:0; bottom:0; width:2px; opacity:0; transition:opacity .3s;
+    background-image:repeating-linear-gradient(180deg,var(--accent) 0 5px,transparent 5px 11px); }
+  .conn > i { position:absolute; top:-3px; width:6px; height:6px; border-radius:50%; opacity:0;
+    background:var(--accent); box-shadow:0 0 10px var(--accent), 0 0 4px var(--accent); }
+  .conn.active::before { background:#12312f; }
+  .conn.active::after { opacity:1; animation:flowY .5s linear infinite; }
+  .conn.active > i { animation:packetY .85s ease-in infinite; }
+  .conn.flowed::before { background:linear-gradient(180deg,var(--accent),var(--green)); }
+  .conn.flowed::after { opacity:.5; }
+  .conn.side::after { background-image:repeating-linear-gradient(180deg,var(--cyan) 0 5px,transparent 5px 11px); }
+  .conn.side > i { background:var(--cyan); box-shadow:0 0 10px var(--cyan), 0 0 4px var(--cyan); }
+  @keyframes flowY { from{background-position:0 0} to{background-position:0 11px} }
+  @keyframes packetY { 0%{transform:translateY(0);opacity:0} 20%{opacity:1} 80%{opacity:1} 100%{transform:translateY(20px);opacity:0} }
+
+  /* kinetic narration caption over the diagram */
+  .narr { text-align:center; margin:0 auto 14px; width:fit-content; max-width:100%;
+    background:var(--card); border:1px solid var(--accent); color:var(--accent); font-weight:700; font-size:12.5px;
+    padding:6px 16px; border-radius:20px; box-shadow:0 0 20px rgba(45,212,191,.25); display:none; }
+  .narr.show { display:block; animation:pop .25s ease; }
+
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:20px; }
+  @media (max-width:1000px){ .grid2 { grid-template-columns:1fr; } }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; box-shadow:0 1px 3px rgba(0,0,0,.3); }
+  .card h3 { margin:0 0 10px; font-size:14px; }
+  .row { display:flex; justify-content:space-between; font-size:13px; padding:5px 0; border-bottom:1px solid var(--border); }
+  .row:last-child { border-bottom:none; }
+  .k { color:var(--muted); }
+  table { width:100%; border-collapse:collapse; font-size:12.5px; }
+  th, td { text-align:left; padding:7px 8px; border-bottom:1px solid var(--border); vertical-align:top; }
+  th { color:var(--muted); font-size:11px; text-transform:uppercase; }
+  .subj { max-width:300px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .scroll { max-height:380px; overflow:auto; }
+  .st2 { font-weight:600; padding:2px 8px; border-radius:10px; font-size:11px; }
+  .st2.ok { background:var(--accent-soft); color:var(--accent); }
+  .st2.bad { background:rgba(248,113,113,.14); color:var(--red); }
+  .st2.na { background:#1f2937; color:var(--muted); }
+
+  #livePanel { margin-top:20px; }
+  #liveTrace { background:#0f172a; border:1px solid var(--border); border-radius:10px; padding:14px; min-height:120px; max-height:230px; overflow-y:auto; font-size:13px; }
+  #liveTrace .lt-line { display:flex; gap:10px; padding:5px 0; border-bottom:1px solid var(--border); animation:slideIn .3s ease; }
+  #liveTrace .lt-line:last-child { border-bottom:none; }
+  @keyframes slideIn { from { opacity:0; transform:translateX(-8px); } to { opacity:1; transform:none; } }
+  .lt-st { color:var(--accent); font-weight:700; min-width:150px; }
+  .lt-k { color:var(--muted); min-width:130px; }
+  .livehead { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+  .livehead h3 { flex:1; }
+  .livehead .pulse-dot { width:10px; height:10px; border-radius:50%; background:var(--green); animation:pulse 1s infinite; }
+  #replayBtn { background:var(--accent-soft); color:var(--accent); border:1px solid var(--accent); border-radius:8px; padding:5px 13px; font-size:12px; font-weight:700; cursor:pointer; font-family:inherit; }
+  #replayBtn:hover { background:var(--accent); color:#062a26; }
+  .tracebar { height:4px; background:#1f2937; border-radius:3px; overflow:hidden; margin:0 0 12px; }
+  .tracebar > i { display:block; height:100%; width:0; background:linear-gradient(90deg,var(--accent),var(--green)); transition:width .45s ease; }
+
+  .run-card { border-left:3px solid var(--accent); margin-bottom:12px; }
+  .run-head { display:flex; justify-content:space-between; align-items:center; cursor:pointer; }
+  .run-head .tt { font-weight:600; font-size:13px; }
+  .stages { margin-top:10px; border-top:1px solid var(--border); padding-top:10px; }
+  .stg { margin-bottom:8px; }
+  .stg-head { display:flex; align-items:center; gap:8px; font-size:12.5px; font-weight:600; cursor:pointer; color:var(--accent); }
+  .stg-body { display:none; margin-top:6px; background:#0f172a; border:1px solid var(--border); border-radius:8px; padding:10px; font-size:12px; }
+  .stg.open .stg-body { display:block; }
+  .kv { display:flex; gap:8px; padding:2px 0; }
+  .kv .kk { color:var(--muted); min-width:140px; }
+  #empty { color:var(--muted); text-align:center; padding:30px; }
+
+  .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.6); display:none; align-items:center; justify-content:center; z-index:50; padding:20px; }
+  .modal-overlay.open { display:flex; }
+  .modal { background:#111827; border:1px solid var(--border); border-radius:14px; width:560px; max-width:100%; max-height:84vh; overflow-y:auto; padding:22px; animation:pop .18s ease; box-shadow:0 10px 40px rgba(0,0,0,.5); }
+  @keyframes pop { from { transform:scale(.96); opacity:0; } to { transform:none; opacity:1; } }
+  .modal .m-head { display:flex; align-items:center; gap:12px; margin-bottom:6px; }
+  .modal .m-ico { font-size:28px; }
+  .modal .m-title { font-size:17px; font-weight:700; }
+  .modal .m-tag { font-size:11px; padding:2px 10px; border-radius:10px; margin-left:auto; font-weight:700; }
+  .modal .m-tag.ai { background:var(--purple-soft); color:var(--purple); }
+  .modal .m-tag.drive { background:var(--accent-soft); color:var(--accent); }
+  .modal .m-tag.output { background:rgba(251,191,36,.15); color:var(--amber); }
+  .modal .m-tag.plain { background:#1f2937; color:var(--muted); }
+  .modal .m-sub { color:var(--muted); font-size:13px; margin-bottom:14px; }
+  .modal h4 { font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin:14px 0 6px; }
+  .modal .explain { font-size:13px; line-height:1.55; color:#cbd5e1; }
+  .modal .example { background:#0f172a; border:1px solid var(--border); border-radius:8px; padding:10px; font-family:ui-monospace,Menlo,monospace; font-size:11.5px; white-space:pre-wrap; color:#5eead4; max-height:160px; overflow:auto; }
+  .modal .realtime { background:#0f172a; border:1px solid var(--border); border-radius:8px; padding:10px; font-size:12px; }
+  .modal .realtime .kv { padding:3px 0; }
+  .modal .close { float:right; background:none; border:1px solid var(--border); color:var(--muted); border-radius:8px; padding:6px 12px; cursor:pointer; font-size:12px; }
+  .modal .close:hover { color:var(--text); border-color:var(--muted); }
+</style></style>
+</head>
+<body>
+  <h1>Workflow</h1>
+  <div class="sub">Complete pipeline · click any card for explanation, live data + example</div>
+  <div class="nav">
+    <a href="checklist.html">Checklist</a>
+    <a href="config.html">Config</a>
+  </div>
+
+  <!-- ============ FULL WORKFLOW DIAGRAM ============ -->
+  <div class="wf">
+    <div class="narr" id="narr"></div>
+    <div class="wf-inner">
+      <div class="rows">
+        <div class="lane">
+          <div class="lane-label">1 · Intake</div>
+          <div class="col">
+            <div class="node" id="n-gmail" onclick="openModal('gmail')"><div class="ico">📥</div><div class="nm">Gmail Inbox</div><div class="desc">unread · in:inbox -category:promotions</div><div class="st idle" id="s-gmail">idle</div></div>
+            <div class="conn"><i></i></div>
+            <div class="node" id="n-norm" onclick="openModal('norm')"><div class="ico">🧹</div><div class="nm">Normalize</div><div class="desc">parse + strip covers/disclaimers + find links</div><div class="st idle" id="s-norm">idle</div></div>
+            <div class="conn"><i></i></div>
+            <div class="node ai" id="n-decide" onclick="openModal('decide')"><div class="ico">🎯</div><div class="nm">Decide Source <span style="color:var(--purple)">AI</span></div><div class="desc">which attachment + images + link</div><div class="st idle" id="s-decide">idle</div></div>
+          </div>
+        </div>
+        <div class="lane">
+          <div class="lane-label">2 · Route</div>
+          <div class="col">
+            <div class="branch">
+              <div class="branch-label">attachment?</div>
+              <div class="col">
+                <div class="node" id="n-att" onclick="openModal('att')"><div class="ico">📎</div><div class="nm">Load Attachments</div><div class="desc">PDF/DOCX via Gmail API</div><div class="st idle" id="s-att">idle</div></div>
+                <div class="conn"><i></i></div>
+                <div class="node" id="n-ext-att" onclick="openModal('ext-att')"><div class="ico">📄</div><div class="nm">Extract PDF/DOCX text</div><div class="desc">pypdf / python-docx</div><div class="st idle" id="s-ext-att">idle</div></div>
+              </div>
+            </div>
+            <div class="conn side"><i></i></div>
+            <div class="branch">
+              <div class="branch-label">drive link?</div>
+              <div class="col">
+                <div class="node drive" id="n-drive" onclick="openModal('drive')"><div class="ico">🗂️</div><div class="nm">Drive Media Kit</div><div class="desc">recursive walk + download</div><div class="st idle" id="s-drive">idle</div></div>
+                <div class="conn"><i></i></div>
+                <div class="node drive" id="n-drive-ext" onclick="openModal('drive-ext')"><div class="ico">📄</div><div class="nm">Extract Drive DOCX/PDF</div><div class="desc">article from media kit</div><div class="st idle" id="s-drive-ext">idle</div></div>
+              </div>
+            </div>
+            <div class="conn side"><i></i></div>
+            <div class="branch">
+              <div class="branch-label">body / web only</div>
+              <div class="node" id="n-body" onclick="openModal('body')"><div class="ico">📝</div><div class="nm">Email Body</div><div class="desc">article in body, or web link</div><div class="st idle" id="s-body">idle</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="lane">
+          <div class="lane-label">3 · Extract &amp; Check</div>
+          <div class="col">
+            <div class="node ai" id="n-extract" onclick="openModal('extract')"><div class="ico">📄</div><div class="nm">Extract &amp; Clean PR <span style="color:var(--purple)">AI</span></div><div class="desc">verbatim article + evidence</div><div class="st idle" id="s-extract">idle</div></div>
+            <div class="conn"><i></i></div>
+            <div class="node" id="n-logo" onclick="openModal('logo')"><div class="ico">🖼️</div><div class="nm">Logo Scan</div><div class="desc">deterministic embedded image</div><div class="st idle" id="s-logo">idle</div></div>
+            <div class="conn"><i></i></div>
+            <div class="node ai" id="n-verify" onclick="openModal('verify')"><div class="ico">✅</div><div class="nm">Verify <span style="color:var(--purple)">AI</span></div><div class="desc">headline · match · ready-to-filter</div><div class="st idle" id="s-verify">idle</div></div>
+          </div>
+        </div>
+        <div class="lane">
+          <div class="lane-label">4 · Output</div>
+          <div class="col">
+            <div class="node" id="n-filter" onclick="openModal('filter')"><div class="ico">⚖️</div><div class="nm">Filter (Jev)</div><div class="desc">gates · scores · weighted</div><div class="st idle" id="s-filter">idle</div></div>
+            <div class="conn"><i></i></div>
+            <div class="node finish" id="n-checklist" onclick="openModal('checklist')"><div class="ico">📋</div><div class="nm">Checklist Row</div><div class="desc">14 cols → SQLite</div><div class="st idle" id="s-checklist">idle</div></div>
+            <div class="conn"><i></i></div>
+            <div class="node finish" id="n-dash" onclick="openModal('dash')"><div class="ico">📊</div><div class="nm">Dashboard</div><div class="desc">checklist · flow · logs · config</div><div class="st idle" id="s-dash">idle</div></div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:16px; display:flex; gap:22px; flex-wrap:wrap; font-size:12px; color:var(--muted);">
+        <span><b style="color:var(--purple)">▣ AI</b></span><span><b style="color:var(--green)">■ Drive</b></span>
+        <span><b style="color:var(--amber)">■ output</b></span><span><b style="color:var(--cyan)">↘ branch</b></span>
+        <span style="margin-left:auto">💡 click any card for detail</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ ANIMATED LIVE TRACE ============ -->
+  <div class="card" id="livePanel">
+    <div class="livehead"><span class="pulse-dot" id="liveDot"></span>
+      <h3 style="margin:0">Live pipeline trace <span style="font-weight:400;color:var(--muted)" id="liveInfo">· latest run</span></h3>
+      <button id="replayBtn" onclick="animateTrace()">↻ Replay</button>
+    </div>
+    <div class="tracebar"><i id="traceProg"></i></div>
+    <div id="liveTrace"><div style="color:var(--muted)">Processing…</div></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>Service</h3>
+      <div class="row"><span class="k">Status</span><span id="mStatus">—</span></div>
+      <div class="row"><span class="k">Auto-poll</span><span id="mAuto">—</span></div>
+      <div class="row"><span class="k">Unread emails</span><span id="mEmails">—</span></div>
+      <div class="row"><span class="k">Processed</span><span id="mProcessed">—</span></div>
+      <div class="row"><span class="k">Errors</span><span id="mErrors">—</span></div>
+    </div>
+    <div class="card">
+      <h3>Inbox (unread)</h3>
+      <div class="scroll">
+        <table><thead><tr><th>Subject</th><th>From</th></tr></thead><tbody id="inboxBody"></tbody></table>
+        <div id="inboxEmpty" style="color:var(--muted);text-align:center;padding:20px">no unread emails</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px">
+    <h3>Recent runs — full pipeline detail <span style="font-weight:400;color:var(--muted)">(click to expand)</span></h3>
+    <div id="runs"></div>
+    <div id="empty">No runs yet. Process an email from the Checklist page.</div>
+  </div>
+
+  <!-- ============ MODAL ============ -->
+  <div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+    <div class="modal" id="modalBox"></div>
+  </div>
+
+<script>
+let LATEST = null;
+
+/* ---- stage knowledge base: explanation + example per node ---- */
+const KNOWLEDGE = {
+  gmail:{ico:'📥',tag:'plain',tagText:'trigger',
+    title:'Gmail Inbox',
+    explain:'The entry point. The service polls Gmail for unread messages matching the configured query (default: in:inbox -category:promotions). Each unread press release email becomes one pipeline run.',
+    example:'Query: in:inbox is:unread -category:promotions\n→ 19 messages found',
+    stageKey:null},
+  norm:{ico:'🧹',tag:'plain',tagText:'parser',
+    title:'Normalize',
+    explain:'Converts the raw Gmail message into a clean model: subject, from, date, body text, attachment inventory, and every external link in the body. It strips the editor cover note ("Hi Isabel, please republish"), the disclaimer boilerplate, and forward-carrier headers so only the real content reaches the AI.',
+    example:'Subject: Press Release | MRCA CELEBRATES...\nFrom: Editor MSME <editor@malaysiasme.com.my>\nAttachments: [4 .docx]\nlinksFound: [drive.google.com/folders/...]',
+    stageKey:null},
+  decide:{ico:'🎯',tag:'ai',tagText:'AI agent',
+    title:'Decide Source (AI)',
+    explain:'A DeepSeek agent reads the email metadata (subject, from, body, attachment names/types/sizes, links) and decides: (1) which attachment is the actual press release (English preferred), (2) whether images are available, (3) whether there is a media-kit link to fetch. It never reads file contents here — it decides from names and the email text.',
+    example:'INPUT: 4 attachments (EN/CN/BM docx + captions), links: none\nOUTPUT: { chosenAttachmentKey:"attachment_1", chosenFileName:"EN_MRCA...docx", chosenDocType:"docx", isEnglish:true, linkToFetch:"" }',
+    stageKey:'decide'},
+  att:{ico:'📎',tag:'plain',tagText:'route',
+    title:'Load Attachments',
+    explain:'Downloads the email attachment bytes via the Gmail API (users.messages.attachments.get). Works with PDF, DOCX, DOC. Only the attachments are pulled; nothing is decoded here.',
+    example:'[Removal of 30%...pdf] → 247 KB downloaded',
+    stageKey:'load_attachments'},
+  'ext-att':{ico:'📄',tag:'plain',tagText:'extract',
+    title:'Extract PDF/DOCX text',
+    explain:'Converts the attachment bytes to plain text: pypdf for PDFs, python-docx for DOCX (with a zip fallback). This text is what the Extract AI agent reads as the article source.',
+    example:'PDF → 6058 chars of release text\n"FOR IMMEDIATE RELEASE... SME Association welcomes the decision..."',
+    stageKey:'load_attachments'},
+  drive:{ico:'🗂️',tag:'drive',tagText:'Drive',
+    title:'Drive Media Kit',
+    explain:'When the email has a Google Drive media-kit link, this walks the folder RECURSIVELY (a while-loop over subfolders — no AI needed, fully deterministic). It collects every release document (PDF/DOCX) and every image, plus detects whether any doc contains an embedded image (logo).',
+    example:'Folder 1yrvbBpQa...\n→ docs: [Press_Release_...docx (4300c), Siaran_Media_...docx (4639c)]\n→ images: 4 · embedded logo: true',
+    stageKey:'drive_fetch'},
+  'drive-ext':{ico:'📄',tag:'drive',tagText:'extract',
+    title:'Extract Drive DOCX/PDF',
+    explain:'Extracts text from the release documents found inside the Drive media kit (English preferred). If no attachment article exists, the Drive article text becomes the article source.',
+    example:'[English] Press Release_Lion Parcel...pdf → 6577 chars',
+    stageKey:'drive_fetch'},
+  body:{ico:'📝',tag:'plain',tagText:'route',
+    title:'Email Body / Web',
+    explain:'If there is no attachment and no Drive link, the article is either the email body itself (full release or opinion piece) or reachable via a web link. The body text is passed to the Extract AI agent.',
+    example:'AICPA & CIMA opinion piece — 900 words bylined in the email body',
+    stageKey:null},
+  extract:{ico:'📄',tag:'ai',tagText:'AI agent',
+    title:'Extract & Clean PR (AI)',
+    explain:'The core AI step. DeepSeek reads the raw email + attachment/drive text and returns: the VERBATIM article text (bodyText), the source type (attachment/pdf/docx/drive/email), whether a logo or image is in the article, and evidence. It strips cover notes, disclaimers, and forward headers, keeping only the real release.',
+    example:'OUTPUT: { bodyText:"NOTE TO EDITORS:\\nFOR IMMEDIATE RELEASE...", articleSource:"attachment_pdf", hasLogoInArticle:false, needsHumanFetch:false, confidence:0.94 }',
+    stageKey:'extract'},
+  logo:{ico:'🖼️',tag:'plain',tagText:'deterministic',
+    title:'Logo Scan',
+    explain:'A deterministic check (no AI) that a release document contains an embedded image/logo: PDFs are scanned for /Subtype /Image objects; DOCX files are checked for word/media/ entries. Combined with the AI logo flag, this drives hasLogoInArticle.',
+    example:'PDF has 1 /Subtype /Image (900×274 banner) → docLogo = true',
+    stageKey:'logo_scan'},
+  verify:{ico:'✅',tag:'ai',tagText:'AI agent',
+    title:'Verify (AI)',
+    explain:'The final AI verdict. DeepSeek compares the email subject to the extracted headline, assigns a match score (0-100), and decides hasArticle, hasPic, hasLogo, hasLogoInArticle, hasImageInArticle, and readyToFilter. This replaces the fragile regex/math checklist logic from the old n8n build.',
+    example:'OUTPUT: { headline:"Lion Parcel Officially Expands to Malaysia...", subjectMatch:true, subjectScore:85, hasArticle:true, hasLogo:true, readyToFilter:true }',
+    stageKey:'verify'},
+  filter:{ico:'⚖️',tag:'plain',tagText:'Jev',
+    title:'Filter (Jev)',
+    explain:'When readyToFilter=true, the same pipeline calls Jev on the extracted article. The 3 hard gates and 11 weighted scores are stored in filter_results and linked to this checklist row. The outcome is ACCEPT, REJECT or EDITOR REVIEW; a filter failure does not fail the receive run.',
+    example:'OUTPUT: { outcome:"ACCEPT", weighted:78, gates:{royal_respect:0.01,...}, scores:{...} }',
+    stageKey:'filter'},
+  checklist:{ico:'📋',tag:'output',tagText:'output',
+    title:'Checklist Row',
+    explain:'Builds the 14-column row (subject, threadId, date, folderId, folderUrl, articleFile, hasArticle, hasPic, hasLogo, hasLogoInArticle, hasImageInArticle, subjectMatch, subjectScore, readyToFilter) and saves it to SQLite (the checklist source of truth); the Google Sheet is optional/manual and not synced.',
+    example:'["Fwd: Lion Parcel...", "1a0cbbc58a46d80a", "2026-09-23", "", "", "Lion-Parcel...md", "true","true","true","true","true","true","85","true"]',
+    stageKey:null},
+  dash:{ico:'📊',tag:'output',tagText:'output',
+    title:'Dashboard',
+    explain:'The results surface on the dashboard pages: checklist.html (the table + KPIs), flow.html (this page), logs.html (errors), and config.html (settings). All served by the same service.',
+    example:'http://localhost:8899/checklist.html · flow.html · logs.html · config.html',
+    stageKey:null}
+};
+
+const STAGE_NAMES = {
+  decide:'🎯 Decide Source', load_attachments:'📎 Load Attachments', drive_fetch:'🗂️ Drive Media Kit',
+  extract:'📄 Extract Article', logo_scan:'🖼️ Logo Scan', verify:'✅ Verify', archive:'📂 Archive to Drive',
+  filter:'⚖️ Filter (Jev)', tokens:'🔢 Tokens used'
+};
+const NODE_MAP = { decide:'decide', load_attachments:'att', drive_fetch:'drive', extract:'extract', logo_scan:'logo', verify:'verify', filter:'filter' };
+
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function badge(v){ return `<span class="st2 ${v?'ok':'bad'}">${v?'yes':'no'}</span>`; }
+function setStep(id,status){ const el=document.getElementById('s-'+id); if(el){ el.className='st '+status; el.textContent=status; } }
+
+/* ---------- modal ---------- */
+function openModal(nodeId){
+  const k = KNOWLEDGE[nodeId];
+  if(!k) return;
+  const box=document.getElementById('modalBox');
+  // real-time data from latest run (if this node has a stage)
+  let realtime='';
+  if(k.stageKey && LATEST && LATEST.stages && LATEST.stages[k.stageKey]){
+    const d = LATEST.stages[k.stageKey].detail||{};
+    realtime = `<h4>Live data — latest run</h4><div class="realtime">${
+      Object.entries(d).slice(0,8).map(([kk,vv])=>
+        `<div class="kv"><span class="kk">${esc(kk)}</span><span>${esc(typeof vv==='object'?JSON.stringify(vv):vv)}</span></div>`).join('')
+    }</div>`;
+  }
+  box.innerHTML = `
+    <button class="close" onclick="closeModal()">✕ close</button>
+    <div class="m-head"><span class="m-ico">${k.ico}</span><span class="m-title">${k.title}</span>
+      <span class="m-tag ${k.tag}">${k.tagText}</span></div>
+    <div class="m-sub">${k.tag==='ai'?'DeepSeek · deepseek-v4-flash':''}</div>
+    <h4>What it does</h4><div class="explain">${k.explain}</div>
+    <h4>Example</h4><div class="example">${esc(k.example)}</div>
+    ${realtime}`;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function closeModal(){ document.getElementById('modalOverlay').classList.remove('open'); }
+
+/* ---------- animated trace ---------- */
+let traceTimer = null;   // pending setTimeout id
+let traceSeq = 0;        // bumps on every (re)start so stale timers self-cancel
+
+const NARRATION = {
+  decide:'🎯 Choosing the article source…',
+  load_attachments:'📎 Pulling attachments…',
+  drive_fetch:'🗂️ Walking the Drive media kit…',
+  extract:'📄 Extracting the article…',
+  logo_scan:'🖼️ Scanning for logos…',
+  verify:'✅ Verifying the verdict…',
+  archive:'📂 Archiving to Drive…',
+  filter:'⚖️ Judging with Jev…',
+  tokens:'🔢 Counting tokens…'
+};
+
+/* nearest connector above a node — handles nodes nested in a .branch too */
+function precedingConn(nodeEl){
+  let sib = nodeEl.previousElementSibling;
+  while(sib && !sib.classList.contains('conn')) sib = sib.previousElementSibling;
+  if(sib) return sib;
+  const branch = nodeEl.closest('.branch');
+  if(branch){
+    let b = branch.previousElementSibling;
+    while(b && !b.classList.contains('conn')) b = b.previousElementSibling;
+    if(b) return b;
+  }
+  return null;
+}
+function setNarr(text){
+  const n=document.getElementById('narr'); if(!n) return;
+  if(!text){ n.classList.remove('show'); n.textContent=''; return; }
+  n.textContent=text; n.classList.add('show');
+}
+function resetTrace(){
+  document.querySelectorAll('.node').forEach(n=>n.classList.remove('active','done'));
+  document.querySelectorAll('.conn').forEach(c=>c.classList.remove('active','flowed'));
+  document.querySelectorAll('.st').forEach(s=>{ s.className='st idle'; s.textContent='idle'; });
+  const wf=document.querySelector('.wf'); if(wf) wf.classList.remove('playing');
+  setNarr('');
+  const prog=document.getElementById('traceProg'); if(prog) prog.style.width='0%';
+  const dot=document.getElementById('liveDot'); if(dot){ dot.style.background='var(--green)'; dot.style.animation='pulse 1s infinite'; }
+}
+function nodeRun(id){
+  const n=document.getElementById('n-'+id);
+  if(n){
+    n.classList.remove('done'); n.classList.add('active');
+    const c=precedingConn(n); if(c){ c.classList.remove('flowed'); c.classList.add('active'); }
+    n.scrollIntoView({block:'nearest',behavior:'smooth'});
+  }
+  setStep(id,'run');
+}
+function nodeDone(id){
+  const n=document.getElementById('n-'+id);
+  if(n){
+    n.classList.remove('active'); n.classList.add('done');
+    const c=precedingConn(n); if(c){ c.classList.remove('active'); c.classList.add('flowed'); }
+  }
+  setStep(id,'done');
+}
+
+function animateTrace(){
+  if(traceTimer){ clearTimeout(traceTimer); traceTimer=null; }
+  const seq = ++traceSeq;
+  const trace=document.getElementById('liveTrace');
+  const info=document.getElementById('liveInfo');
+  resetTrace();
+  const stages=(LATEST && LATEST.stages) ? LATEST.stages : {};
+  const order=Object.keys(stages);
+  if(!order.length){ trace.innerHTML='<div style="color:var(--muted)">No pipeline data yet — run an email first.</div>'; if(info) info.textContent='· no data'; return; }
+  trace.innerHTML='';
+  if(info) info.textContent='· running…';
+  const wf=document.querySelector('.wf'); if(wf) wf.classList.add('playing');
+
+  const STEP_MS=1500;
+  let i=0;
+  const step=()=>{
+    if(seq!==traceSeq) return;                       // a newer replay superseded us
+    const key=order[i];
+    const stg=stages[key]||{};
+    const nid=NODE_MAP[key];
+    setNarr(NARRATION[key] || (STAGE_NAMES[key]||key));
+    if(nid) nodeRun(nid);
+    if(i>0){ const p=NODE_MAP[order[i-1]]; if(p) nodeDone(p); }   // finish previous
+
+    const label=STAGE_NAMES[key]||key;
+    const detail=stg.detail||{};
+    const summary=Object.entries(detail).slice(0,5)
+      .map(([k,v])=>`<span class="lt-k">${esc(k)}</span> <span>${esc(typeof v==='object'?JSON.stringify(v):v)}</span>`).join('<br>');
+    const line=document.createElement('div');
+    line.className='lt-line';
+    line.innerHTML=`<span class="lt-st">${i+1}. ${label}</span><div style="flex:1">${summary}</div>`;
+    trace.appendChild(line);
+    trace.scrollTop=trace.scrollHeight;
+
+    const prog=document.getElementById('traceProg');
+    if(prog) prog.style.width=Math.round(((i+1)/order.length)*100)+'%';
+    if(info) info.textContent=`· stage ${i+1} / ${order.length}`;
+    i++;
+
+    if(i>=order.length){
+      if(nid) nodeDone(nid);
+      const last=NODE_MAP[order[order.length-1]]; if(last) nodeDone(last);
+      nodeDone('checklist'); nodeDone('dash');
+      const done=document.createElement('div');
+      done.className='lt-line';
+      done.innerHTML='<span class="lt-st" style="color:var(--green)">✓ Complete</span><div>Verdict saved to checklist + dashboard.</div>';
+      trace.appendChild(done);
+      trace.scrollTop=trace.scrollHeight;
+      if(info) info.textContent='· complete';
+      setNarr('✅ Complete — saved to checklist + dashboard');
+      if(wf) wf.classList.remove('playing');
+      const dot=document.getElementById('liveDot'); if(dot) dot.style.background='var(--green)';
+      return;
+    }
+    traceTimer=setTimeout(step, STEP_MS);
+  };
+  traceTimer=setTimeout(step, 450);
+}
+
+function kv(obj){ return Object.entries(obj||{}).map(([k,v])=>`<div class="kv"><span class="kk">${esc(k)}</span><span>${esc(typeof v==='object'?JSON.stringify(v):v)}</span></div>`).join(''); }
+
+function renderRuns(results){
+  const box=document.getElementById('runs');
+  const empty=document.getElementById('empty');
+  if(!results.length){ empty.style.display='block'; box.innerHTML=''; return; }
+  empty.style.display='none';
+  box.innerHTML = results.map((r,i)=>{
+    const row=r.row||{}; const stages=r.stages||{};
+    const stageHtml = Object.keys(stages).map(key=>{
+      const d=stages[key].detail||{};
+      return `<div class="stg" id="stg-${i}-${key}">
+        <div class="stg-head" onclick="document.getElementById('stg-${i}-${key}').classList.toggle('open')">
+          <span>${STAGE_NAMES[key]||key}</span><span style="color:var(--green)">✓</span>
+        </div>
+        <div class="stg-body">${kv(d)}</div>
+      </div>`;
+    }).join('');
+    return `<div class="card run-card">
+      <div class="run-head" onclick="document.getElementById('run-${i}').classList.toggle('open')">
+        <span class="tt">${esc(r.subject||'(no subject)')}</span>
+        <span class="scores">article ${badge(row.hasArticle==='true')} · logo ${badge(row.hasLogo==='true')} ·
+          match ${esc(row.subjectScore||'')}% ${badge(row.subjectMatch==='true')} · ready ${badge(row.readyToFilter==='true')}</span>
+      </div>
+      <div class="stages" id="run-${i}" style="display:none">
+        <div style="color:var(--muted);font-size:12px;margin-bottom:6px">${esc(r.created_at||'')} · ${esc(r.email_id||'')}</div>
+        ${stageHtml}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function load(){
+  fetch('/api/health').then(r=>r.json()).then(d=>{
+    document.getElementById('mStatus').textContent=d.status||'—';
+    document.getElementById('mAuto').textContent = d.auto?'ON ('+d.schedule_minutes+' min)':'OFF (manual)';
+  }).catch(()=>document.getElementById('mStatus').textContent='offline');
+  fetch('/api/emails').then(r=>r.json()).then(d=>{
+    const emails=d.emails||[];
+    document.getElementById('mEmails').textContent=emails.length;
+    const tb=document.getElementById('inboxBody');
+    document.getElementById('inboxEmpty').style.display=emails.length?'none':'block';
+    tb.innerHTML=emails.map(e=>`<tr><td class="subj">${esc(e.subject||'(no subject)')}</td><td>${esc((e.from||'').slice(0,25))}</td></tr>`).join('');
+  }).catch(()=>{});
+  fetch('/api/logs').then(r=>r.json()).then(d=>{
+    const logs=d.logs||[];
+    document.getElementById('mProcessed').textContent=logs.length;
+    document.getElementById('mErrors').textContent=logs.filter(l=>l.status==='error').length;
+  }).catch(()=>{});
+  fetch('/api/pipeline-results').then(r=>r.json()).then(d=>{
+    const results=d.results||[];
+    renderRuns(results);
+    const prev=JSON.stringify(LATEST);
+    LATEST=results[0]||null;
+    if(JSON.stringify(LATEST)!==prev) animateTrace();
+  }).catch(()=>{});
+}
+
+load();
+setInterval(load, 15000);
+setInterval(()=>{ if(LATEST) animateTrace(); }, 30000);
+</script>
+</body>
+</html>

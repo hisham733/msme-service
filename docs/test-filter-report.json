@@ -1,0 +1,722 @@
+[
+  {
+    "subject": "AI FUTURE JOBS AND RMK13 REHDA INSTITUTE BRIDGES THE UNIVERSITY-INDUSTRY GAP",
+    "outcome": "ACCEPT",
+    "gate": null,
+    "weighted": 91,
+    "reasons": [],
+    "gates": {
+      "not_sme_relevant": 0.07,
+      "no_wider_value": 0.1,
+      "is_it_commercial_intent": 0.04,
+      "not_geographically_relevant": 0.03,
+      "defamatory": 0.07,
+      "political": 0.02
+    },
+    "scores": {
+      "no_substance": 0.97,
+      "not_identifiable": 0.99,
+      "unattributed_claims": 0.85,
+      "not_current": 0.86,
+      "no_editorial_value": 0.9,
+      "contact": 0.99,
+      "category_fit": 0.97,
+      "not_sme_voice": 0.82
+    },
+    "fired_gates": []
+  },
+  {
+    "subject": "AI Is Changing Financial Planning but Professional Advice Matters More Than Ever FPSB Glob",
+    "outcome": "ACCEPT",
+    "gate": null,
+    "weighted": 90,
+    "reasons": [],
+    "gates": {
+      "not_sme_relevant": 0.76,
+      "no_wider_value": 0.09,
+      "is_it_commercial_intent": 0.04,
+      "not_geographically_relevant": 0.29,
+      "defamatory": 0.04,
+      "political": 0.02
+    },
+    "scores": {
+      "no_substance": 0.96,
+      "not_identifiable": 0.99,
+      "unattributed_claims": 0.82,
+      "not_current": 0.88,
+      "no_editorial_value": 0.81,
+      "contact": 0.99,
+      "category_fit": 0.95,
+      "not_sme_voice": 0.83
+    },
+    "fired_gates": []
+  },
+  {
+    "subject": "CelcomDigi to offer Protect with AppleCare Services",
+    "outcome": "REJECT",
+    "gate": "NOT_SME_RELEVANT",
+    "weighted": 66,
+    "reasons": [
+      "NOT_SME_RELEVANT",
+      "IS_IT_COMMERCIAL_INTENT"
+    ],
+    "gates": {
+      "not_sme_relevant": 0.87,
+      "no_wider_value": 0.8,
+      "is_it_commercial_intent": 0.93,
+      "not_geographically_relevant": 0.07,
+      "defamatory": 0.04,
+      "political": 0.01
+    },
+    "scores": {
+      "no_substance": 0.91,
+      "not_identifiable": 0.97,
+      "unattributed_claims": 0.53,
+      "not_current": 0.82,
+      "no_editorial_value": 0.2,
+      "contact": 0.98,
+      "category_fit": 0.97,
+      "not_sme_voice": 0.08
+    },
+    "fired_gates": [
+      "not_sme_relevant",
+      "is_it_commercial_intent"
+    ]
+  },
+  {
+    "subject": "EY Media Release Top Nominees for the EY Entrepreneur Of The Year EOY 2026 Malaysia awards",
+    "outcome": "ACCEPT",
+    "gate": null,
+    "weighted": 85,
+    "reasons": [],
+    "gates": {
+      "not_sme_relevant": 0.1,
+      "no_wider_value": 0.09,
+      "is_it_commercial_intent": 0.03,
+      "not_geographically_relevant": 0.02,
+      "defamatory": 0.04,
+      "political": 0.02
+    },
+    "scores": {
+      "no_substance": 0.97,
+      "not_identifiable": 0.99,
+      "unattributed_claims": 0.8,
+      "not_current": 0.83,
+      "no_editorial_value": 0.9,
+      "contact": 0.33,
+      "category_fit": 0.97,
+      "not_sme_voice": 0.82
+    },
+    "fired_gates": []
+  },
+  {
+    "subject": "FW ACCCIM PS ON THE EXEMPTION OF MSMEs FROM IMPLEMENTING THE PROPOSED NEW MINIMUM WAGE RAT",
+    "outcome": "ACCEPT",
+    "gate": null,
+    "weighted": 87,
+    "reasons": [],
+    "gates": {
+      "not_sme_relevant": 0.02,
+      "no_wider_value": 0.04,
+      "is_it_commercial_intent": 0.02,
+      "not_geographically_relevant": 0.01,
+      "defamatory": 0.07,
+      "political": 0.03
+    },
+    "scores": {
+      "no_substance": 0.94,
+      "not_identifiable": 0.99,
+      "unattributed_claims": 0.63,
+      "not_current": 0.78,
+      "no_editorial_value": 0.97,
+      "contact": 0.61,
+      "category_fit": 0.98,
+      "not_sme_voice": 0.96
+    },
+    "fired_gates": []
+  },
+  {
+    "subject": "GROWING JAPANESE WAGYU TRADE PUTS SECONDARY CUTS ON THE RADAR FOR MALAYSIAN FB OPERATORS",
+    "outcome": "ACCEPT",
+    "gate": null,
+    "weighted": 90,
+    "reasons": [],
+    "gates": {
+      "not_sme_relevant": 0.05,
+      "no_wider_value": 0.1,
+      "is_it_commercial_intent": 0.07,
+      "not_geographically_relevant": 0.03,
+      "defamatory": 0.04,
+      "political": 0.02
+    },
+    "scores": {
+      "no_substance": 0.97,
+      "not_identifiable": 0.98,
+      "unattributed_claims": 0.78,
+      "not_current": 0.83,
+      "no_editorial_value": 0.89,
+      "contact": 0.98,
+      "category_fit": 0.97,
+      "not_sme_voice": 0.86
+    },
+    "fired_gates": []
+  },
+  {
+    "subject": "Indonesian delegation of 16 companies four government bodies and two associations attends ",
+    "outcome": "ACCEPT",
+    "gate": null,
+    "weighted": 90,
+    "reasons": [],
+    "gates": {
+      "not_sme_relevant": 0.07,
+      "no_wider_value": 0.17,
+      "is_it_commercial_intent": 0.05,
+      "not_geographically_relevant": 0.22,
+      "defamatory": 0.05,
+      "political": 0.02
+    },
+    "scores": {
+      "no_substance": 0.96,
+      "not_identifiable": 0.98,
+      "unattributed_claims": 0.83,
+      "not_current": 0.82,
+      "no_editorial_value": 0.87,
+      "contact": 0.9,
+      "category_fit": 0.97,
+      "not_sme_voice": 0.82
+    },
+    "fired_gates": []
+  },
+  {
+    "subject": "KPMG in Malaysias Eco Dive Programme earns Malaysia Book of Records Recognition",
+    "outcome": "ACCEPT",
+    "gate": null,
+    "weighted": 82,
+    "reasons": [],
+    "gates": {
+      "not_sme_relevant": 0.84,
+      "no_wider_value": 0.44,
+      "is_it_commercial_intent": 0.02,
+      "not_geographically_relevant": 0.11,
+      "defamatory": 0.03,
+      "political": 0.01
+    },
+    "scores": {
+      "no_substance": 0.97,
+      "not_identifiable": 0.99,
+      "unattributed_claims": 0.86,
+      "not_current": 0.9,
+      "no_editorial_value": 0.81,
+      "contact": 0.48,
+      "category_fit": 0.97,
+      "not_sme_voice": 0.54
+    },
+    "fired_gates": []
+  },
+  {
+    "subject": "MALAYSIA GENERATES RM305.62 MILLION IN SALES AT CAEXPO 2026",
+    "outcome": "ACCEPT",
+    "gate": null,
+    "weighted": 91,
+    "reasons": [],
+    "gates": {
+      "not_sme_relevant": 0.02,
+      "no_wider_value": 0.05,
+      "is_it_commercial_intent": 0.03,
+      "not_geographically_relevant": 0.01,
+      "defamatory": 0.03,
+      "political": 0.01
+    },
+    "scores": {
+      "no_substance": 0.97,
+      "not_identifiable": 0.99,
+      "unattributed_claims": 0.81,
+      "not_current": 0.84,
+      "no_editorial_value": 0.94,
+      "contact": 0.99,
+      "category_fit": 0.97,
+      "not_sme_voice": 0.84
+    },
+    "fired_gates": []
+  },
+  {
+    "subject": "MATRADE AND ICBC MALAYSIA SIGN LANDMARK PACT TO BOOST MALAYSIAN EXPORTS TO CHINA",
+    "outcome": "ACCEPT",
+    "gate": null,
+    "weighted": 89,
+    "reasons": [],
+    "gates": {
+      "not_sme_relevant": 0.02,
+      "no_wider_value": 0.09,
+      "is_it_commercial_intent": 0.04,
+      "not_geographically_relevant": 0.02,
+      "defamatory": 0.04,
+      "political": 0.01
+    },
+    "scores": {
+      "no_substance": 0.93,
+      "not_identifiable": 0.99,
+      "unattributed_claims": 0.82,
+      "not_current": 0.82,
+      "no_editorial_value": 0.88,
+      "contact": 0.99,
+      "category_fit": 0.97,
+      "not_sme_voice": 0.77
+    },
+    "fired_gates": []
+  },
+  {
+    "subject": "MDEC Press Release CEO Anuar Fariz Fadzil to Conclude Two-Year Tenure After Securing RM180",
+    "outcome": "ACCEPT",
+    "gate": null,
+    "weighted": 87,
+    "reasons": [],
+    "gates": {
+      "not_sme_relevant": 0.09,
+      "no_wider_value": 0.19,
+      "is_it_commercial_intent": 0.02,
+      "not_geographically_relevant": 0.03,
+      "defamatory": 0.06,
+      "political": 0.02
+    },
+    "scores": {
+      "no_substance": 0.96,
+      "not_identifiable": 0.99,
+      "unattributed_claims": 0.74,
+      "not_current": 0.77,
+      "no_editorial_value": 0.93,
+      "contact": 0.98,
+      "category_fit": 0.98,
+      "not_sme_voice": 0.72
+    },
+    "fired_gates": []
+  },
+  {
+    "subject": "MIHAS 2026 Delivers RM6.78 Billion In Sales Expanding Opportunities For Malaysian Business_1",
+    "outcome": "ACCEPT",
+    "gate": null,
+    "weighted": 91,
+    "reasons": [],
+    "gates": {
+      "not_sme_relevant": 0.02,
+      "no_wider_value": 0.06,
+      "is_it_commercial_intent": 0.05,
+      "not_geographically_relevant": 0.02,
+      "defamatory": 0.04,
+      "political": 0.02
+    },
+    "scores": {
+      "no_substance": 0.98,
+      "not_identifiable": 0.99,
+      "unattributed_claims": 0.76,
+      "not_current": 0.9,
+      "no_editorial_value": 0.93,
+      "contact": 0.98,
+      "category_fit": 0.98,
+      "not_sme_voice": 0.84
+    },
+    "fired_gates": []
+  },
+  {
+    "subject": "Malaysias Event Industry Gets a New Digital Home with Event Me Now",
+    "outcome": "ACCEPT",
+    "gate": null,
+    "weighted": 79,
+    "reasons": [],
+    "gates": {
+      "not_sme_relevant": 0.08,
+      "no_wider_value": 0.27,
+      "is_it_commercial_intent": 0.43,
+      "not_geographically_relevant": 0.02,
+      "defamatory": 0.04,
+      "political": 0.01
+    },
+    "scores": {
+      "no_substance": 0.96,
+      "not_identifiable": 0.99,
+      "unattributed_claims": 0.8,
+      "not_current": 0.85,
+      "no_editorial_value": 0.64,
+      "contact": 0.62,
+      "category_fit": 0.94,
+      "not_sme_voice": 0.45
+    },
+    "fired_gates": []
+  },
+  {
+    "subject": "Opinion piece for your reader from AICPA CIMA Liberating force How will AI enable our futu",
+    "outcome": "ACCEPT",
+    "gate": null,
+    "weighted": 88,
+    "reasons": [],
+    "gates": {
+      "not_sme_relevant": 0.16,
+      "no_wider_value": 0.05,
+      "is_it_commercial_intent": 0.03,
+      "not_geographically_relevant": 0.07,
+      "defamatory": 0.04,
+      "political": 0.02
+    },
+    "scores": {
+      "no_substance": 0.96,
+      "not_identifiable": 0.98,
+      "unattributed_claims": 0.77,
+      "not_current": 0.88,
+      "no_editorial_value": 0.92,
+      "contact": 0.5,
+      "category_fit": 0.98,
+      "not_sme_voice": 0.91
+    },
+    "fired_gates": []
+  },
+  {
+    "subject": "Pos Malaysia Launches SME Jumpstart Workshop 2026 to Help Malaysian SMEs Grow Beyond Onlin",
+    "outcome": "ACCEPT",
+    "gate": null,
+    "weighted": 86,
+    "reasons": [],
+    "gates": {
+      "not_sme_relevant": 0.02,
+      "no_wider_value": 0.09,
+      "is_it_commercial_intent": 0.11,
+      "not_geographically_relevant": 0.01,
+      "defamatory": 0.04,
+      "political": 0.02
+    },
+    "scores": {
+      "no_substance": 0.97,
+      "not_identifiable": 0.99,
+      "unattributed_claims": 0.58,
+      "not_current": 0.9,
+      "no_editorial_value": 0.87,
+      "contact": 0.98,
+      "category_fit": 0.98,
+      "not_sme_voice": 0.79
+    },
+    "fired_gates": []
+  },
+  {
+    "subject": "Press Information - So AMG. Introducing the new Mercedes-AMG GT Coupés.",
+    "outcome": "REJECT",
+    "gate": "NOT_SME_RELEVANT",
+    "weighted": 64,
+    "reasons": [
+      "NOT_SME_RELEVANT"
+    ],
+    "gates": {
+      "not_sme_relevant": 0.95,
+      "no_wider_value": 0.78,
+      "is_it_commercial_intent": 0.73,
+      "not_geographically_relevant": 0.38,
+      "defamatory": 0.12,
+      "political": 0.01
+    },
+    "scores": {
+      "no_substance": 0.96,
+      "not_identifiable": 0.98,
+      "unattributed_claims": 0.63,
+      "not_current": 0.76,
+      "no_editorial_value": 0.21,
+      "contact": 0.42,
+      "category_fit": 0.92,
+      "not_sme_voice": 0.11
+    },
+    "fired_gates": [
+      "not_sme_relevant"
+    ]
+  },
+  {
+    "subject": "Press Information - So AMG. Introducing the new Mercedes-AMG GT Coupés._1",
+    "outcome": "REJECT",
+    "gate": "NOT_SME_RELEVANT",
+    "weighted": 64,
+    "reasons": [
+      "NOT_SME_RELEVANT"
+    ],
+    "gates": {
+      "not_sme_relevant": 0.94,
+      "no_wider_value": 0.78,
+      "is_it_commercial_intent": 0.71,
+      "not_geographically_relevant": 0.37,
+      "defamatory": 0.13,
+      "political": 0.01
+    },
+    "scores": {
+      "no_substance": 0.96,
+      "not_identifiable": 0.98,
+      "unattributed_claims": 0.63,
+      "not_current": 0.77,
+      "no_editorial_value": 0.2,
+      "contact": 0.43,
+      "category_fit": 0.92,
+      "not_sme_voice": 0.11
+    },
+    "fired_gates": [
+      "not_sme_relevant"
+    ]
+  },
+  {
+    "subject": "Press statement Employers urge phased productivity-linked minimum wage approach in Budget ",
+    "outcome": "ACCEPT",
+    "gate": null,
+    "weighted": 91,
+    "reasons": [],
+    "gates": {
+      "not_sme_relevant": 0.02,
+      "no_wider_value": 0.04,
+      "is_it_commercial_intent": 0.02,
+      "not_geographically_relevant": 0.01,
+      "defamatory": 0.05,
+      "political": 0.03
+    },
+    "scores": {
+      "no_substance": 0.97,
+      "not_identifiable": 0.99,
+      "unattributed_claims": 0.85,
+      "not_current": 0.86,
+      "no_editorial_value": 0.98,
+      "contact": 0.51,
+      "category_fit": 0.97,
+      "not_sme_voice": 0.97
+    },
+    "fired_gates": []
+  },
+  {
+    "subject": "SME MALAYSIA WELCOMES TEMPORARY EXEMPTION FOR MSMEs FROM FURTHER MINIMUM WAGE INCREASES",
+    "outcome": "ACCEPT",
+    "gate": null,
+    "weighted": 90,
+    "reasons": [],
+    "gates": {
+      "not_sme_relevant": 0.02,
+      "no_wider_value": 0.05,
+      "is_it_commercial_intent": 0.02,
+      "not_geographically_relevant": 0.01,
+      "defamatory": 0.04,
+      "political": 0.02
+    },
+    "scores": {
+      "no_substance": 0.94,
+      "not_identifiable": 0.96,
+      "unattributed_claims": 0.89,
+      "not_current": 0.81,
+      "no_editorial_value": 0.97,
+      "contact": 0.56,
+      "category_fit": 0.98,
+      "not_sme_voice": 0.95
+    },
+    "fired_gates": []
+  },
+  {
+    "subject": "SMEAM CALLS FOR BUDGET 2027 TO STRENGTHEN SMEs RAISE PRODUCTIVITY AND ADDRESS THE CUMULATI",
+    "outcome": "ACCEPT",
+    "gate": null,
+    "weighted": 84,
+    "reasons": [],
+    "gates": {
+      "not_sme_relevant": 0.01,
+      "no_wider_value": 0.03,
+      "is_it_commercial_intent": 0.02,
+      "not_geographically_relevant": 0.01,
+      "defamatory": 0.07,
+      "political": 0.05
+    },
+    "scores": {
+      "no_substance": 0.86,
+      "not_identifiable": 0.86,
+      "unattributed_claims": 0.78,
+      "not_current": 0.81,
+      "no_editorial_value": 0.96,
+      "contact": 0.35,
+      "category_fit": 0.98,
+      "not_sme_voice": 0.96
+    },
+    "fired_gates": []
+  },
+  {
+    "subject": "Sanct Social now available in Malaysia as a free download joins Indonesian delegation to C",
+    "outcome": "ACCEPT",
+    "gate": null,
+    "weighted": 84,
+    "reasons": [],
+    "gates": {
+      "not_sme_relevant": 0.17,
+      "no_wider_value": 0.38,
+      "is_it_commercial_intent": 0.35,
+      "not_geographically_relevant": 0.09,
+      "defamatory": 0.06,
+      "political": 0.02
+    },
+    "scores": {
+      "no_substance": 0.96,
+      "not_identifiable": 0.98,
+      "unattributed_claims": 0.79,
+      "not_current": 0.81,
+      "no_editorial_value": 0.77,
+      "contact": 0.9,
+      "category_fit": 0.97,
+      "not_sme_voice": 0.56
+    },
+    "fired_gates": []
+  },
+  {
+    "subject": "Sarawak Shifts Startup Focus to Market Impact at the International Digital Economy Confere",
+    "outcome": "ACCEPT",
+    "gate": null,
+    "weighted": 91,
+    "reasons": [],
+    "gates": {
+      "not_sme_relevant": 0.02,
+      "no_wider_value": 0.05,
+      "is_it_commercial_intent": 0.03,
+      "not_geographically_relevant": 0.02,
+      "defamatory": 0.04,
+      "political": 0.02
+    },
+    "scores": {
+      "no_substance": 0.98,
+      "not_identifiable": 0.98,
+      "unattributed_claims": 0.72,
+      "not_current": 0.82,
+      "no_editorial_value": 0.96,
+      "contact": 0.98,
+      "category_fit": 0.98,
+      "not_sme_voice": 0.92
+    },
+    "fired_gates": []
+  },
+  {
+    "subject": "Securities Commission Malaysia SC Joint Media Release - 30 Sept 2026 SC Hong Kong SFC Anno",
+    "outcome": "ACCEPT",
+    "gate": null,
+    "weighted": 84,
+    "reasons": [],
+    "gates": {
+      "not_sme_relevant": 0.11,
+      "no_wider_value": 0.07,
+      "is_it_commercial_intent": 0.02,
+      "not_geographically_relevant": 0.09,
+      "defamatory": 0.03,
+      "political": 0.01
+    },
+    "scores": {
+      "no_substance": 0.95,
+      "not_identifiable": 0.99,
+      "unattributed_claims": 0.38,
+      "not_current": 0.82,
+      "no_editorial_value": 0.95,
+      "contact": 0.98,
+      "category_fit": 0.97,
+      "not_sme_voice": 0.88
+    },
+    "fired_gates": []
+  },
+  {
+    "subject": "Tealive revs up F1 season with high-octane Orange Coffee 29 Sept 2026",
+    "outcome": "REJECT",
+    "gate": "NOT_SME_RELEVANT",
+    "weighted": 69,
+    "reasons": [
+      "NOT_SME_RELEVANT"
+    ],
+    "gates": {
+      "not_sme_relevant": 0.85,
+      "no_wider_value": 0.64,
+      "is_it_commercial_intent": 0.81,
+      "not_geographically_relevant": 0.05,
+      "defamatory": 0.06,
+      "political": 0.01
+    },
+    "scores": {
+      "no_substance": 0.96,
+      "not_identifiable": 0.99,
+      "unattributed_claims": 0.4,
+      "not_current": 0.73,
+      "no_editorial_value": 0.53,
+      "contact": 0.98,
+      "category_fit": 0.97,
+      "not_sme_voice": 0.17
+    },
+    "fired_gates": [
+      "not_sme_relevant"
+    ]
+  },
+  {
+    "subject": "What If Malaysias Greatest Competitive Advantage Isnt Cost",
+    "outcome": "ACCEPT",
+    "gate": null,
+    "weighted": 83,
+    "reasons": [],
+    "gates": {
+      "not_sme_relevant": 0.16,
+      "no_wider_value": 0.13,
+      "is_it_commercial_intent": 0.05,
+      "not_geographically_relevant": 0.09,
+      "defamatory": 0.04,
+      "political": 0.02
+    },
+    "scores": {
+      "no_substance": 0.94,
+      "not_identifiable": 0.98,
+      "unattributed_claims": 0.61,
+      "not_current": 0.92,
+      "no_editorial_value": 0.83,
+      "contact": 0.5,
+      "category_fit": 0.97,
+      "not_sme_voice": 0.82
+    },
+    "fired_gates": []
+  },
+  {
+    "subject": "What Makes a Workplace Worth Growing With",
+    "outcome": "ACCEPT",
+    "gate": null,
+    "weighted": 90,
+    "reasons": [],
+    "gates": {
+      "not_sme_relevant": 0.23,
+      "no_wider_value": 0.09,
+      "is_it_commercial_intent": 0.03,
+      "not_geographically_relevant": 0.22,
+      "defamatory": 0.02,
+      "political": 0.02
+    },
+    "scores": {
+      "no_substance": 0.96,
+      "not_identifiable": 0.98,
+      "unattributed_claims": 0.87,
+      "not_current": 0.89,
+      "no_editorial_value": 0.93,
+      "contact": 0.58,
+      "category_fit": 0.97,
+      "not_sme_voice": 0.9
+    },
+    "fired_gates": []
+  },
+  {
+    "subject": "刊登马来西亚-香港女企业家交流暨展示会新闻稿Press Release for Publication",
+    "outcome": "ACCEPT",
+    "gate": null,
+    "weighted": 88,
+    "reasons": [],
+    "gates": {
+      "not_sme_relevant": 0.06,
+      "no_wider_value": 0.14,
+      "is_it_commercial_intent": 0.03,
+      "not_geographically_relevant": 0.03,
+      "defamatory": 0.03,
+      "political": 0.02
+    },
+    "scores": {
+      "no_substance": 0.96,
+      "not_identifiable": 0.98,
+      "unattributed_claims": 0.89,
+      "not_current": 0.83,
+      "no_editorial_value": 0.91,
+      "contact": 0.52,
+      "category_fit": 0.96,
+      "not_sme_voice": 0.81
+    },
+    "fired_gates": []
+  }
+]

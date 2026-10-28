@@ -1,0 +1,135 @@
+{
+  "generated": "2026-10-13T09:36:31",
+  "model": "jev-latest",
+  "gate_threshold": 0.85,
+  "accept_threshold": 60.0,
+  "polarity": "positive (high YES = good)",
+  "set": "doc-named original (3 gates + 11 scores, sum 100)",
+  "gates": {
+    "royal_respect": {
+      "type": "noul",
+      "label": "Royal institution respect",
+      "threshold": 0.85,
+      "instructions": "Is the article free of disparagement or challenge to Malaysia's royal institution (the Sultans or the monarchy)?",
+      "criteria": {
+        "true": "",
+        "false": ""
+      },
+      "outcome": "REJECT"
+    },
+    "religious_respect": {
+      "type": "noul",
+      "label": "Religion respect",
+      "threshold": 0.85,
+      "instructions": "Is the article free of disparagement of any religion?",
+      "criteria": {
+        "true": "",
+        "false": ""
+      },
+      "outcome": "REJECT"
+    },
+    "racial_respect": {
+      "type": "noul",
+      "label": "Racial / ethnic respect",
+      "threshold": 0.85,
+      "instructions": "Is the article free of racial or ethnic disparagement or discrimination?",
+      "criteria": {
+        "true": "",
+        "false": ""
+      },
+      "outcome": "REJECT"
+    }
+  },
+  "scores": {
+    "sme_relevance": {
+      "weight": 26,
+      "instructions": "Is this relevant to SMEs or the wider business ecosystem — an SME, policy, financing, trade, technology, workforce or market-access angle?",
+      "criteria": {
+        "true": "Relevant: affects how SMEs operate/earn/compete/comply (financing, policy, tax, trade, market access, technology, talent, supply chain); industry/sector development.",
+        "false": "Off-topic: consumer/lifestyle; one company's own news; education/edtech; event previews; foreign delegation PR; consumer money-advice; overseas op-ed."
+      }
+    },
+    "sme_voice_business_updates": {
+      "weight": 7,
+      "instructions": "Does the submission contribute knowledge, experience or perspective for the wider SME community (updates, insights or opinion)?",
+      "criteria": {
+        "true": "",
+        "false": ""
+      }
+    },
+    "commercial_intent": {
+      "weight": 10,
+      "instructions": "Is this a genuine development rather than a hard sell of the sender's product or service (discounts, sales offers, direct customer acquisition)?",
+      "criteria": {
+        "true": "A genuine development (a product may be mentioned within a wider development).",
+        "false": "A hard sell of the sender's product/service (discounts, sales offers, direct customer acquisition)."
+      }
+    },
+    "substance": {
+      "weight": 6,
+      "instructions": "Is there sufficient factual material here to construct a meaningful article without adding external information?",
+      "criteria": {
+        "true": "",
+        "false": ""
+      }
+    },
+    "source_attribution": {
+      "weight": 6,
+      "instructions": "Is the issuing organisation (and any speakers) identifiable?",
+      "criteria": {
+        "true": "",
+        "false": ""
+      }
+    },
+    "claims_statistics": {
+      "weight": 6,
+      "instructions": "Are the article's claims and figures attributed to a source?",
+      "criteria": {
+        "true": "",
+        "false": ""
+      }
+    },
+    "timeliness": {
+      "weight": 4,
+      "instructions": "Is this a current development (recent or upcoming) or still-useful insight?",
+      "criteria": {
+        "true": "",
+        "false": ""
+      }
+    },
+    "geographic_relevance": {
+      "weight": 7,
+      "instructions": "Does this concern Malaysia, ASEAN or markets that Malaysian SMEs can access?",
+      "criteria": {
+        "true": "",
+        "false": ""
+      }
+    },
+    "safety_reputation": {
+      "weight": 10,
+      "instructions": "Is the article free of reputational/legal risk (no defamatory, discriminatory or unsubstantiated claims about a person or company)?",
+      "criteria": {
+        "true": "No defamatory, discriminatory or unsubstantiated claims.",
+        "false": "Contains defamatory/discriminatory/unsubstantiated claims."
+      }
+    },
+    "political_advocacy": {
+      "weight": 6,
+      "instructions": "Is this free of political/advocacy content (campaigning, endorsements, partisan messaging) and of bylined opinion pieces that need editor review?",
+      "criteria": {
+        "true": "",
+        "false": ""
+      }
+    },
+    "overall_editorial_test": {
+      "weight": 12,
+      "instructions": "Does an SME reader learn something from this submission — does it inform, add a useful SME perspective, or share a meaningful business update rather than mainly promote the sender?",
+      "criteria": {
+        "true": "Informs the reader / contributes a useful SME perspective or a meaningful business update.",
+        "false": "The only meaningful takeaway is a sales message about the sender's product or service."
+      }
+    }
+  },
+  "context": {},
+  "sha256": "0823cfa2abbb8be2"
+}

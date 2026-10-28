@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-store">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>MSME Newsbot — Archive Checklist</title>
+<style>
+  :root {
+    --bg:#0b1220; --card:#111827; --line:#1f2937; --txt:#e5e7eb; --mut:#94a3b8;
+    --accent:#2dd4bf; --accent-soft:rgba(45,212,191,.12); --ok:#34d399; --oksoft:rgba(52,211,153,.14);
+    --bad:#f87171; --badsoft:rgba(248,113,113,.14);
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--txt); font-family:"Inter",-apple-system,"Segoe UI",Roboto,sans-serif; padding:24px; }
+  h1 { font-size:20px; margin-bottom:4px; letter-spacing:-.01em; }
+  .sub { color:var(--mut); font-size:12px; margin-bottom:20px; }
+  .nav { display:flex; gap:6px; background:var(--card); border:1px solid var(--line); border-radius:10px; padding:6px; margin-bottom:20px; width:fit-content; }
+  .nav a { color:var(--mut); text-decoration:none; font-size:13px; font-weight:600; padding:7px 14px; border-radius:7px; }
+  .nav a:hover { background:var(--accent-soft); color:var(--accent); }
+  .nav a.active { background:var(--accent-soft); color:var(--accent); }
+  #btnRun { background:var(--accent); color:#062a26; border:none; border-radius:8px; padding:9px 18px; font-size:13px; cursor:pointer; font-weight:700; }
+  #btnRun:hover { filter:brightness(1.1); }
+  #btnRefresh { background:var(--card); color:var(--accent); border:1px solid var(--accent); border-radius:8px; padding:8px 16px; font-size:13px; cursor:pointer; font-weight:700; }
+  #btnRefresh:hover { background:var(--accent-soft); }
+  #btnDownload { background:var(--card); color:var(--ok); border:1px solid var(--ok); border-radius:8px; padding:8px 16px; font-size:13px; cursor:pointer; font-weight:700; }
+  #btnDownload:hover { background:var(--oksoft); }
+  #btnClear { background:var(--card); color:var(--bad); border:1px solid var(--bad); border-radius:8px; padding:8px 16px; font-size:13px; cursor:pointer; font-weight:700; }
+  #btnClear:hover { background:var(--badsoft); }
+  #runMsg { font-size:12px; color:var(--mut); }
+  .kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:24px; }
+  .kpi { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px; box-shadow:0 1px 2px rgba(0,0,0,.3); }
+  .kpi .n { font-size:26px; font-weight:700; letter-spacing:-.02em; }
+  .kpi .l { font-size:12px; color:var(--mut); margin-top:4px; }
+  .kpi.ok .n { color:var(--accent); } .kpi.bad .n { color:var(--bad); }
+  .filters { margin-bottom:16px; display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+  .filters input, .filters select { background:var(--card); border:1px solid var(--line); color:var(--txt); border-radius:8px; padding:8px 12px; font-size:13px; }
+  .filters input { flex:1; min-width:200px; }
+  table { width:100%; border-collapse:collapse; background:var(--card); border:1px solid var(--line); border-radius:10px; overflow:hidden; font-size:13px; box-shadow:0 1px 2px rgba(0,0,0,.3); }
+  th, td { padding:10px 12px; text-align:left; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { color:var(--mut); font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.03em; position:sticky; top:0; background:#0f172a; }
+  tbody tr:hover { background:#161e2e; }
+  .chk { text-align:center; font-size:15px; font-weight:700; }
+  .chk.yes { color:var(--ok); } .chk.no { color:var(--bad); }
+  .score { font-weight:700; }
+  .score.ok { color:var(--ok); } .score.no { color:var(--bad); }
+  a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+  .tag { display:inline-block; padding:2px 8px; border-radius:6px; font-size:11px; font-weight:600; }
+  .tag.ok { background:var(--oksoft); color:var(--ok); }
+  .tag.bad { background:var(--badsoft); color:var(--bad); }
+  .empty { display:none; color:var(--mut); text-align:center; padding:40px; }
+  .tablewrap { overflow:auto; max-height:70vh; border:1px solid var(--line); border-radius:10px; }
+  .tablewrap table { border:none; }
+  .tablewrap th { position:sticky; top:0; z-index:2; }
+  .qst { display:inline-block; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:700; }
+  .qst.unread { background:#f1f5f9; color:#64748b; }
+  .qst.processing { background:rgba(45,212,191,.15); color:#2dd4bf; animation:pulse 1s infinite; }
+  .qst.completed, .qst.received { background:rgba(52,211,153,.15); color:#34d399; }
+  .qst.clickable { cursor:pointer; border-bottom:1px dashed currentColor; }
+  .qst.old { background:#020617; color:#64748b; border:1px solid #1f2937; }
+  .qst.warning { background:rgba(251,191,36,.15); color:#fbbf24; }
+  .qst.error { background:rgba(248,113,113,.15); color:#f87171; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.45} }
+  .spin { width:13px; height:13px; border:2px solid rgba(45,212,191,.3); border-top-color:#2dd4bf; border-radius:50%; animation:rotate 1s linear infinite; }
+  @keyframes rotate { to { transform:rotate(360deg); } }
+  .filters select, .filters button { border-radius:8px; }
+  select option { background:#111827; color:#e5e7eb; }
+  .f-badge { display:inline-block; padding:2px 8px; border-radius:6px; font-size:11px; font-weight:700; white-space:nowrap; }
+  .f-badge.accept { background:rgba(52,211,153,.15); color:#34d399; }
+  .f-badge.reject { background:rgba(248,113,113,.15); color:#f87171; }
+  .f-badge.review { background:rgba(251,191,36,.15); color:#fbbf24; }
+  .f-badge.error { background:rgba(248,113,113,.15); color:#f87171; }
+  .f-badge.none { color:var(--mut); font-weight:500; }
+  .f-detail { cursor:pointer; }
+  .modal-back { display:none; position:fixed; inset:0; background:rgba(0,0,0,.65); z-index:50; align-items:center; justify-content:center; padding:20px; }
+  .modal-back.open { display:flex; }
+  .modal { background:var(--card); border:1px solid var(--line); border-radius:14px; width:760px; max-width:100%; max-height:88vh; overflow:auto; padding:22px; }
+  .modal h3 { font-size:16px; margin-bottom:4px; }
+  .modal .m-sub { color:var(--mut); font-size:12px; margin-bottom:16px; }
+  .modal .m-close { float:right; background:var(--card); color:var(--mut); border:1px solid var(--line); border-radius:8px; padding:5px 12px; cursor:pointer; }
+  .modal table { font-size:12px; }
+  .modal th, .modal td { padding:6px 8px; }
+  .modal .m-reason { background:#0f172a; border:1px solid var(--line); border-radius:8px; padding:10px; font-size:12px; color:var(--mut); margin-top:12px; }
+  .score-pill { display:inline-block; padding:2px 8px; border-radius:6px; font-weight:700; min-width:52px; text-align:right; }
+  .score-legend { color:var(--mut); font-size:11px; margin:8px 0 0; }
+  .rc-file { background:#0f172a; border:1px solid var(--line); border-radius:9px; padding:10px 12px; margin:10px 0 4px; }
+  .rc-file .k, .rc-h { color:var(--mut); font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; font-weight:700; }
+  .rc-file .v { margin-top:5px; font:12px/1.5 ui-monospace,Menlo,monospace; color:#dbeafe; word-break:break-all; }
+  .rc-h { margin:15px 0 7px; }
+  .rc-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+  @media(max-width:560px){ .rc-grid { grid-template-columns:1fr; } }
+  .rc-item { background:#0f172a; border:1px solid var(--line); border-radius:8px; padding:8px 10px; display:flex; justify-content:space-between; gap:10px; align-items:center; }
+  .rc-k { color:var(--mut); font-size:11px; }
+  .rc-v { font-size:12px; font-weight:600; text-align:right; }
+</style>
+</head>
+<body>
+<h1>Archive Checklist</h1>
+<div class="sub">Saved articles + media · generated <span id="gen">—</span> · auto-refreshes every 30s · click <b>Receive</b> for media and subject-match details · old versions are shown in black</div>
+<div class="nav">
+  <a href="checklist.html" class="active">Checklist</a>
+  <a href="editor.html">Editor</a>
+  <a href="http://localhost:8765/" target="_blank" rel="noopener">Repurpose ↗</a>
+  <a href="config.html">Config</a>
+</div>
+
+<div class="filters">
+  <select id="emailSelect" onchange="selectEmail()">
+    <option value="">— pick an unread email —</option>
+  </select>
+  <button id="btnRun" onclick="runEmail()">Run</button>
+  <span id="runStatus" style="display:none; font-size:12px; font-weight:700; padding:4px 12px; border-radius:10px;"></span>
+  <button id="btnRefresh" onclick="refreshAll()">⟳ Refresh</button>
+  <span id="runMsg"></span>
+  <span style="flex:1"></span>
+  <button id="btnDownload" onclick="downloadCSV()">⬇ Download</button>
+  <button id="btnClear" onclick="clearData()">🗑 Clear data</button>
+</div>
+
+<div class="kpis">
+  <div class="kpi"><div class="n" id="kTotal">0</div><div class="l">Emails archived</div></div>
+  <div class="kpi ok"><div class="n" id="kArticle">0</div><div class="l">Has article</div></div>
+  <div class="kpi ok"><div class="n" id="kPic">0</div><div class="l">Has picture</div></div>
+  <div class="kpi ok"><div class="n" id="kLogo">0</div><div class="l">Has logo</div></div>
+  <div class="kpi ok"><div class="n" id="kLogoArt">0</div><div class="l">Logo in article</div></div>
+  <div class="kpi ok"><div class="n" id="kImgArt">0</div><div class="l">Image in article</div></div>
+  <div class="kpi ok"><div class="n" id="kMatch">0</div><div class="l">Subject match ≥80%</div></div>
+  <div class="kpi ok"><div class="n" id="kReady">0</div><div class="l">Ready to filter</div></div>
+  <div class="kpi ok"><div class="n" id="kFAcc">0</div><div class="l">Filter ACCEPT</div></div>
+  <div class="kpi bad"><div class="n" id="kFRej">0</div><div class="l">Filter REJECT</div></div>
+  <div class="kpi"><div class="n" id="kFRev">0</div><div class="l">Editor review</div></div>
+</div>
+
+<div class="filters">
+  <input id="q" placeholder="Search subject or date...">
+  <select id="status">
+    <option value="">All</option>
+    <option value="hasArticle">Only with article</option>
+    <option value="hasPic">Only with picture</option>
+    <option value="hasLogo">Only with logo</option>
+    <option value="hasLogoInArticle">Only logo in article</option>
+    <option value="hasImageInArticle">Only image in article</option>
+    <option value="match">Only subject-match</option>
+    <option value="ready">Only ready to filter</option>
+    <option value="notready">Only not ready to filter</option>
+    <option value="faccept">Filter: ACCEPT</option>
+    <option value="freject">Filter: REJECT</option>
+    <option value="freview">Filter: EDITOR REVIEW</option>
+    <option value="ferror">Filter: error</option>
+    <option value="received">Receive: received</option>
+    <option value="receive_issue">Receive: issue</option>
+    <option value="receive_error">Receive: error</option>
+    <option value="old">Only old versions</option>
+  </select>
+</div>
+
+<div style="height:18px"></div>
+
+<div class="tablewrap">
+<table>
+  <thead>
+    <tr>
+      <th>Receive</th>
+      <th>Subject</th>
+      <th>Date</th>
+      <th>Ready to filter</th>
+      <th>Filter</th>
+      <th>Repurpose</th>
+      <th>Reply</th>
+    </tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
+</div>
+<div id="empty" class="empty">Cannot load checklist.json — run the archive workflow or check the server.</div>
+
+<div class="modal-back" id="filterModal" onclick="if(event.target===this)closeFilter()">
+  <div class="modal"><button class="m-close" onclick="closeFilter()">Close</button><div id="filterModalBody"></div></div>
+</div>
+<div class="modal-back" id="receiveModal" onclick="if(event.target===this)closeReceive()">
+  <div class="modal"><button class="m-close" onclick="closeReceive()">Close</button><div id="receiveModalBody"></div></div>
+</div>
+
+<script>
+let DATA = { articles: [] };
+let statusMap = {};
+let repurposeMap = {};
+let repurposeDash = 'http://localhost:8765/';
+let LATEST_IDS = new Set();
+function isOldRow(a){ return !!(a && a.id && LATEST_IDS.size && !LATEST_IDS.has(Number(a.id))); }
+function ok(v){ return v === true || v === 'true' || v === 1 || v === '1'; }
+
+function debounce(fn, ms){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), ms); }; }
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+const MONTHS = {jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12,
+                ja:1,fe:2,ma:3,ap:4,ju:6,au:8,se:9,oc:10,no:11,de:12};
+function dateKey(d){
+  d = String(d||'').trim();
+  if (/^\d{4}-\d{2}-\d{2}/.test(d)) {
+    const p = d.slice(0,10).split('-');
+    return Number(p[0])*10000 + Number(p[1])*100 + Number(p[2]);
+  }
+  const m = d.match(/(\d{1,2})\s+([A-Za-z]+)/);
+  if (!m) return 0;
+  const name = m[2].toLowerCase();
+  const month = MONTHS[name] || MONTHS[name.slice(0,3)] || MONTHS[name.slice(0,2)] || 0;
+  return month*100 + parseInt(m[1],10);
+}
+
+function dateLabel(d){
+  d = String(d||'').trim();
+  if (!d) return '';
+  if (/^\d{4}-\d{2}-\d{2}/.test(d)) {
+    const p = d.slice(0,10).split('-');
+    return `${p[2]}/${p[1]}`;
+  }
+  const m = d.match(/(\d{1,2})\s+([A-Za-z]+)/);
+  if (!m) return d;
+  const name = m[2].toLowerCase();
+  const month = MONTHS[name] || MONTHS[name.slice(0,3)] || MONTHS[name.slice(0,2)] || 0;
+  if (!month) return d;
+  return `${String(m[1]).padStart(2,'0')}/${String(month).padStart(2,'0')}`;
+}
+
+function latestArticles(){
+  // Re-runs append checklist rows; use the newest row per thread/email for KPI
+  // counts, while the table also renders older rows with an "old" black badge.
+  const all = DATA.articles || [];
+  const best = {};
+  all.forEach(a => {
+    const k = a.threadId || a.emailId || a.subject || '';
+    if (!k) return;
+    const id = Number(a.id) || 0;
+    if (!(k in best) || id > Number(best[k].id || 0)) best[k] = a;
+  });
+  return all.filter(a => {
+    const k = a.threadId || a.emailId || a.subject || '';
+    return !k || !a.id || best[k] === a;
+  });
+}
+
+function render(){
+  const q = (document.getElementById('q').value||'').toLowerCase();
+  const st = document.getElementById('status').value;
+  const unique = latestArticles();
+  LATEST_IDS = new Set(unique.map(a => Number(a.id)));
+  const all = DATA.articles || [];
+  let rows = all.slice();
+  if(q) rows = rows.filter(a => (a.subject||'').toLowerCase().includes(q) || (a.date||'').includes(q) || dateLabel(a.date).includes(q));
+  if(st==='hasArticle') rows = rows.filter(a => ok(a.hasArticle));
+  if(st==='hasPic') rows = rows.filter(a => ok(a.hasPic));
+  if(st==='hasLogo') rows = rows.filter(a => ok(a.hasLogo));
+  if(st==='hasLogoInArticle') rows = rows.filter(a => ok(a.hasLogoInArticle));
+  if(st==='hasImageInArticle') rows = rows.filter(a => ok(a.hasImageInArticle));
+  if(st==='match') rows = rows.filter(a => ok(a.subjectMatch));
+  if(st==='ready') rows = rows.filter(a => ok(a.readyToFilter));
+  if(st==='notready') rows = rows.filter(a => !ok(a.readyToFilter));
+  if(st==='faccept') rows = rows.filter(a => filterOutcome(a)==='ACCEPT');
+  if(st==='freject') rows = rows.filter(a => filterOutcome(a)==='REJECT');
+  if(st==='freview') rows = rows.filter(a => filterOutcome(a)==='EDITOR REVIEW');
+  if(st==='ferror') rows = rows.filter(a => filterOutcome(a)==='ERROR');
+  if(st==='received') rows = rows.filter(a => receiveState(a)==='success');
+  if(st==='receive_issue') rows = rows.filter(a => receiveState(a)==='needs_human');
+  if(st==='receive_error') rows = rows.filter(a => receiveState(a)==='error');
+  if(st==='old') rows = rows.filter(a => isOldRow(a));
+  // Current versions first, then old versions; each group newest first.
+  rows.sort((a,b) => (isOldRow(a)?1:0) - (isOldRow(b)?1:0)
+    || dateKey(b.date) - dateKey(a.date)
+    || String(a.subject||'').localeCompare(String(b.subject||'')));
+
+  document.getElementById('kTotal').textContent = unique.length;
+  document.getElementById('kArticle').textContent = unique.filter(a=>ok(a.hasArticle)).length;
+  document.getElementById('kPic').textContent = unique.filter(a=>ok(a.hasPic)).length;
+  document.getElementById('kLogo').textContent = unique.filter(a=>ok(a.hasLogo)).length;
+  document.getElementById('kLogoArt').textContent = unique.filter(a=>ok(a.hasLogoInArticle)).length;
+  document.getElementById('kImgArt').textContent = unique.filter(a=>ok(a.hasImageInArticle)).length;
+  document.getElementById('kMatch').textContent = unique.filter(a=>ok(a.subjectMatch)).length;
+  document.getElementById('kReady').textContent = unique.filter(a=>ok(a.readyToFilter)).length;
+  document.getElementById('kFAcc').textContent = unique.filter(a=>filterOutcome(a)==='ACCEPT').length;
+  document.getElementById('kFRej').textContent = unique.filter(a=>filterOutcome(a)==='REJECT').length;
+  document.getElementById('kFRev').textContent = unique.filter(a=>filterOutcome(a)==='EDITOR REVIEW').length;
+
+  const tbody = document.getElementById('tbody');
+  const emptyEl = document.getElementById('empty');
+  if (rows.length) emptyEl.style.display = 'none';
+  tbody.innerHTML = rows.map(a => {
+    const tag = (v, t)=>`<span class="tag ${ok(v)?'ok':'bad'}">${ok(v)?'yes':'no'}</span>`;
+    const rst = receiveState(a);
+    const old = isOldRow(a);
+    const stLabel = old ? 'old'
+      : rst==='running' ? 'processing…'
+      : rst==='needs_human' ? 'receive issue'
+      : rst==='error' ? 'error' : 'received';
+    const stCls = old ? 'old'
+      : rst==='running' ? 'processing'
+      : rst==='needs_human' ? 'warning'
+      : rst==='error' ? 'error' : 'received';
+    return `<tr>
+      <td><span class="qst ${stCls} clickable" onclick="openReceive(${Number(a.id)||0})">${stLabel}</span></td>
+      <td>${esc(a.subject||'(no subject)')}</td>
+      <td title="${esc(a.date||'')}">${esc(dateLabel(a.date))}</td>
+      <td>${tag(a.readyToFilter)}</td>
+      <td>${filterCell(a)}</td>
+      <td>${repurposeCell(a)}</td>
+      <td>${replyCell(a)}</td>
+    </tr>`;
+  }).join('');
+}
+
+function repurposeCell(a){
+  const r = repurposeMap[String(a.id)];
+  if(!r) return '<span class="f-badge none">—</span>';
+  const st = String(r.status||'pending').toLowerCase();
+  const cls = st==='validated' || st==='rendered' ? 'accept'
+    : st==='hold' ? 'reject'
+    : st==='pending' ? 'none' : 'review';
+  const label = st==='validated' ? 'validated' : st==='hold' ? 'HOLD' : st;
+  return `<a class="f-badge ${cls}" href="${esc(r.dashboard || repurposeDash)}" target="_blank" rel="noopener" title="${esc(r.folder||'')}">${esc(label)}</a>`;
+}
+
+function receiveLog(a){
+  const v = statusMap[a.emailId] || statusMap[a.threadId] || statusMap[a.subject] || {};
+  return (typeof v === 'string') ? {status:v} : v;
+}
+function receiveState(a){ return receiveLog(a).status || 'success'; }
+
+function openReceive(id){
+  const a=(DATA.articles||[]).find(x=>Number(x.id)===Number(id));
+  if(!a) return;
+  const log=receiveLog(a); const st=receiveState(a);
+  const fOut=filterOutcome(a);
+  const flag=(v)=>ok(v)?'<span class="tag ok">yes</span>':'<span class="tag bad">no</span>';
+  const stLabel = st==='running' ? 'processing…' : st==='needs_human' ? 'receive issue' : st==='error' ? 'error' : 'received';
+  const stCls = st==='running' ? 'processing' : st==='needs_human' ? 'warning' : st==='error' ? 'error' : 'received';
+  const fCls = fOut==='ACCEPT'?'accept':fOut==='REJECT'?'reject':fOut==='ERROR'?'error':'review';
+  const fLabel = fOut==='EDITOR REVIEW'?'REVIEW':(fOut||'—');
+  const fHtml = fOut ? `<span class="f-badge ${fCls}">${fLabel}${a.filterWeighted!=null?' '+a.filterWeighted+'%':''}</span>` : '—';
+  const reply = ok(a.readyToFilter) ? '—'
+    : (a.replySent==='true' ? '<span style="color:var(--ok)">sent ✓</span>'
+       : a.replySent==='error' ? '<span style="color:var(--bad)">failed</span>' : 'not sent');
+  document.getElementById('receiveModalBody').innerHTML=`
+    <h3>${esc(a.subject||'(no subject)')}</h3>
+    <div class="m-sub"><span class="qst ${isOldRow(a)?'old':stCls}">${isOldRow(a)?'old version':stLabel}</span> · ${esc(a.date||'')} · thread ${esc(a.threadId||'—')}${log.model?' · '+esc(log.model):''}</div>
+
+    <div class="rc-file"><div class="k">Article file</div><div class="v">${esc(a.articleFile||'—')}</div></div>
+
+    <div class="rc-h">Readiness</div>
+    <div class="rc-grid">
+      <div class="rc-item"><span class="rc-k">Ready to filter</span><span class="rc-v">${flag(a.readyToFilter)}</span></div>
+      <div class="rc-item"><span class="rc-k">Article</span><span class="rc-v">${flag(a.hasArticle)}</span></div>
+      <div class="rc-item"><span class="rc-k">Subject match</span><span class="rc-v">${esc(a.subjectScore||'—')}% ${flag(a.subjectMatch)}</span></div>
+    </div>
+
+    <div class="rc-h">Media</div>
+    <div class="rc-grid">
+      <div class="rc-item"><span class="rc-k">Picture</span><span class="rc-v">${flag(a.hasPic)}</span></div>
+      <div class="rc-item"><span class="rc-k">Logo</span><span class="rc-v">${flag(a.hasLogo)}</span></div>
+      <div class="rc-item"><span class="rc-k">Logo in article</span><span class="rc-v">${flag(a.hasLogoInArticle)}</span></div>
+      <div class="rc-item"><span class="rc-k">Image in article</span><span class="rc-v">${flag(a.hasImageInArticle)}</span></div>
+    </div>
+
+    <div class="rc-h">Filter &amp; reply</div>
+    <div class="rc-grid">
+      <div class="rc-item"><span class="rc-k">Filter</span><span class="rc-v">${fHtml}</span></div>
+      <div class="rc-item"><span class="rc-k">Reply</span><span class="rc-v">${reply}</span></div>
+    </div>
+
+    ${log.error?`<div class="m-reason">${esc(log.error)}</div>`:''}
+    ${fOut?`<div style="margin-top:12px"><button onclick="closeReceive();openFilter(${Number(a.id)||0})" style="background:var(--accent);color:#062a26;border:none;border-radius:8px;padding:7px 14px;font-weight:700;cursor:pointer">Open filter details</button></div>`:''}`;
+  document.getElementById('receiveModal').classList.add('open');
+}
+function closeReceive(){ document.getElementById('receiveModal').classList.remove('open'); }
+
+function filterOutcome(a){
+  if((a.filterStatus||'')==='error') return 'ERROR';
+  return (a.filterOutcome || (a.filterVerdict||{}).outcome || '').toUpperCase();
+}
+function filterCell(a){
+  const o=filterOutcome(a);
+  if(!o) return '<span class="f-badge none">—</span>';
+  const cls=o==='ACCEPT'?'accept':o==='REJECT'?'reject':o==='ERROR'?'error':'review';
+  const label=o==='EDITOR REVIEW'?'REVIEW':o;
+  const w=a.filterWeighted!=null?` ${a.filterWeighted}%`:'';
+  return `<span class="f-badge ${cls} f-detail" onclick="openFilter(${Number(a.id)||0})">${label}${w}</span>`;
+}
+
+let FILTER_BATTERY=null;
+function openFilter(id){
+  const a=(DATA.articles||[]).find(x=>Number(x.id)===Number(id));
+  if(!a) return;
+  const show=()=>renderFilterModal(a);
+  if(FILTER_BATTERY){ show(); return; }
+  fetch('/filters.json').then(r=>r.json()).then(d=>{FILTER_BATTERY=d.battery||{}; show();}).catch(()=>{FILTER_BATTERY={}; show();});
+}
+function renderFilterModal(a){
+  const v=a.filterVerdict||{};
+  const o=filterOutcome(a);
+  const thresholds=v.gate_thresholds||{};
+  const gvals=v.gates||{};
+  const labels=v.gate_labels||{};
+  const scores=v.scores||{};
+  const weights=(FILTER_BATTERY&&FILTER_BATTERY.scores)||{};
+  const gateRows=Object.keys(gvals).map(k=>{
+    const val=Number(gvals[k]);
+    const thr=Number(thresholds[k]??'');
+    const fired=!isNaN(thr)&&val>=thr;
+    return `<tr><td>${esc(labels[k]||k)}</td><td>${isNaN(val)?'—':val.toFixed(3)}</td><td>${isNaN(thr)?'—':thr}</td><td>${fired?'<span class="f-badge reject">FIRED</span>':'<span class="f-badge accept">ok</span>'}</td></tr>`;
+  }).join('');
+  const scoreColor=(pct)=>{
+    const p=Math.max(0,Math.min(100,Number(pct)||0));
+    const h=p<50 ? (p/50)*30 : 30+((p-50)/50)*90;
+    return `background:hsla(${h},85%,50%,.15);color:hsl(${h},80%,68%);border:1px solid hsla(${h},85%,50%,.30)`;
+  };
+  const scoreRows=Object.keys(scores).map(k=>{
+    const s=scores[k]||{}; const w=Number((weights[k]||{}).weight);
+    const norm=Number(s.norm); const pct=isNaN(norm)?null:norm*100;
+    const good=isNaN(pct)?'—':pct.toFixed(0)+'%';
+    const contrib=(isNaN(w)||isNaN(norm))?'—':(norm*w).toFixed(1);
+    const goodStyle=pct==null?'':scoreColor(pct);
+    return `<tr><td>${esc(k)}</td><td><span class="score-pill" style="${goodStyle}">${good}</span></td><td>${isNaN(w)?'—':w+'%'}</td><td><span class="score-pill" style="${goodStyle}">${contrib}</span></td></tr>`;
+  }).join('');
+  const reason=(v.reasons||[]).join(', ')||v.reason||a.filterError||'';
+  document.getElementById('filterModalBody').innerHTML=`
+    <h3>${esc(a.subject||'Filter result')}</h3>
+    <div class="m-sub">${o||'—'} · weighted ${a.filterWeighted??v.weighted??'—'}% · gate ${esc(v.gate||'—')} · confidence ${v.confidence??'—'} · ${esc(v.model||'')}</div>
+    <h3 style="font-size:13px;margin:10px 0 6px">Hard gates (defect probability)</h3>
+    <table><thead><tr><th>Gate</th><th>Value</th><th>Threshold</th><th>State</th></tr></thead><tbody>${gateRows||'<tr><td colspan=4>No gate data</td></tr>'}</tbody></table>
+    <h3 style="font-size:13px;margin:14px 0 6px">Weighted scores</h3>
+    <table><thead><tr><th>Score</th><th>Good</th><th>Weight</th><th>Contribution</th></tr></thead><tbody>${scoreRows||'<tr><td colspan=4>No score data</td></tr>'}</tbody></table>
+    <div class="score-legend">Good / contribution colour: red near 0%, orange around 50%, green near 100%.</div>
+    <div class="m-reason">${esc(reason||'—')}</div>
+    <div style="margin-top:12px"><a href="/filter-history.html?checklist_id=${Number(a.id)||0}" style="display:inline-block;background:var(--card);color:var(--accent);border:1px solid var(--accent);border-radius:8px;padding:7px 13px;font-size:12px;font-weight:700">Filter history</a></div>`;
+  document.getElementById('filterModal').classList.add('open');
+}
+function closeFilter(){ document.getElementById('filterModal').classList.remove('open'); }
+
+function replyCell(a){
+  if(ok(a.readyToFilter)) return '<span style="color:var(--mut);font-size:12px">—</span>';
+  const sent = (a.replySent||'')==='true';
+  const err  = (a.replySent||'')==='error';
+  const tid = a.threadId || a.subject || '';
+  const base = 'background:var(--card);color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:3px 10px;font-size:11px;cursor:pointer;font-family:inherit';
+  if(sent) return '<span style="color:var(--ok);font-size:12px">sent ✓</span>';
+  if(err)  return `<button class="replyBtn" onclick="sendReply('${esc(tid)}',this)" style="${base};background:var(--badsoft);color:var(--bad);border-color:var(--bad)">resend ✗</button>`;
+  return `<button class="replyBtn" onclick="sendReply('${esc(tid)}',this)" style="${base}">reply</button>`;
+}
+
+function sendReply(threadId, btn){
+  if(!confirm('Send the rejection reply to the sender now?')) return;
+  const orig = btn.textContent;
+  btn.textContent = 'sending…';
+  btn.disabled = true;
+  fetch('/api/reply?email_id=' + encodeURIComponent(threadId) + '&dry=0', {method:'POST'})
+    .then(r=>r.json())
+    .then(d=>{
+      if(d.ok){
+        btn.outerHTML = '<span style="color:var(--ok);font-size:12px">sent ✓</span>';
+      } else {
+        btn.textContent = 'failed';
+        alert('reply failed: ' + (d.error||'unknown'));
+        btn.disabled = false;
+      }
+    })
+    .catch(e=>{
+      btn.textContent = orig;
+      btn.disabled = false;
+      alert('reply error: ' + e.message);
+    });
+}
+
+document.getElementById('q').addEventListener('input', debounce(render, 150));
+document.getElementById('status').addEventListener('change', render);
+
+function selectEmail(){
+  document.getElementById('runMsg').textContent='';
+}
+
+function clearData(){
+  const msg = document.getElementById('runMsg');
+  if(!confirm('Clear ALL data? This removes the checklist rows, run logs and pipeline results (Drive folders are kept).')) return;
+  msg.textContent='clearing…';
+  fetch(apiBase()+'/api/clear', {method:'POST'})
+    .then(r=>r.json())
+    .then(d=>{
+      const bits=[];
+      if(d.sqlite) bits.push('local');
+      msg.textContent='cleared ✓ ('+bits.join(' + ')+')';
+      load(); loadEmails();
+    })
+    .catch(e=>{ msg.textContent='clear error: '+e.message; });
+}
+
+function downloadCSV(){
+  fetch(apiBase()+'/api/download.csv')
+    .then(r=>{ if(!r.ok) throw new Error('HTTP '+r.status); return r.blob(); })
+    .then(blob=>{
+      const a=document.createElement('a');
+      a.href=URL.createObjectURL(blob);
+      a.download='checklist.csv';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+    })
+    .catch(e=>{ document.getElementById('runMsg').textContent='download error: '+e.message; });
+}
+
+function refreshAll(){
+  const msg = document.getElementById('runMsg');
+  msg.textContent='refreshing…';
+  // force a fresh Gmail fetch (updates the server cache)
+  loadEmails(true).then(d=>{
+    if(d && d.rate_limited){
+      msg.textContent='⚠ ' + (d.error||'Gmail rate limited — try again later');
+      msg.style.color='#f87171';
+    } else {
+      const sel = document.getElementById('emailSelect');
+      const n = Math.max(0, sel.options.length - 1);
+      msg.textContent = n > 0 ? 'refreshed ✓ ' + n + ' unread emails' : 'refreshed ✓ no unread emails';
+      msg.style.color='';
+    }
+  }).catch(()=>{
+    msg.textContent='refresh failed';
+    msg.style.color='#f87171';
+  });
+  load();
+  loadStatusMap();
+  loadRepurpose();
+}
+
+function setStatus(text, state, subject){
+  const el = document.getElementById('runStatus');
+  if(!text){ el.style.display='none'; return; }
+  el.style.display='inline-flex';
+  el.style.alignItems='center';
+  el.style.gap='8px';
+  el.style.fontSize='13px';
+  el.style.fontWeight='700';
+  el.style.padding='6px 14px';
+  el.style.borderRadius='10px';
+  el.innerHTML = (state==='run' ? '<span class="spin"></span>' : '') + '<span>'+esc(text)+'</span>' + (subject ? '<span style="font-weight:500;color:inherit;opacity:.85">· '+esc(subject)+'</span>' : '');
+  if(state==='run'){ el.style.background='rgba(45,212,191,.12)'; el.style.color='#2dd4bf'; el.style.border='1px solid #2dd4bf'; }
+  else if(state==='ok'){ el.style.background='rgba(52,211,153,.12)'; el.style.color='#34d399'; el.style.border='1px solid #34d399'; }
+  else if(state==='warn'){ el.style.background='rgba(251,191,36,.12)'; el.style.color='#fbbf24'; el.style.border='1px solid #fbbf24'; }
+  else { el.style.background='rgba(248,113,113,.12)'; el.style.color='#f87171'; el.style.border='1px solid #f87171'; }
+}
+
+function runEmail(){
+  const sel = document.getElementById('emailSelect');
+  const id = sel.value;
+  const msg = document.getElementById('runMsg');
+  if(!id){ msg.textContent='pick an email first'; return; }
+  msg.textContent='';
+  const subject = sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].textContent : '';
+  setStatus('Processing…', 'run', subject);
+  fetch(apiBase()+'/api/run?email_id='+encodeURIComponent(id), {method:'POST'})
+    .then(r=>r.json())
+    .then(d=>{
+      const runId = d.run_id;
+      pollRun(runId, subject);
+    })
+    .catch(e=>{ setStatus('✗ Error', 'err', subject); msg.textContent=e.message; });
+}
+
+function pollRun(runId, subject){
+  const msg = document.getElementById('runMsg');
+  fetch(apiBase()+'/api/run-status?run_id='+encodeURIComponent(runId))
+    .then(r=>r.json())
+    .then(d=>{
+      if(d.status === 'success'){ setStatus('✓ Completed', 'ok', subject); load(); loadEmails(true); loadStatusMap(); }
+      else if(d.status === 'needs_human'){ setStatus('⚠ Needs human', 'warn', subject); msg.textContent=(d.error||''); load(); loadEmails(true); loadStatusMap(); }
+      else if(d.status === 'error'){ setStatus('✗ Error', 'err', subject); msg.textContent=(d.error||''); load(); }
+      else if(d.status === 'running'){ setStatus('Processing…', 'run', subject); setTimeout(()=>pollRun(runId, subject), 2000); }
+      else { setTimeout(()=>pollRun(runId, subject), 2000); }
+    })
+    .catch(()=>{ setTimeout(()=>pollRun(runId, subject), 2000); });
+}
+
+function apiBase(){ return ''; } // same-origin; /api/* is served on the same port as the page
+function loadEmails(force){
+  return fetch(apiBase()+'/api/emails'+(force?'?force=1':''))
+    .then(r=>{ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+    .then(d=>{
+      const sel = document.getElementById('emailSelect');
+      const cur = sel.value;
+      sel.innerHTML = '<option value="">— pick an unread email —</option>';
+      (d.emails||[]).forEach(e=>{
+        const opt=document.createElement('option');
+        opt.value=e.id;
+        opt.textContent=(e.subject||'(no subject)').slice(0,70);
+        sel.appendChild(opt);
+      });
+      if(cur) sel.value=cur;
+      const n=(d.emails||[]).length;
+      console.log('loadEmails: loaded', n, 'emails', d.rate_limited?'[rate-limited]':'');
+      // resolve with the data so callers (refreshAll) can inspect rate_limited
+      return d;
+    })
+    .catch(e=>{
+      console.error('loadEmails:', e);
+      throw e;
+    });
+}
+
+function loadRepurpose(){
+  return fetch(apiBase()+'/api/repurpose').then(r=>r.json()).then(d=>{
+    repurposeMap = d.items || {};
+    repurposeDash = d.dashboard || repurposeDash;
+    render();
+  }).catch(()=>{});
+}
+
+function loadStatusMap(){
+  fetch(apiBase()+'/api/logs').then(r=>r.json()).then(d=>{
+    statusMap = {};
+    (d.logs||[]).forEach(l=>{
+      // key by email_id; also map by subject for already-archived rows
+      // /api/logs is newest first — keep the FIRST (latest) run per key.
+      if(l.email_id && !(l.email_id in statusMap)) statusMap[l.email_id] = l;
+      if(l.subject && !(l.subject in statusMap)) statusMap[l.subject] = l;
+    });
+    render();
+  }).catch(()=>{});
+}
+
+function load(){
+  return fetch(apiBase()+'/checklist.json?_=' + Date.now()).then(r=>{ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); }).then(d=>{
+    DATA = d;
+    const genEl = document.getElementById('gen');
+    if (genEl) genEl.textContent = d.generated ? new Date(d.generated).toLocaleString() : '—';
+    const n = (d.articles||[]).length;
+    if (n === 0) {
+      document.getElementById('empty').style.display='block';
+      document.getElementById('empty').textContent='No archived emails yet. Run the archive workflow on an email first.';
+    }
+    render();
+    loadRepurpose();
+  }).catch((e)=>{
+    document.getElementById('empty').style.display='block';
+    document.getElementById('empty').textContent='Cannot load checklist.json — run the archive workflow or check the server.';
+    console.error(e);
+    return Promise.resolve();
+  });
+}
+load();
+loadEmails();
+loadStatusMap();
+setInterval(load, 30000);
+setInterval(loadStatusMap, 5000);
+// NOTE: /api/emails is NOT polled — the Gmail list is fetched only on page
+// load (from cache) and when the user clicks Refresh (which passes force=1).
+// This avoids hammering the Gmail API all day with the page left open.
+</script>
+</body>
+</html>

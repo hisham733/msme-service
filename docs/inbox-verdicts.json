@@ -1,0 +1,611 @@
+[
+  {
+    "id": "1a120d35e0605955",
+    "subject": "Fwd: Media Statement: Global Electronics Association Shares Perspective on Malaysia Budget 2027",
+    "outcome": "ACCEPT",
+    "gate": null,
+    "weighted": 77,
+    "reasons": [],
+    "nsr": 0.06,
+    "nwv": 0.12,
+    "com": 0.19
+  },
+  {
+    "id": "1a120a244b22624b",
+    "subject": "Fwd: Press Release MICSEA - Budget 2027: Employers back RM2,000 minimum wage but flag \"cliff-edge\" for firms just above RM50m turnover",
+    "outcome": "ACCEPT",
+    "gate": null,
+    "weighted": 91,
+    "reasons": [],
+    "nsr": 0.03,
+    "nwv": 0.07,
+    "com": 0.06
+  },
+  {
+    "id": "1a1209d67934279f",
+    "subject": "Fwd: [KRI MEDIA RELEASE] Budget 2027: Reaching for Progress; Rooted in the Rakyat's Wellbeing.",
+    "outcome": "ACCEPT",
+    "gate": null,
+    "weighted": 88,
+    "reasons": [],
+    "nsr": 0.07,
+    "nwv": 0.1,
+    "com": 0.06
+  },
+  {
+    "id": "1a1209cb08e7c877",
+    "subject": "Fwd: [CIMB MEDIA RELEASE] CIMB commends the Government on an expansionary Budget 2027",
+    "outcome": "ACCEPT",
+    "gate": null,
+    "weighted": 66,
+    "reasons": [],
+    "nsr": 0.18,
+    "nwv": 0.31,
+    "com": 0.25
+  },
+  {
+    "id": "1a1209c43523e518",
+    "subject": "Fwd: PIKOM's Reaction To Budget 2027 Announcement",
+    "outcome": "ACCEPT",
+    "gate": null,
+    "weighted": 77,
+    "reasons": [],
+    "nsr": 0.04,
+    "nwv": 0.15,
+    "com": 0.11
+  },
+  {
+    "id": "1a1209bde2075579",
+    "subject": "Fwd: [Media Release] OCBC Malaysia’s Perspectives on MADANI Budget 2027",
+    "outcome": "ACCEPT",
+    "gate": null,
+    "weighted": 77,
+    "reasons": [],
+    "nsr": 0.08,
+    "nwv": 0.17,
+    "com": 0.17
+  },
+  {
+    "id": "1a1209b5bd5a8407",
+    "subject": "Fwd: Press Release: BAKER TILLY MALAYSIA WELCOMES BUDGET 2027'S FOCUS ON BUSINESS COMPETITIVENESS, PRODUCTIVITY AND INCLUSIVE GROWTH",
+    "outcome": "ACCEPT",
+    "gate": null,
+    "weighted": 71,
+    "reasons": [],
+    "nsr": 0.08,
+    "nwv": 0.2,
+    "com": 0.25
+  },
+  {
+    "id": "1a11e3b68370c9d2",
+    "subject": "Fwd: Op-Ed: Growth Needs More Than Incentives — It Needs Homes",
+    "outcome": "ACCEPT",
+    "gate": null,
+    "weighted": 90,
+    "reasons": [],
+    "nsr": 0.06,
+    "nwv": 0.09,
+    "com": 0.13
+  },
+  {
+    "id": "1a11e3a312820c65",
+    "subject": "Fwd: [PRESS RELEASE] Karaoke Manekineko Celebrates Opening 20 Outlets with New Promotions",
+    "outcome": "REJECT",
+    "gate": "NOT_SME_RELEVANT",
+    "weighted": 67,
+    "reasons": [
+      "NOT_SME_RELEVANT",
+      "NO_WIDER_VALUE",
+      "IS_IT_COMMERCIAL_INTENT"
+    ],
+    "nsr": 0.96,
+    "nwv": 0.87,
+    "com": 0.96
+  },
+  {
+    "id": "1a11e39d07d451c9",
+    "subject": "Fwd: Data centers to use 31% of Peninsular Malaysia's power by 2035: Delta's efficiency figures from DCW Asia",
+    "outcome": "EDITOR REVIEW",
+    "gate": "AMBIGUOUS_NOT_SME_RELEVANT",
+    "weighted": 79,
+    "reasons": [
+      "AMBIGUOUS_NOT_SME_RELEVANT"
+    ],
+    "nsr": 0.56,
+    "nwv": 0.27,
+    "com": 0.81
+  },
+  {
+    "id": "1a11e390828570a9",
+    "subject": "Fwd: [PRESS RELEASE] Xerox Returns To Malaysia With New A4 Colour Portfolio Following Lexmark Integration",
+    "outcome": "REJECT",
+    "gate": "IS_IT_COMMERCIAL_INTENT",
+    "weighted": 77,
+    "reasons": [
+      "IS_IT_COMMERCIAL_INTENT"
+    ],
+    "nsr": 0.77,
+    "nwv": 0.44,
+    "com": 0.92
+  },
+  {
+    "id": "1a11e38501b05f5e",
+    "subject": "Fwd: MEDIA RELEASE: TOURISM MALAYSIA COLLABORATES WITH OPPO MALAYSIA TO SHOWCASE THE BEAUTY OF MALAYSIA THROUGH DIGITAL LENS",
+    "outcome": "EDITOR REVIEW",
+    "gate": "AMBIGUOUS_NOT_SME_RELEVANT",
+    "weighted": 78,
+    "reasons": [
+      "AMBIGUOUS_NOT_SME_RELEVANT"
+    ],
+    "nsr": 0.83,
+    "nwv": 0.31,
+    "com": 0.24
+  },
+  {
+    "id": "1a11e37fabffa9b1",
+    "subject": "Fwd: [PRESS RELEASE] Monash University Malaysia Leads Triple Alliance’s Flagship Mental Health Initiative To Strengthen Student Wellbeing",
+    "outcome": "REJECT",
+    "gate": "NOT_SME_RELEVANT",
+    "weighted": 79,
+    "reasons": [
+      "NOT_SME_RELEVANT"
+    ],
+    "nsr": 0.96,
+    "nwv": 0.35,
+    "com": 0.13
+  },
+  {
+    "id": "1a11e370eee7601a",
+    "subject": "Fwd: Press Release - Fast Retailing Announces Record Performance for Fifth Consecutive Year",
+    "outcome": "REJECT",
+    "gate": "NOT_SME_RELEVANT",
+    "weighted": 79,
+    "reasons": [
+      "NOT_SME_RELEVANT"
+    ],
+    "nsr": 0.93,
+    "nwv": 0.75,
+    "com": 0.41
+  },
+  {
+    "id": "1a11e36c1c53fc68",
+    "subject": "Fwd: [PRESS RELEASE] Ministry of Digital Provides Access to Coursera Courses Through Rakyat Digital for 100,000 Malaysians to Advance AI Nation 2030 Vision",
+    "outcome": "EDITOR REVIEW",
+    "gate": "AMBIGUOUS_NOT_SME_RELEVANT",
+    "weighted": 77,
+    "reasons": [
+      "AMBIGUOUS_NOT_SME_RELEVANT"
+    ],
+    "nsr": 0.51,
+    "nwv": 0.12,
+    "com": 0.17
+  },
+  {
+    "id": "1a11e367f272898c",
+    "subject": "Fwd: [PRESS RELEASE] Three lessons from Hangzhou, and one potential partnership to follow up: Sanct Social founder on China's Global Digital Trade Expo",
+    "outcome": "ACCEPT",
+    "gate": null,
+    "weighted": 91,
+    "reasons": [],
+    "nsr": 0.48,
+    "nwv": 0.12,
+    "com": 0.51
+  },
+  {
+    "id": "1a11e32d6540f2b8",
+    "subject": "Fwd: Asia’s No. 1 business school uses AI to sharpen judgement in leaders",
+    "outcome": "EDITOR REVIEW",
+    "gate": "AMBIGUOUS_NOT_SME_RELEVANT",
+    "weighted": 88,
+    "reasons": [
+      "AMBIGUOUS_NOT_SME_RELEVANT"
+    ],
+    "nsr": 0.64,
+    "nwv": 0.11,
+    "com": 0.15
+  },
+  {
+    "id": "1a11a62acef15a38",
+    "subject": "You shared some Google Account data with typesafe.ai",
+    "outcome": "EDITOR REVIEW",
+    "gate": "AMBIGUOUS_NOT_SME_RELEVANT",
+    "weighted": 61,
+    "reasons": [
+      "AMBIGUOUS_NOT_SME_RELEVANT"
+    ],
+    "nsr": 0.82,
+    "nwv": 0.76,
+    "com": 0.29
+  },
+  {
+    "id": "1a1160f7c238cb7f",
+    "subject": "Fwd: [Bylined Article] What If Malaysia's Greatest Competitive Advantage Isn't Cost?",
+    "outcome": "ACCEPT",
+    "gate": null,
+    "weighted": 86,
+    "reasons": [],
+    "nsr": 0.15,
+    "nwv": 0.15,
+    "com": 0.43
+  },
+  {
+    "id": "1a1112d9d089545e",
+    "subject": "Fwd: EY Media Release: EY and SAINS forge strategic collaboration to advance digital and AI transformation in Sarawak",
+    "outcome": "ACCEPT",
+    "gate": null,
+    "weighted": 73,
+    "reasons": [],
+    "nsr": 0.17,
+    "nwv": 0.26,
+    "com": 0.33
+  },
+  {
+    "id": "1a1112d0569772bf",
+    "subject": "Fwd: [Media release] FCM Travel launches Proactive Analytics to catch cost and compliance risks before they escalate",
+    "outcome": "REJECT",
+    "gate": "IS_IT_COMMERCIAL_INTENT",
+    "weighted": 74,
+    "reasons": [
+      "IS_IT_COMMERCIAL_INTENT"
+    ],
+    "nsr": 0.76,
+    "nwv": 0.33,
+    "com": 0.88
+  },
+  {
+    "id": "1a1112c89c54192f",
+    "subject": "Fwd: [Media Release] OCBC Supports Malaysian Businesses' International Growth with Payments in 67 Currencies",
+    "outcome": "REJECT",
+    "gate": "IS_IT_COMMERCIAL_INTENT",
+    "weighted": 65,
+    "reasons": [
+      "IS_IT_COMMERCIAL_INTENT"
+    ],
+    "nsr": 0.45,
+    "nwv": 0.47,
+    "com": 0.86
+  },
+  {
+    "id": "1a1112c4cee6ebc9",
+    "subject": "Fwd: [PRESS RELEASE] Legacy Planning - Passing The Torch - Malaysia Leads Asia In Formal Legacy Planning, Yet 8 in 10 Fear Their Wealth Will Not Last",
+    "outcome": "REJECT",
+    "gate": "NOT_SME_RELEVANT",
+    "weighted": 88,
+    "reasons": [
+      "NOT_SME_RELEVANT"
+    ],
+    "nsr": 0.94,
+    "nwv": 0.17,
+    "com": 0.64
+  },
+  {
+    "id": "1a10ec703a3c6578",
+    "subject": "Fwd: Among the Giants: Aventra Group Unveils Pioneering ISO 42001 AI Framework to Smash Enterprise Procurement Bottlenecks",
+    "outcome": "REJECT",
+    "gate": "IS_IT_COMMERCIAL_INTENT",
+    "weighted": 62,
+    "reasons": [
+      "IS_IT_COMMERCIAL_INTENT"
+    ],
+    "nsr": 0.45,
+    "nwv": 0.49,
+    "com": 0.93
+  },
+  {
+    "id": "1a10bf4afa49b4b6",
+    "subject": "Fwd: PRESS RELEASE: CelcomDigi to offer Protect+ with AppleCare Services",
+    "outcome": "REJECT",
+    "gate": "NOT_SME_RELEVANT",
+    "weighted": 61,
+    "reasons": [
+      "NOT_SME_RELEVANT",
+      "IS_IT_COMMERCIAL_INTENT"
+    ],
+    "nsr": 0.94,
+    "nwv": 0.79,
+    "com": 0.95
+  },
+  {
+    "id": "1a10bf469775c295",
+    "subject": "Fwd: Press Release and Photo - Allianz Life encourages Malaysians to turn breast cancer awareness into action",
+    "outcome": "REJECT",
+    "gate": "NOT_SME_RELEVANT",
+    "weighted": 70,
+    "reasons": [
+      "NOT_SME_RELEVANT"
+    ],
+    "nsr": 0.96,
+    "nwv": 0.64,
+    "com": 0.66
+  },
+  {
+    "id": "1a10bf36f62a9ab4",
+    "subject": "Fwd: [PRESS RELEASE] Novo Nordisk rebrands as ‘Novo’ in Malaysia amid growing focus on chronic disease prevention",
+    "outcome": "EDITOR REVIEW",
+    "gate": "AMBIGUOUS_NOT_SME_RELEVANT",
+    "weighted": 83,
+    "reasons": [
+      "AMBIGUOUS_NOT_SME_RELEVANT"
+    ],
+    "nsr": 0.79,
+    "nwv": 0.27,
+    "com": 0.68
+  },
+  {
+    "id": "1a10bf3237862e97",
+    "subject": "Fwd: [FOR IMMEDIATE RELEASE] Pink October MoU Signing: Hospital Picaso, College of Radiology Malaysia & BD Join Forces to Strengthen Breast Cancer Care",
+    "outcome": "EDITOR REVIEW",
+    "gate": "AMBIGUOUS_NOT_SME_RELEVANT",
+    "weighted": 80,
+    "reasons": [
+      "AMBIGUOUS_NOT_SME_RELEVANT"
+    ],
+    "nsr": 0.75,
+    "nwv": 0.39,
+    "com": 0.6
+  },
+  {
+    "id": "1a10bf299bc19de1",
+    "subject": "Fwd: [FOR IMMEDIATE RELEASE] Leaders Gather in Kuching for the International Digital Economy Conference Sarawak 2026 (IDECS26) as Sarawak Advances AI, Semiconductors and Space",
+    "outcome": "ACCEPT",
+    "gate": null,
+    "weighted": 90,
+    "reasons": [],
+    "nsr": 0.18,
+    "nwv": 0.08,
+    "com": 0.07
+  },
+  {
+    "id": "1a10bf218ff58911",
+    "subject": "Fwd: Press Statement | 59% OF MALAYSIANS COULD NOT USE SARA AID AT THEIR PREFERRED RETAIL CHANNEL",
+    "outcome": "EDITOR REVIEW",
+    "gate": "BORDERLINE",
+    "weighted": 64,
+    "reasons": [
+      "BORDERLINE"
+    ],
+    "nsr": 0.1,
+    "nwv": 0.15,
+    "com": 0.16
+  },
+  {
+    "id": "1a10974d2a0cbab5",
+    "subject": "Fwd: [OP-ED] ACCA: Five Priorities Malaysian Businesses Need from Budget 2027",
+    "outcome": "ACCEPT",
+    "gate": null,
+    "weighted": 90,
+    "reasons": [],
+    "nsr": 0.02,
+    "nwv": 0.03,
+    "com": 0.09
+  },
+  {
+    "id": "1a10973e8d18cc77",
+    "subject": "Fwd: [SIARAN AKHBAR] STeP DAN MATRADE PERKUKUH KESIAPSAGAAN EKSPORT USAHAWAN PERAK",
+    "outcome": "ACCEPT",
+    "gate": null,
+    "weighted": 77,
+    "reasons": [],
+    "nsr": 0.18,
+    "nwv": 0.18,
+    "com": 0.09
+  },
+  {
+    "id": "1a10971a7ad8e181",
+    "subject": "Fwd: PRESS RELEASE: INTAC’26 Brings Together 155 Exhibitors from 35 Countries for Visit Malaysia 2026-2027",
+    "outcome": "EDITOR REVIEW",
+    "gate": "AMBIGUOUS_NOT_SME_RELEVANT",
+    "weighted": 77,
+    "reasons": [
+      "AMBIGUOUS_NOT_SME_RELEVANT"
+    ],
+    "nsr": 0.8,
+    "nwv": 0.18,
+    "com": 0.36
+  },
+  {
+    "id": "1a109711b5288f0f",
+    "subject": "Fwd: [PRESS RELEASE] IRGCE 2026 CONCLUDES WITH STRONG INTERNATIONAL PARTICIPATION AND BUSINESS PROSPECTS",
+    "outcome": "ACCEPT",
+    "gate": null,
+    "weighted": 89,
+    "reasons": [],
+    "nsr": 0.12,
+    "nwv": 0.11,
+    "com": 0.17
+  },
+  {
+    "id": "1a0fbe5251974652",
+    "subject": "Fwd: Contributed Article: What the next generation of Southeast Asian industrial talent needs to learn",
+    "outcome": "ACCEPT",
+    "gate": null,
+    "weighted": 80,
+    "reasons": [],
+    "nsr": 0.07,
+    "nwv": 0.12,
+    "com": 0.31
+  },
+  {
+    "id": "1a0f7aefb9a2117e",
+    "subject": "Fwd: [FOR IMMEDIATE RELEASE] IDECS26 Brings Five Tracks Together to Turn Technology Ambitions into Industry Opportunities",
+    "outcome": "ACCEPT",
+    "gate": null,
+    "weighted": 90,
+    "reasons": [],
+    "nsr": 0.2,
+    "nwv": 0.08,
+    "com": 0.07
+  },
+  {
+    "id": "1a0f5ab6e361941c",
+    "subject": "Fwd: Press Release : MARGMA's IRGCE 2026 CONCLUDES WITH STRONG INTERNATIONAL PARTICIPATION AND BUSINESS PROSPECTS",
+    "outcome": "EDITOR REVIEW",
+    "gate": "BORDERLINE",
+    "weighted": 62,
+    "reasons": [
+      "BORDERLINE"
+    ],
+    "nsr": 0.45,
+    "nwv": 0.41,
+    "com": 0.28
+  },
+  {
+    "id": "1a0f5aaedfe81f91",
+    "subject": "Fwd: Press Release: Invest Melaka Brings Melaka’s Halal Ecosystem Together at MIHAS 2026",
+    "outcome": "ACCEPT",
+    "gate": null,
+    "weighted": 66,
+    "reasons": [],
+    "nsr": 0.41,
+    "nwv": 0.45,
+    "com": 0.25
+  },
+  {
+    "id": "1a0d7e91067a86c6",
+    "subject": "Fwd: [Press Release] Lenovo Modernizes Virtualization Infrastructure for an AI-Ready Future",
+    "outcome": "REJECT",
+    "gate": "IS_IT_COMMERCIAL_INTENT",
+    "weighted": 60,
+    "reasons": [
+      "IS_IT_COMMERCIAL_INTENT"
+    ],
+    "nsr": 0.68,
+    "nwv": 0.55,
+    "com": 0.9
+  },
+  {
+    "id": "1a0d7a07814c737f",
+    "subject": "Fwd: Press Release - BMW Motorrad Malaysia Introduces the BMW R 1300 GS with Automated Shift Assistant",
+    "outcome": "REJECT",
+    "gate": "NOT_SME_RELEVANT",
+    "weighted": 56,
+    "reasons": [
+      "NOT_SME_RELEVANT",
+      "NO_WIDER_VALUE",
+      "IS_IT_COMMERCIAL_INTENT"
+    ],
+    "nsr": 0.94,
+    "nwv": 0.87,
+    "com": 0.89
+  },
+  {
+    "id": "1a0d79f2a2aa1693",
+    "subject": "Fwd: Java Kapital Group, SME Association of Malaysia and SEAMEO VOCTECH Forge Strategic Partnership",
+    "outcome": "EDITOR REVIEW",
+    "gate": "BORDERLINE",
+    "weighted": 63,
+    "reasons": [
+      "BORDERLINE"
+    ],
+    "nsr": 0.11,
+    "nwv": 0.34,
+    "com": 0.31
+  },
+  {
+    "id": "1a0d5f6e56e34bab",
+    "subject": "Fwd: [Press Release] Malaysian Women More Likely Than Men to Believe Pay Is Equal, Reversing Global Pattern",
+    "outcome": "ACCEPT",
+    "gate": null,
+    "weighted": 88,
+    "reasons": [],
+    "nsr": 0.1,
+    "nwv": 0.08,
+    "com": 0.31
+  },
+  {
+    "id": "1a0d5f635df035f6",
+    "subject": "Fwd: [PRESS RELEASE] MALAYSIA SHOWCASES TECHNOLOGY CAPABILITIES AT THE 5TH GLOBAL DIGITAL TRADE EXPO (GDTE) IN HANGZHOU AS PM ANWAR IBRAHIM OFFICIATES MALAYSIA PAVILION",
+    "outcome": "ACCEPT",
+    "gate": null,
+    "weighted": 78,
+    "reasons": [],
+    "nsr": 0.13,
+    "nwv": 0.14,
+    "com": 0.1
+  },
+  {
+    "id": "1a0ce0fc6bccb356",
+    "subject": "Fwd: MIHAS 2026 Drives Malaysian Trade with its Signature International Sourcing Programme, Connecting 450 International Buyers with 600 Malaysian Exporters",
+    "outcome": "ACCEPT",
+    "gate": null,
+    "weighted": 86,
+    "reasons": [],
+    "nsr": 0.08,
+    "nwv": 0.08,
+    "com": 0.12
+  },
+  {
+    "id": "1a0cbc5c2a2498b5",
+    "subject": "Fwd: SME Association of Malaysia Welcomes Removal of 30% Bumiputera Equity Requirement for Private Education Institutions",
+    "outcome": "ACCEPT",
+    "gate": null,
+    "weighted": 71,
+    "reasons": [],
+    "nsr": 0.11,
+    "nwv": 0.11,
+    "com": 0.07
+  },
+  {
+    "id": "1a0cbbdd0407b44f",
+    "subject": "Fwd: Press Release: Baker Tilly Names Capital Markets Veteran as Director of IPO Development",
+    "outcome": "EDITOR REVIEW",
+    "gate": "AMBIGUOUS_NOT_SME_RELEVANT",
+    "weighted": 69,
+    "reasons": [
+      "AMBIGUOUS_NOT_SME_RELEVANT"
+    ],
+    "nsr": 0.8,
+    "nwv": 0.81,
+    "com": 0.35
+  },
+  {
+    "id": "1a0cbbd3d41cf9e3",
+    "subject": "Fwd: THE DREAM BECOMES REALITY: GLOBAL TESTING PROGRAMME BEGINS FOR PROJECT NIGHTINGALE, A COACHBUILD COLLECTION",
+    "outcome": "REJECT",
+    "gate": "NOT_SME_RELEVANT",
+    "weighted": 72,
+    "reasons": [
+      "NOT_SME_RELEVANT",
+      "NO_WIDER_VALUE",
+      "IS_IT_COMMERCIAL_INTENT"
+    ],
+    "nsr": 0.95,
+    "nwv": 0.88,
+    "com": 0.93
+  },
+  {
+    "id": "1a0cbbc58a46d80a",
+    "subject": "Fwd: FOR IMMEDIATE RELEASE: Lion Parcel Enters Malaysia, Marking First International Expansion",
+    "outcome": "EDITOR REVIEW",
+    "gate": "BORDERLINE",
+    "weighted": 59,
+    "reasons": [
+      "BORDERLINE"
+    ],
+    "nsr": 0.56,
+    "nwv": 0.53,
+    "com": 0.66
+  },
+  {
+    "id": "1a0cbbbc594642a4",
+    "subject": "Fwd: [PRESS RELEASE] Biji-biji Initiative & IKEA’s SEAM Returns with Nine Malaysian Impact Enterprises to Watch",
+    "outcome": "ACCEPT",
+    "gate": null,
+    "weighted": 86,
+    "reasons": [],
+    "nsr": 0.11,
+    "nwv": 0.1,
+    "com": 0.1
+  },
+  {
+    "id": "1a0c6a780d5e67d8",
+    "subject": "Fwd: [PRESS RELEASE] MALAYSIA’S EXPORTS TO 40 COUNTRIES SURPASS 2025 RECORDS, DRIVEN BY MARKET AND PRODUCT DIVERSIFICATION",
+    "outcome": "ACCEPT",
+    "gate": null,
+    "weighted": 81,
+    "reasons": [],
+    "nsr": 0.05,
+    "nwv": 0.07,
+    "com": 0.08
+  }
+]

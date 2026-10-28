@@ -1,0 +1,42 @@
+{
+  "baseline": {
+    "tp": 5,
+    "fp": 8,
+    "tn": 92,
+    "fn": 15,
+    "precision": 0.385,
+    "recall": 0.25,
+    "f1": 0.303,
+    "acc": 0.808
+  },
+  "optimized": {
+    "tp": 15,
+    "fp": 9,
+    "tn": 91,
+    "fn": 5,
+    "precision": 0.625,
+    "recall": 0.75,
+    "f1": 0.682,
+    "acc": 0.883
+  },
+  "chosen": {
+    "royalty": "royalty",
+    "religion": "religion",
+    "race": "race",
+    "not_sme_relevant": "not_sme_relevant",
+    "no_wider_value": "no_wider_value_g6",
+    "is_it_commercial_intent": "is_it_commercial_intent_g6",
+    "not_geographically_relevant": "not_geographically_relevant_g3",
+    "defamatory": "defamatory_g8",
+    "political": "political",
+    "no_substance": "no_substance_g4",
+    "not_identifiable": "not_identifiable",
+    "unattributed_claims": "unattributed_claims_g3",
+    "not_current": "not_current",
+    "no_editorial_value": "no_editorial_value",
+    "contact": "contact_g8",
+    "category_fit": "category_fit_g6",
+    "not_sme_voice": "not_sme_voice_4"
+  },
+  "matrix_n": 120
+}

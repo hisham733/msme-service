@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jev Lab — tabs & variants</title>
+<style>
+  :root{--bg:#0b1020;--card:#141a2e;--card2:#1a2138;--border:#232b45;--text:#e5e9f5;--muted:#8b93ab;
+        --teal:#2dd4bf;--green:#34d399;--red:#f87171;--amber:#fbbf24;--purple:#a78bfa}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;font-size:13.5px;padding:22px;max-width:1280px;margin:0 auto}
+  h1{font-size:20px;font-weight:700}.sub{color:var(--muted);font-size:12.5px;margin-top:4px}
+  .nav{display:flex;gap:8px;margin:16px 0 18px;flex-wrap:wrap}
+  .nav a{color:var(--muted);text-decoration:none;font-size:12.5px;padding:6px 12px;border:1px solid var(--border);border-radius:8px;background:var(--card)}
+  .nav a.on{color:var(--teal);border-color:var(--teal)}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px}
+  .card h2{font-size:13px;font-weight:700;margin-bottom:10px;color:var(--teal)}
+  label{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.04em;margin:8px 0 4px}
+  input,textarea,select{width:100%;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:8px;font:12px/1.5 ui-monospace,monospace}
+  textarea{resize:vertical}
+  .row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+  button{font-family:inherit;border:none;border-radius:8px;padding:8px 14px;font-weight:700;font-size:12px;cursor:pointer}
+  .btn{background:var(--teal);color:#06231e}.btn2{background:var(--purple);color:#1a1030}.btn3{background:var(--card2);color:var(--text);border:1px solid var(--border)}
+  .bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
+  /* tabs */
+  .tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;border-bottom:1px solid var(--border);padding-bottom:10px}
+  .tab{padding:6px 11px;border:1px solid var(--border);border-radius:8px;background:var(--card2);color:var(--muted);cursor:pointer;font-size:12px;font-weight:600}
+  .tab:hover{border-color:var(--teal)}
+  .tab.on{background:var(--teal);color:#06231e;border-color:var(--teal)}
+  .tab .cnt{font-size:10px;opacity:.8}
+  .tab.gate{border-left:3px solid var(--red)}.tab.score{border-left:3px solid var(--green)}.tab.context{border-left:3px solid var(--purple)}
+  .vhead{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  .vhead .qid{font-family:ui-monospace,monospace;font-weight:700;font-size:12.5px;color:var(--text)}
+  .vhead .meta{color:var(--muted);font-size:11px}
+  .vcard{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:8px}
+  .vcard.gate{border-left:3px solid var(--red)}.vcard.score{border-left:3px solid var(--green)}.vcard.context{border-left:3px solid var(--purple)}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .pill{font-weight:700;font-size:11px;padding:2px 8px;border-radius:6px}
+  .fire{background:#f8717122;color:var(--red)}.ok{background:#34d39922;color:var(--green)}
+  .sc{background:#a78bfa22;color:var(--purple)}.rev{background:#fbbf2422;color:var(--amber)}
+  .muted{color:var(--muted)}.mono{font-family:ui-monospace,monospace}
+  .x{color:var(--red);cursor:pointer;font-weight:700;padding:0 6px}
+  .firetd{background:#f8717122;color:var(--red);font-weight:700}
+  .oktd{color:var(--green)}
+  .yesfire{color:var(--red)}
+  .cmp td,.cmp th{white-space:nowrap}
+  .cmp th{background:var(--card2);position:sticky;top:0}
+  .cmp .grp{color:var(--teal);font-weight:700;background:#ffffff08}
+  #compare table td.pick{outline:2px solid var(--teal)}
+  /* running overlay */
+  .overlay{position:fixed;inset:0;background:rgba(5,8,20,.72);display:none;align-items:center;justify-content:center;z-index:9999}
+  .overlay.on{display:flex}
+  .overlay .box{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:26px 36px;text-align:center;min-width:300px;box-shadow:0 10px 40px #0008}
+  .spinner{width:44px;height:44px;border:4px solid #ffffff22;border-top-color:var(--teal);border-radius:50%;margin:0 auto 14px;animation:spin 1s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .overlay .t{font-weight:700;font-size:14px}
+  .overlay .s{color:var(--muted);font-size:12px;margin-top:6px}
+</style>
+</head>
+<body>
+<h1>Jev Lab</h1>
+<div class="sub">One <b>tab per question</b>. Inside each tab, add <b>wording variants</b> (<span class="mono">_1, _2, _3…</span>) and test them <b>alone</b> or <b>batched</b>.</div>
+<div class="nav">
+  <a href="/filter.html">Filter</a><a href="/verdicts.html">Verdicts</a><a href="/config.html">Config</a><a class="on" href="/lab.html">Jev Lab</a><a href="/testfilter.html">Test Articles</a>
+</div>
+
+<div class="card">
+  <h2>State (the article Jev reads)</h2>
+  <div class="row">
+    <div><label>subject</label><input id="subject"></div>
+    <div><label>from</label><input id="from"></div>
+    <div><label>date</label><input id="date"></div>
+  </div>
+  <label>bodyText</label>
+  <textarea id="bodyText" style="min-height:150px" oninput="autogrow(this)"></textarea>
+  <div class="bar">
+    <button class="btn3" onclick="loadPayload('artical.json')">Load docs/artical.json</button>
+    <button class="btn3" onclick="loadPayload('jev-variants.json')">Load docs/jev-variants.json</button>
+    <label style="margin:0;display:flex;align-items:center;gap:6px;text-transform:none;letter-spacing:0">or JSON file
+      <input type="file" id="file" accept=".json" onchange="loadFile(event)" style="width:auto;padding:4px"></label>
+    <button class="btn3" onclick="resetModel()">Reset wording</button>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Run</h2>
+  <div class="bar">
+    <button class="btn" onclick="runAll('batch')">Run ALL tabs — BATCH (1 call)</button>
+    <button class="btn2" onclick="runAll('alone')">Run ALL tabs — EACH ALONE</button>
+    <button class="btn3" onclick="downloadJSON()">Download JSON</button>
+    <button class="btn3" onclick="downloadReport()">Download report (.md)</button>
+    <span id="runmsg" class="muted"></span>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Questions — pick a tab</h2>
+  <div class="tabs" id="tabs"></div>
+  <div id="tabBody"></div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="box">
+    <div class="spinner"></div>
+    <div class="t" id="ovtitle">Running…</div>
+    <div class="s" id="ovmsg"></div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Compare</h2>
+  <div class="bar">
+    <button class="btn3" onclick="compareThis('alone')">This Q — ALONE</button>
+    <button class="btn3" onclick="compareThis('batch')">This Q — BATCH</button>
+    <button class="btn3" onclick="compareThis('both')">This Q — ALONE vs BATCH</button>
+    <button class="btn3" onclick="compareAll('alone')">ALL — ALONE</button>
+    <button class="btn3" onclick="compareAll('batch')">ALL — BATCH</button>
+  </div>
+  <div class="muted" style="margin-top:6px;font-size:11px">Run <b>EACH ALONE</b> and/or <b>BATCH</b>, then compare each separately. <b class="yesfire">YES%</b> = the good condition holds · <span style="color:var(--red);font-weight:700">red = fires</span>.</div>
+  <div id="compare" class="muted" style="margin-top:10px">nothing yet — run first.</div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+function autogrow(el){ if(!el) return; el.style.height='auto'; el.style.height=(el.scrollHeight+4)+'px'; }
+function growAll(sel){ document.querySelectorAll(sel||'#tabBody textarea').forEach(autogrow); }
+function pct(noul){ const y=Math.round(noul*100); return {yes:y, no:100-y}; }
+function yesno(noul, thresh){
+  const p=pct(noul); const fires=(thresh!=null && (1-noul)>=thresh);
+  return `<b class="${fires?'yesfire':''}">YES ${p.yes}%</b> <span class="muted">/ NO ${p.no}%</span>`;
+}
+let BATTERY=null, CFG=null, MODEL={}, ORDER=[], ACTIVE=null, RESULTS={alone:{},batch:{}}, LAST=null;
+
+function critText(c, which){
+  if(!c) return '';
+  if(typeof c==='string') return which==='true'?c:'';
+  const key=Object.keys(c).find(k=>k.toLowerCase()===which);
+  if(!key) return '';
+  const v=c[key]; return (typeof v==='object')?(v.what||''):v;
+}
+function baseOf(id){ return id.replace(/_\d+$/,'').replace(/_jev_best_qu$/,'').replace(/_jev_learn$/,''); }
+function nextQid(base){ const used=new Set(MODEL[base].variants.map(v=>v.qid));
+  if(!used.has(base)) return base; let n=1; while(used.has(base+'_'+n)) n++; return base+'_'+n; }
+
+function buildModel(){
+  MODEL={}; ORDER=[];
+  const add=(id,q,kind)=>{ MODEL[id]={label:q.label||id,kind,threshold:q.threshold,weight:q.weight,outcome:q.outcome,
+      variants:[{qid:id,instr:q.instructions||'',t:critText(q.criteria,'true'),f:critText(q.criteria,'false'),inc:true}]};
+    ORDER.push(id); };
+  for(const [id,q] of Object.entries(BATTERY.gates||{})) add(id,q,'gate');
+  for(const [id,q] of Object.entries(BATTERY.scores||{})) add(id,q,'score');
+  for(const [id,q] of Object.entries(BATTERY.context||{})) add(id,q,'context');
+  ACTIVE=ORDER[0];
+}
+
+function renderTabs(){
+  $('tabs').innerHTML = ORDER.map(id=>{
+    const m=MODEL[id]; const on=(id===ACTIVE)?'on':'';
+    return `<div class="tab ${m.kind} ${on}" onclick="pick('${esc(id)}')">${esc(m.label)} <span class="cnt">(${m.variants.length})</span></div>`;
+  }).join('');
+}
+function pick(id){ ACTIVE=id; renderTabs(); renderTab(); }
+
+function renderTab(){
+  const m=MODEL[ACTIVE];
+  const meta = m.kind==='gate' ? `gate · threshold ${m.threshold} · fires when the good is ABSENT → ${m.outcome||((ACTIVE==='defamatory'||ACTIVE==='political')?'EDITOR REVIEW':'REJECT')}`
+             : m.kind==='score'? `score · weight ${m.weight}% · good = YES% (high = good)`
+             : 'context · not a gate';
+  let html = `<div style="margin-bottom:8px"><span class="qid mono">${esc(ACTIVE)}</span> <span class="meta muted">— ${esc(m.label)} · ${esc(meta)}</span></div>`;
+  html += m.variants.map((v,idx)=>{
+    const one=(label,rv)=>{ if(rv==null) return ''; const p=pct(rv);
+      if(m.kind==='gate'){ const f=(1-rv)>=m.threshold; return `<span class="pill ${f?'fire':'ok'}">${label} YES ${p.yes}% · NO ${p.no}%${f?' · FIRES':''}</span>`; }
+      if(m.kind==='score') return `<span class="pill sc">${label} YES ${p.yes}% · NO ${p.no}% · norm ${(1-rv).toFixed(2)}</span>`;
+      return `<span class="pill rev">${label} YES ${p.yes}% · NO ${p.no}%</span>`; };
+    const badge = one('A',RESULTS.alone[v.qid]) + ' ' + one('B',RESULTS.batch[v.qid]);
+    return `<div class="vcard ${m.kind}">
+      <div class="vhead">
+        <input type="checkbox" ${v.inc?'checked':''} onchange="MODEL['${esc(ACTIVE)}'].variants[${idx}].inc=this.checked" style="width:auto">
+        <span class="qid">${esc(v.qid)}</span>
+        ${badge}
+        <span class="meta" style="margin-left:auto">variant ${idx}</span>
+        ${idx>0?`<span class="x" title="remove" onclick="delVariant('${esc(ACTIVE)}',${idx})">✕</span>`:''}
+      </div>
+      <label>instruction (the question Jev answers)</label>
+      <textarea style="min-height:70px" oninput="autogrow(this);MODEL['${esc(ACTIVE)}'].variants[${idx}].instr=this.value">${esc(v.instr)}</textarea>
+      <div class="two">
+        <div><label>TRUE</label><textarea style="min-height:70px" oninput="autogrow(this);MODEL['${esc(ACTIVE)}'].variants[${idx}].t=this.value">${esc(v.t)}</textarea></div>
+        <div><label>FALSE</label><textarea style="min-height:70px" oninput="autogrow(this);MODEL['${esc(ACTIVE)}'].variants[${idx}].f=this.value">${esc(v.f)}</textarea></div>
+      </div>
+    </div>`;
+  }).join('');
+  html += `<div class="bar">
+      <button class="btn3" onclick="addVariant('${esc(ACTIVE)}')">+ Add variant (${esc(ACTIVE)}_N)</button>
+      <button class="btn" onclick="runTab('alone')">Run this tab — EACH ALONE</button>
+      <button class="btn2" onclick="runTab('batch')">Run this tab — BATCH</button>
+      <button class="btn3" onclick="runTab('alone')">↻</button>
+    </div>`;
+  $('tabBody').innerHTML = html;
+  growAll('#tabBody textarea');
+}
+function addVariant(base){ const src=MODEL[base].variants[0];
+  MODEL[base].variants.push({qid:nextQid(base),instr:src.instr,t:src.t,f:src.f,inc:true}); renderTabs(); renderTab(); }
+function delVariant(base,idx){ MODEL[base].variants.splice(idx,1); renderTabs(); renderTab(); }
+
+function state(){ return {subject:$('subject').value,from:$('from').value,date:$('date').value,bodyText:$('bodyText').value}; }
+function questionsFor(scope){
+  const q={}; const ids = scope==='ALL'? ORDER : [scope];
+  for(const id of ids) for(const v of MODEL[id].variants) if(v.inc) q[v.qid]={type:'noul',instructions:v.instr,criteria:{true:v.t,false:v.f}};
+  return q;
+}
+let _ovT=null,_ovStart=0;
+function showOverlay(title,detail){
+  $('ovtitle').textContent=title||'Running…';
+  const paint=()=>{ $('ovmsg').textContent=(detail||'')+'  ·  '+Math.floor((Date.now()-_ovStart)/1000)+'s'; };
+  _ovStart=Date.now(); paint(); $('overlay').classList.add('on');
+  clearInterval(_ovT); _ovT=setInterval(paint,500);
+}
+function hideOverlay(){ $('overlay').classList.remove('on'); clearInterval(_ovT); _ovT=null; }
+
+async function ask(scope,mode){
+  const data={state:state(),questions:questionsFor(scope),mode};
+  if(!data.state.bodyText.trim()){ alert('bodyText empty'); return null; }
+  if(!Object.keys(data.questions).length){ alert('no variants selected'); return null; }
+  const n=Object.keys(data.questions).length;
+  const scopeLabel=(scope==='ALL'?'ALL':scope);
+  $('runmsg').textContent=`running ${scopeLabel} · ${mode} · ${n} q…`;
+  showOverlay(mode==='alone'?`Running each question alone…`:`Running batch…`, `${scopeLabel} · ${mode} · ${n} question(s)`);
+  try{
+    const r=await (await fetch('/lab/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({state:data.state,questions:data.questions,mode})})).json();
+    LAST={state:data.state,questions:data.questions,result:r};
+    RESULTS[mode]=RESULTS[mode]||{};
+    Object.assign(RESULTS[mode], r.results||{});
+    $('runmsg').textContent=`done · ${r.model} · tokens ${r.usage_total||'?'}` + (Object.keys(r.errors||{}).length?` · errors ${Object.keys(r.errors).length}`:'');
+    return r;
+  }catch(e){ $('runmsg').textContent='error: '+e.message; return null; }
+  finally{ hideOverlay(); }
+}
+async function runTab(mode){ await ask(ACTIVE,mode); renderTab(); }
+async function runAll(mode){ await ask('ALL',mode); renderTab(); }
+
+function download(name,text,mime){ const b=new Blob([text],{type:mime||'text/plain'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=name; a.click(); }
+function downloadJSON(){ download('jev-lab-payload.json', JSON.stringify({state:state(),model:'jev-latest',questions:questionsFor('ALL')},null,2),'application/json'); }
+function downloadReport(){ if(!LAST){ alert('run first'); return; }
+  const {state:st,questions:qs,result:r}=LAST;
+  let L=['# Jev Lab report','',`_mode: ${r.mode} · model ${r.model} · tokens ${r.usage_total||'?'}_`,'',
+    '## State',`- subject: ${st.subject}`,`- from: ${st.from} · date: ${st.date}`,`- bodyText: ${st.bodyText.length} chars`,'',
+    '| variant id | noul | note |','|---|---:|---|'];
+  const res=r.results||{};
+  for(const qid of Object.keys(qs)){ const base=baseOf(qid), m=MODEL[base], v=res[qid]; let note='';
+    if(m.kind==='gate') note=(v!=null&&v>=m.threshold)?'FIRES':'ok';
+    else if(m.kind==='score') note='norm '+(v==null?'—':(1-v).toFixed(2))+' ×'+m.weight+'%';
+    else note='context';
+    L.push(`| ${qid} | ${v==null?'—':v} | ${note} |`); }
+  download('jev-lab-report.md', L.join('\n')); }
+
+async function loadPayload(name){ name=name||'artical.json'; try{ const d=await (await fetch('/lab/payload?file='+encodeURIComponent(name))).json(); if(!d.ok){ alert(d.error); return;} applyPayload(d.payload); $('runmsg').textContent='loaded docs/'+name;}catch(e){alert(e.message);} }
+function loadFile(ev){ const f=ev.target.files[0]; if(!f) return; const rd=new FileReader(); rd.onload=()=>{ try{applyPayload(JSON.parse(rd.result));}catch(e){alert('bad JSON: '+e.message);} }; rd.readAsText(f); }
+function applyPayload(p){
+  if(p.state){ $('subject').value=p.state.subject||''; $('from').value=p.state.from||''; $('date').value=p.state.date||''; $('bodyText').value=p.state.bodyText||''; autogrow($('bodyText')); }
+  if(p.questions){
+    const groups={};
+    for(const [qid,q] of Object.entries(p.questions)){ const b=baseOf(qid); (groups[b]=groups[b]||[]).push([qid,q]); }
+    for(const [b,list] of Object.entries(groups)){ if(!MODEL[b]) continue;
+      MODEL[b].variants=list.map(([qid,q])=>({qid,instr:q.instructions||'',t:critText(q.criteria,'true'),f:critText(q.criteria,'false'),inc:true})); }
+  }
+  renderTabs(); renderTab();
+}
+function resetModel(){ buildModel(); renderTabs(); renderTab(); }
+
+function compareThis(mode){
+  mode=mode||'alone';
+  const m=MODEL[ACTIVE];
+  const variants=m.variants;
+  const meta = m.kind==='gate'?`gate · threshold ${m.threshold} · fires when the good is ABSENT → ${m.outcome||'REJECT'}`:m.kind==='score'?`score · weight ${m.weight}% · good = YES% (high = good)`:'context · not a gate';
+  if(mode==='both'){
+    const body=variants.map(v=>{
+      const cell=(rv)=>{ if(rv==null) return '<td class="muted">—</td>'; const p=pct(rv); const f=(m.kind==='gate'&&(1-rv)>=m.threshold);
+        return `<td class="${f?'firetd':''}">YES ${p.yes}%<span class="muted"> / NO ${p.no}%</span></td>`; };
+      return `<tr><td class="mono">${esc(v.qid)}</td>${cell(RESULTS.alone[v.qid])}${cell(RESULTS.batch[v.qid])}</tr>`;
+    }).join('');
+    $('compare').innerHTML=`<div style="margin:0 0 8px"><b>${esc(m.label)}</b> <span class="mono muted">${esc(ACTIVE)}</span> · <span class="muted">${esc(meta)}</span> · <b>ALONE vs BATCH</b></div>
+      <table class="cmp"><thead><tr><th>variant</th><th>ALONE</th><th>BATCH</th></tr></thead><tbody>${body}</tbody></table>`;
+    return;
+  }
+  const res=RESULTS[mode]||{};
+  const rows=variants.map(v=>({v,rv:res[v.qid]})).sort((a,b)=>(b.rv??-1)-(a.rv??-1));
+  const body=rows.map(({v,rv})=>{
+    const p=(rv==null)?null:pct(rv);
+    const fires=(m.kind==='gate'&&rv!=null&&(1-rv)>=m.threshold);
+    const verdict=(rv==null)?'—':(m.kind==='gate'?(fires?'FIRES':'ok'):m.kind==='score'?('good '+rv.toFixed(2)):'context');
+    return `<tr><td class="mono">${esc(v.qid)}</td><td class="${fires?'yesfire':''}"><b>${p?p.yes+'%':'—'}</b></td><td class="muted">${p?p.no+'%':'—'}</td><td>${esc(verdict)}</td></tr>`;
+  }).join('');
+  const best=rows.find(r=>r.rv!=null);
+  $('compare').innerHTML=`
+    <div style="margin:0 0 8px"><b>${esc(m.label)}</b> <span class="mono muted">${esc(ACTIVE)}</span> · <span class="muted">${esc(meta)}</span> · <b>${esc(mode.toUpperCase())}</b></div>
+    <table class="cmp"><thead><tr><th>variant</th><th>YES</th><th>NO</th><th>verdict</th></tr></thead><tbody>${body}</tbody></table>
+    ${best?`<div class="muted" style="margin-top:6px">Highest YES: <b>${esc(best.v.qid)}</b> — YES ${pct(best.rv).yes}% / NO ${pct(best.rv).no}%</div>`:''}
+    <div class="muted" style="margin-top:4px;font-size:11px">Mode: ${esc(mode)} · YES% = probability the defect is present · NO% = 100 − YES%.</div>`;
+}
+function compareAll(mode){
+  mode=mode||'alone';
+  const res=RESULTS[mode]||{};
+  const qs=ORDER.filter(b=>MODEL[b].variants.some(v=>res[v.qid]!=null));
+  if(!qs.length){ $('compare').innerHTML=`<span class="muted">no ${esc(mode)} results — run ${esc(mode)} first.</span>`; return; }
+  const maxv=Math.max(...ORDER.map(id=>MODEL[id].variants.length));
+  let head='<tr><th>question</th><th>kind</th><th>thr/wt</th>';
+  for(let i=0;i<maxv;i++) head+=`<th>${i===0?'base':'_'+i}</th>`; head+='</tr>';
+  const cell=(m,v)=>{ const rv=res[v.qid]; if(rv==null) return `<td class="muted">—</td>`;
+    const p=pct(rv); const f=(m.kind==='gate'&&(1-rv)>=m.threshold);
+    return `<td class="${f?'firetd':''}" title="YES ${p.yes}% / NO ${p.no}%">${p.yes}%</td>`; };
+  let body='';
+  const group=(title,kinds)=>{
+    const ids=qs.filter(b=>kinds.includes(MODEL[b].kind)); if(!ids.length) return;
+    body+=`<tr class="grp"><td colspan="${3+maxv}">${title}</td></tr>`;
+    for(const b of ids){ const m=MODEL[b];
+      const meta=(m.kind==='gate')?('thr '+m.threshold):(m.kind==='score')?(m.weight+'%'):'—';
+      const cells=Array.from({length:maxv},(_,i)=>{ const v=m.variants[i]; return v?cell(m,v):'<td class="muted">—</td>'; }).join('');
+      body+=`<tr><td>${esc(m.label)}</td><td class="muted">${esc(m.kind)}</td><td class="muted">${esc(meta)}</td>${cells}</tr>`;
+    }};
+  group('HARD GATES',['gate']);
+  group('SCORED CRITERIA',['score']);
+  group('CONTEXT',['context']);
+  $('compare').innerHTML=`<div class="muted" style="margin-bottom:6px">Mode: <b>${esc(mode)}</b></div><table class="cmp"><thead>${head}</thead><tbody>${body}</tbody></table>
+    <div class="muted" style="margin-top:6px;font-size:11px">Cells = <b>YES%</b> (probability the good condition holds). <span class="firetd" style="padding:0 4px">red</span> = a gate when its good is ABSENT (fires). For scores, higher YES% = better.</div>`;
+}
+
+async function boot(){ const d=await (await fetch('/config.json')).json(); CFG=d.config; BATTERY=d.battery; buildModel(); renderTabs(); renderTab(); }
+boot();
+</script>
+</body>
+</html>

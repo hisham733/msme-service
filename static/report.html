@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Report Manager — filter</title>
+<style>
+  :root{--bg:#0f1115;--card:#161a22;--border:#242a35;--text:#e6e9ee;--muted:#8b93a3;--teal:#2dd4bf;--green:#34d399;--red:#f87171}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 system-ui,Segoe UI,Roboto,sans-serif}
+  header{padding:16px 22px;border-bottom:1px solid var(--border);display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+  h1{font-size:16px;margin:0}
+  .muted{color:var(--muted)}
+  .wrap{padding:20px 22px;max-width:960px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px}
+  label{font-weight:700;margin-right:8px}
+  select{background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:8px;min-width:260px}
+  .btn{background:var(--teal);color:#06231e;border:none;border-radius:10px;padding:11px 18px;font-weight:800;cursor:pointer;font-size:14px}
+  .btn:disabled{opacity:.5;cursor:default}
+  a.dl{color:var(--green);font-weight:800;text-decoration:none;font-size:15px}
+  .pill{display:inline-block;padding:2px 8px;border-radius:999px;background:#0b2e29;color:var(--teal);font-weight:700;font-size:12px}
+  .row{display:flex;gap:18px;flex-wrap:wrap;align-items:center}
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  th,td{border-bottom:1px solid var(--border);text-align:left;padding:5px 8px}
+  th{color:var(--muted)}
+  .bar{height:8px;background:#0b0e13;border-radius:6px;overflow:hidden;margin-top:8px}
+  .bar > i{display:block;height:100%;background:var(--teal);width:0;transition:width .3s}
+</style>
+</head>
+<body>
+<header>
+  <h1>Report Manager</h1>
+  <span class="muted">pick a questions Excel → run → download</span>
+  <span style="margin-left:auto"><a href="/testfilter.html" style="color:var(--teal)">Test Articles</a> · <a href="/lab.html" style="color:var(--teal)">Jev Lab</a> · <a href="/config.html" style="color:var(--teal)">Config</a></span>
+</header>
+<div class="wrap">
+  <div class="card">
+    <div class="row">
+      <div><label>Questions Excel</label><select id="file"></select></div>
+      <div><label>Archive folder</label><select id="folder"></select></div>
+      <div><label><input type="checkbox" id="neg" checked style="vertical-align:middle"> include editor negatives</label></div>
+      <div><label>Since</label><input type="date" id="since" value="2026-10-05"></div>
+      <div><label>Until</label><input type="date" id="until"></div>
+      <button class="btn" id="run" onclick="run()">Run report</button>
+    </div>
+    <div id="prog" style="display:none;margin-top:12px">
+      <div id="progTxt" class="muted"></div>
+      <div class="bar"><i id="progBar"></i></div>
+    </div>
+  </div>
+
+  <div class="card" id="status" style="display:none"></div>
+
+  <div class="card" id="result" style="display:none">
+    <div class="row">
+      <span class="pill" id="srcOut"></span>
+      <span id="sums" class="muted"></span>
+      <a class="dl" id="dl" href="#" download>⬇ Download Excel</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="row"><b>Archive versions</b> <span class="muted" id="archInfo">—</span>
+      <button class="btn" style="background:#243040;color:var(--text);padding:6px 12px" onclick="loadDupes()">Check duplicates</button></div>
+    <div id="dupes" class="muted" style="margin-top:8px"></div>
+  </div>
+
+  <div class="card">
+    <div class="row"><b>Run history</b> <span class="muted">each line = one RUN click (Jev calls + tokens prove it ran)</span>
+      <button class="btn" style="background:#243040;color:var(--text);padding:6px 12px" onclick="loadHistory()">Refresh</button></div>
+    <table id="hist"><thead><tr><th>time</th><th>source</th><th>folder</th><th>rows</th><th>Jev calls</th><th>tokens</th><th>sec</th><th>file</th></tr></thead><tbody></tbody></table>
+  </div>
+</div>
+
+<script>
+let poll=null;
+async function loadFiles(){
+  try{ const r=await (await fetch('/report/files')).json();
+    const sel=document.getElementById('file'); sel.innerHTML='';
+    (r.files||[]).forEach(f=>{const o=document.createElement('option');o.value=f;o.textContent=f;sel.appendChild(o);});
+    const p=(r.files||[]).find(f=>f==='gates-def-my-deepseek.xlsx') || (r.files||[]).find(f=>f.includes('base')); if(p) sel.value=p;
+  }catch(e){}
+}
+async function loadFolders(){
+  try{
+    const r=await (await fetch('/report/folders')).json();
+    const sel=document.getElementById('folder'); sel.innerHTML='';
+    const all=document.createElement('option'); all.value=''; all.textContent='All folders ('+r.total+')'; sel.appendChild(all);
+    (r.folders||[]).forEach(f=>{const o=document.createElement('option');o.value=f.name;o.textContent=f.name+' ('+f.count+')';sel.appendChild(o);});
+    sel.value='';
+  }catch(e){}
+}
+async function pollStatus(){
+  try{ const s=await (await fetch('/report/status')).json();
+    if(s.running){
+      const pct=s.total?Math.round(100*s.done/s.total):0;
+      document.getElementById('prog').style.display='';
+      document.getElementById('progTxt').innerHTML='Running <b>'+(s.source||'')+'</b> — <b>'+s.done+'/'+s.total+'</b> articles · rows '+s.rows+' · '+Math.round(s.elapsed||0)+'s (Jev calls in progress)';
+      document.getElementById('progBar').style.width=pct+'%';
+    }
+  }catch(e){}
+}
+async function loadHistory(){
+  try{ const r=await (await fetch('/report/history')).json();
+    const tb=document.querySelector('#hist tbody'); tb.innerHTML='';
+    (r.runs||[]).forEach(x=>{ tb.innerHTML += '<tr><td>'+x.ts+'</td><td>'+x.source+'</td><td>'+(x.folder||'all')+'</td><td>'+x.rows+'</td><td><b>'+x.jev_calls+'</b></td><td>'+(x.tokens||0)+'</td><td>'+x.seconds+'</td><td><a href="/report/download?file='+encodeURIComponent(x.file)+'" style="color:var(--green)">'+x.file+'</a></td></tr>'; });
+  }catch(e){}
+}
+async function loadDupes(){
+  const box=document.getElementById('dupes'); box.textContent='checking…';
+  try{
+    const r=await (await fetch('/report/duplicates?folder='+encodeURIComponent(document.getElementById('folder').value))).json();
+    document.getElementById('archInfo').textContent=r.root+' · '+r.groups.length+' articles · '+r.duplicate_groups+' duplicate groups';
+    if(!r.duplicate_groups){ box.textContent='No duplicate versions in the report archive.'; return; }
+    const rows=r.duplicates.slice(0,12).map(g=>'<tr><td>'+g.base+'</td><td>'+g.versions.map(v=>v.name+(v.used?' ← used':'')).join('<br>')+'</td></tr>').join('');
+    box.innerHTML='<table><thead><tr><th>group</th><th>versions</th></tr></thead><tbody>'+rows+'</tbody></table>'+
+      (r.duplicates.length>12?'<div>… '+(r.duplicates.length-12)+' more (full list in the report versions sheet)</div>':'');
+  }catch(e){ box.textContent='error: '+e.message; }
+}
+async function run(){
+  const file=document.getElementById('file').value;
+  const neg=document.getElementById('neg').checked;
+  const st=document.getElementById('status'); st.style.display='';
+  st.innerHTML='Running with <b>'+file+'</b> … watch the progress + history below.';
+  document.getElementById('run').disabled=true; document.getElementById('result').style.display='none';
+  const pset=setInterval(pollStatus,1200);
+  try{
+    const r=await (await fetch('/report/run',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({file:file,folder:document.getElementById('folder').value,negatives:neg,since:document.getElementById('since').value,until:document.getElementById('until').value})})).json();
+    if(!r.ok){ st.innerHTML='<span style="color:var(--red)">error: '+JSON.stringify(r)+'</span>'; return; }
+    st.innerHTML='Done — <b>'+r.jev_calls+'</b> Jev calls, '+(r.tokens||0)+' tokens, '+r.seconds+'s.';
+    document.getElementById('srcOut').textContent='source: '+(r.source||file);
+    document.getElementById('sums').textContent=r.rows+' rows · '+(r.archive||'')+(r.folder?' / '+r.folder:' / all folders')+' · '+(r.version_groups||'')+' articles · '+(r.duplicates||0)+' duplicate groups · '+r.jev_calls+' Jev calls';
+    const dl=document.getElementById('dl'); dl.href=r.download; dl.textContent='⬇ '+r.file;
+    document.getElementById('result').style.display='';
+  }catch(e){ st.innerHTML='<span style="color:var(--red)">'+e.message+'</span>'; }
+  finally{ clearInterval(pset); document.getElementById('prog').style.display='none'; document.getElementById('run').disabled=false; loadHistory(); }
+}
+loadFiles(); loadFolders().then(loadDupes); loadHistory();
+</script>
+</body>
+</html>

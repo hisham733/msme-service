@@ -1,0 +1,7 @@
+{
+  "k": 5,
+  "base_f1_mean": 0.336,
+  "opt_f1_mean": 0.529,
+  "opt_precision_mean": 0.524,
+  "opt_recall_mean": 0.592
+}

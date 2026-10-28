@@ -1,0 +1,190 @@
+{
+  "adopted": [
+    [
+      "royalty",
+      0.545,
+      0.346
+    ],
+    [
+      "religion",
+      0.628,
+      0.369
+    ],
+    [
+      "nsr_education",
+      0.63,
+      0.608
+    ],
+    [
+      "nsr_foreign_delegation",
+      0.761,
+      0.73
+    ],
+    [
+      "not_geographically_relevant",
+      0.685,
+      0.679
+    ],
+    [
+      "not_identifiable",
+      0.442,
+      0.322
+    ],
+    [
+      "unattributed_claims",
+      0.638,
+      0.551
+    ],
+    [
+      "not_sme_voice",
+      0.956,
+      0.867
+    ]
+  ],
+  "gen": {
+    "royalty": {
+      "type": "noul",
+      "instructions": "Does the article avoid any disparagement of or challenge to Malaysia's royal institution (the Yang di-Pertuan Agong, the Sultans or the monarchy)?",
+      "criteria": {
+        "true": "The article contains no criticism, mockery, insult, or call to challenge the authority of the Yang di-Pertuan Agong, the Sultans, or the monarchy.",
+        "false": "The article disparages or challenges the Yang di-Pertuan Agong, the Sultans, or the monarchy, even implicitly."
+      }
+    },
+    "religion": {
+      "type": "noul",
+      "instructions": "Does the article avoid disparaging, mocking, or condemning any religion or its adherents?",
+      "criteria": {
+        "true": "The article may critique religious beliefs or practices factually or neutrally, but expresses no contempt, ridicule, or blanket condemnation of a religion or its followers.",
+        "false": "The article mocks, ridicules, or broadly condemns a religion, its beliefs, or its adherents."
+      }
+    },
+    "race": {
+      "type": "noul",
+      "instructions": "Does the article treat all racial and ethnic groups without disparagement, discrimination, or demeaning stereotypes?",
+      "criteria": {
+        "true": "No slurs, stereotypes, or discriminatory claims targeting any racial or ethnic group appear.",
+        "false": "The article contains racial or ethnic slurs, stereotypes, or claims that demean a racial or ethnic group."
+      }
+    },
+    "nsr_single_company": {
+      "type": "noul",
+      "instructions": "Does this release report a wider industry, sector, or regional business development rather than only one company's own news?",
+      "criteria": {
+        "true": "The release covers an industry-, sector-, or region-wide development, trend, or initiative involving multiple players beyond a single company.",
+        "false": "The release focuses solely on one company's own announcement, product, event, or internal news."
+      }
+    },
+    "nsr_event": {
+      "type": "noul",
+      "instructions": "Does this press release deliver substantive business news or market insight, rather than merely previewing or promoting an event, exhibition or conference?",
+      "criteria": {
+        "true": "The release's core substance is a business development, market insight, launch, investment or policy/business finding that stands on its own beyond the event itself.",
+        "false": "The release mainly announces, previews, promotes or follows up on an event, exhibition, conference or media coverage, with little standalone business news or insight."
+      }
+    },
+    "nsr_education": {
+      "type": "noul",
+      "instructions": "Is this press release reporting business, industry, market or SME developments, rather than education, university, academic or edtech promotion?",
+      "criteria": {
+        "true": "The article's main subject is a company, industry sector, market trend, startup, trade or commercial SME activity.",
+        "false": "The article's main subject is a school, university, academic programme, student achievement, education policy or edtech product promotion."
+      }
+    },
+    "nsr_foreign_delegation": {
+      "type": "noul",
+      "instructions": "Is this article's primary subject an SME or business/industry development matter rather than a foreign trade-delegation, diplomatic mission, or courtesy-call report?",
+      "criteria": {
+        "true": "The article's main focus is an SME, startup, business platform, industry initiative, or economic/business development topic.",
+        "false": "The article's main focus is a foreign trade delegation, diplomatic mission visit, courtesy call, or similar official visit report."
+      }
+    },
+    "no_wider_value": {
+      "type": "noul",
+      "instructions": "Does this press release offer a broader development, lesson or perspective that is useful to SME readers beyond the company making the announcement?",
+      "criteria": {
+        "true": "The release centres on an industry-wide, policy, market or ecosystem development, insight or lesson that other SME readers can apply or learn from.",
+        "false": "The release is mainly about one company's own product, event, award or announcement, or is a media pitch/follow-up with no transferable insight for other SME readers."
+      }
+    },
+    "is_it_commercial_intent": {
+      "type": "noul",
+      "instructions": "Is this email reporting a genuine news development that would be newsworthy to readers who are not already the sender's customers or contacts?",
+      "criteria": {
+        "true": "It announces or reports a concrete development, finding, launch, or milestone whose value does not depend on buying or covering the sender's offering.",
+        "false": "Its main purpose is to promote, plug, or solicit coverage for the sender's own product, service, or event, or it is a follow-up chasing a reply."
+      }
+    },
+    "not_geographically_relevant": {
+      "type": "noul",
+      "instructions": "Is this press release primarily about Malaysia, ASEAN, or a market that Malaysian SMEs can access?",
+      "criteria": {
+        "true": "The release's main subject, announcement or data is a Malaysian, ASEAN or otherwise SME-accessible market, event, policy or business development.",
+        "false": "Malaysia or the region appears only incidentally (e.g. a contact address, mailing list, sign-off or passing name-drop) while the release's main subject is a different market or purely internal correspondence."
+      }
+    },
+    "partisan_campaign": {
+      "type": "noul",
+      "instructions": "Is this non-partisan content rather than material promoting a political party or election campaign?",
+      "criteria": {
+        "true": "",
+        "false": ""
+      }
+    },
+    "attacks_government": {
+      "type": "noul",
+      "instructions": "Is this article free of criticism, attack, or blame aimed at a government or a political leader?",
+      "criteria": {
+        "true": "The article reports facts, policies, or developments neutrally, or mentions government action without assigning fault to a government or leader.",
+        "false": "The article criticizes, blames, or attacks a government body or political leader."
+      }
+    },
+    "no_substance": {
+      "type": "noul",
+      "instructions": "Does this email contain concrete, newsworthy substance — a specific announcement, dataset, or development with enough detail to build a story from?",
+      "criteria": {
+        "true": "Contains at least one specific, substantive news element (announcement, data point, launch, or development) with enough detail to report on.",
+        "false": "Contains only correspondence, follow-ups, requests for coverage, or vague previews/commentary without substantive news detail."
+      }
+    },
+    "not_identifiable": {
+      "type": "noul",
+      "instructions": "Does the press release clearly name the issuing organisation, and any quoted speakers, as identifiable entities?",
+      "criteria": {
+        "true": "The release explicitly names the organisation issuing it (and any speakers quoted) so a reader can tell exactly who is behind the announcement.",
+        "false": "The release is a vague pitch, generic email or follow-up with no clearly named issuing organisation or identifiable speakers."
+      }
+    },
+    "unattributed_claims": {
+      "type": "noul",
+      "instructions": "Does the article attribute its key claims and figures to a specific, identifiable source (such as a named organisation, report, or spokesperson) rather than stating them without attribution?",
+      "criteria": {
+        "true": "Key claims and figures are tied to a specific, identifiable source (named organisation, report, study, or spokesperson).",
+        "false": "Key claims and figures appear with no attribution, only vague sourcing like 'sources say', or merely as the sender's own assertion."
+      }
+    },
+    "not_current": {
+      "type": "noul",
+      "instructions": "Is this a current development — a recent or upcoming launch, event, report, or announcement — rather than a follow-up email, gated link, or evergreen commentary?",
+      "criteria": {
+        "true": "The release covers a specific recent or upcoming development (launch, event, report, projection) with a date or timeframe.",
+        "false": "The item is a follow-up email, coverage pitch, gated link requiring a click, or timeless commentary without a recent or upcoming development."
+      }
+    },
+    "no_editorial_value": {
+      "type": "noul",
+      "instructions": "Does this submission contain substantive, self-contained news or information that an SME reader would find directly useful for their business?",
+      "criteria": {
+        "true": "The email body itself conveys concrete news, data, or an announcement an SME can act on or learn from.",
+        "false": "The email is a pitch, follow-up, greeting, or link-only note with no substantive information in the body."
+      }
+    },
+    "not_sme_voice": {
+      "type": "noul",
+      "instructions": "Is this written as a substantive news item that speaks directly to SME owners' business interests, rather than an editor pitch, follow-up email, or generic commentary aimed at other audiences?",
+      "criteria": {
+        "true": "The item reads as editorial/news content whose subject matter and framing are directly relevant and useful to SME owners or operators.",
+        "false": "The item is a media pitch, coverage follow-up, or commentary addressed primarily to editors, analysts, or a non-SME audience rather than SMEs."
+      }
+    }
+  }
+}

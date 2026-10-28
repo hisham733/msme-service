@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Filter — Jev Editorial Judge</title>
+<style>
+  :root{
+    --bg:#0b1020; --card:#141a2e; --card2:#1a2138; --border:#232b45;
+    --text:#e5e9f5; --muted:#8b93ab; --teal:#2dd4bf; --green:#34d399;
+    --red:#f87171; --amber:#fbbf24; --purple:#a78bfa;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;font-size:14px;line-height:1.5;padding:28px;max-width:1100px;margin:0 auto}
+  h1{font-size:20px;font-weight:700;letter-spacing:-.02em}
+  .sub{color:var(--muted);font-size:13px;margin-top:4px}
+  .nav{display:flex;gap:8px;margin:18px 0 22px}
+  .nav a{color:var(--muted);text-decoration:none;font-size:13px;padding:6px 14px;border:1px solid var(--border);border-radius:8px;background:var(--card)}
+  .nav a.on{color:var(--teal);border-color:var(--teal)}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:860px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px}
+  .card h2{font-size:14px;font-weight:700;margin-bottom:12px;color:var(--teal)}
+  textarea{width:100%;min-height:260px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:12px;font:13px/1.6 ui-monospace,monospace;resize:vertical}
+  textarea::placeholder{color:#4a5268}
+  input[type=file]{width:100%;background:var(--card2);border:1px dashed var(--border);border-radius:10px;color:var(--muted);padding:10px;font-size:13px;cursor:pointer;margin-bottom:10px}
+  input[type=text]{width:100%;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;margin-bottom:8px}
+  .row{display:flex;gap:8px;margin-bottom:10px}
+  .row input{flex:1}
+  button{background:var(--teal);color:#06231e;border:none;border-radius:9px;padding:10px 18px;font-weight:700;font-size:13px;cursor:pointer}
+  button:disabled{opacity:.5;cursor:not-allowed}
+  button.ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}
+  .verdict{margin-top:14px;border-top:1px solid var(--border);padding-top:14px}
+  .badge{display:inline-block;padding:3px 12px;border-radius:20px;font-weight:700;font-size:13px}
+  .b-accept{background:rgba(52,211,153,.15);color:var(--green)}
+  .b-reject{background:rgba(248,113,113,.15);color:var(--red)}
+  .b-review{background:rgba(251,191,36,.15);color:var(--amber)}
+  .b-err{background:rgba(251,191,36,.15);color:var(--amber)}
+  .score-line{display:flex;justify-content:space-between;font-size:13px;margin:4px 0}
+  .score-line .k{color:var(--muted)}
+  .bar{height:6px;background:var(--card2);border-radius:4px;margin-top:3px;overflow:hidden}
+  .bar > div{height:100%;border-radius:4px}
+  .meter{position:relative;height:14px;background:var(--card2);border-radius:8px;margin:10px 0 4px;overflow:hidden}
+  .meter > div{height:100%;background:linear-gradient(90deg,var(--red),var(--amber),var(--green))}
+  .meter .tick{position:absolute;top:0;bottom:0;width:2px;background:#fff;opacity:.7}
+  .small{color:var(--muted);font-size:12px}
+  .kv{display:flex;justify-content:space-between;font-size:13px;padding:4px 0;border-bottom:1px dashed var(--border)}
+  .kv:last-child{border-bottom:none}
+  .kv .k{color:var(--muted)}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--border);vertical-align:top}
+  th{color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+  .gates{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
+  @media(max-width:700px){.gates{grid-template-columns:1fr}}
+  .gate{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:8px 12px;font-size:12px}
+  .gate .g-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+  .gate .g-name{font-weight:700;color:var(--text);font-size:12px}
+  .gate .g-stat{font-size:11px;font-weight:700}
+  .gate .g-yes{color:var(--red)}
+  .gate .g-no{color:var(--green)}
+  .gate .g-bar{height:6px;background:var(--bg);border-radius:4px;overflow:hidden;display:flex}
+  .gate .g-bar .yes{background:var(--red);height:100%}
+  .gate .g-bar .no{background:var(--green);height:100%}
+  .gate.hot{border-color:var(--red);box-shadow:0 0 0 1px var(--red) inset}
+  .gate.hot .g-name{color:var(--red)}
+  .gates-head{font-size:12px;font-weight:700;color:var(--muted);margin:14px 0 6px;display:flex;align-items:center;gap:8px}
+  .gates-head .g-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green)}
+  .gates-head .g-dot.rej{background:var(--red)}
+  .err{color:var(--red);font-size:13px;margin-top:8px}
+  .mono{font-family:ui-monospace,monospace;font-size:12px;color:var(--muted)}
+  .drop{outline:2px dashed var(--teal)!important;outline-offset:-2px}
+  /* radar (same as n8n dashboard) */
+  .radar-wrap{display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;margin-top:14px}
+  .radar-svg{flex:1;min-width:320px;text-align:center}
+  .radar-svg svg{background:#ffffff;border-radius:10px}
+  .radar-svg .meta{font-size:12px;color:var(--muted);margin-top:8px;text-align:center}
+  .axis-label{fill:#5b6b82;font-size:10px;font-weight:600}
+  .grid-line{stroke:#d7dfea;stroke-width:1}
+  .grid-outer{stroke:#b9c4d4;stroke-width:1.2}
+  .ring-label{fill:#9aa6b8;font-size:9px}
+  .val-label{fill:#ffffff;stroke:#1f2937;stroke-width:2.5;paint-order:stroke;font-size:10px;font-weight:700}
+  .radar-poly{fill-opacity:.4;stroke-width:2.5}
+  .radar-poly.ACC{fill:#2ea97e;stroke:#3ecb95}
+  .radar-poly.REJ{fill:#e4576b;stroke:#ff7d8e}
+  .radar-dot{fill:#fff;stroke-width:1.8}
+  .radar-dot.ACC{stroke:#3ecb95}
+  .radar-dot.REJ{stroke:#ff7d8e}
+  .radar-thresh{stroke:#e09a3e;stroke-width:1.6;stroke-dasharray:5 4;fill:none}
+</style>
+</head>
+<body>
+  <h1>Filter — Jev Editorial Judge</h1>
+  <div class="sub">Upload the article <span class="mono">.md</span> from the receive stage (or paste text) → get ACCEPT/REJECT + the 14-rule breakdown</div>
+  <div class="nav">
+    <a class="on" href="/filter.html">Filter</a>
+    <a href="/verdicts.html">Verdicts</a>
+    <a href="/config.html">Config</a>
+    <a href="/lab.html">Jev Lab</a>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>Article to judge</h2>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
+        <select id="archivedSel" style="flex:1;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:9px 10px;font-size:13px">
+          <option value="">— or pick an ACCEPTED article from receive —</option>
+        </select>
+        <button class="ghost" id="loadArchived" style="padding:9px 14px">Load</button>
+      </div>
+      <div class="small" id="archivedMsg" style="margin-bottom:10px"></div>
+      <input type="file" id="file" accept=".md,.txt,.markdown,.pdf,.docx,.doc">
+      <div class="row">
+        <input type="text" id="subject" placeholder="Subject / headline">
+        <input type="text" id="from" placeholder="From / sender">
+      </div>
+      <input type="text" id="date" placeholder="Date (e.g. Wed, 30 Sep 2026)">
+      <textarea id="body" placeholder="Paste the article body text here, or upload a .md file above..."></textarea>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button id="judgeBtn">Judge with Jev</button>
+        <button class="ghost" id="clearBtn">Clear</button>
+      </div>
+      <div id="msg" class="small" style="margin-top:8px"></div>
+    </div>
+
+    <div class="card" id="resultCard" style="display:none">
+      <h2>Verdict</h2>
+      <div id="verdict"></div>
+    </div>
+  </div>
+
+<script>
+const esc = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const $ = id => document.getElementById(id);
+
+const file = $('file');
+const body = $('body');
+let pendingFile = null;   // holds a pdf/docx to upload (server extracts text)
+file.addEventListener('change', () => {
+  const f = file.files[0];
+  if(!f) return;
+  const n = (f.name||'').toLowerCase();
+  if(!$('subject').value) $('subject').value = f.name.replace(/\.(md|txt|markdown|pdf|docx|doc)$/i,'');
+  if(n.endsWith('.pdf') || n.endsWith('.docx') || n.endsWith('.doc')){
+    // binary — send to server for text extraction
+    pendingFile = f;
+    body.value = '';
+    $('msg').textContent = 'ready: ' + f.name + ' (' + Math.round(f.size/1024) + ' KB) — will extract text server-side';
+    return;
+  }
+  // text files — read into the textarea for editing
+  pendingFile = null;
+  const r = new FileReader();
+  r.onload = () => {
+    body.value = r.result;
+    $('msg').textContent = 'loaded ' + f.name + ' (' + Math.round(r.result.length/1024) + ' KB)';
+  };
+  r.readAsText(f);
+});
+// drag & drop
+['dragover','drop'].forEach(ev => body.addEventListener(ev, e => {
+  e.preventDefault();
+  if(ev==='dragover'){ body.classList.add('drop'); return; }
+  body.classList.remove('drop');
+  const f = e.dataTransfer.files[0];
+  if(!f) return;
+  const n = (f.name||'').toLowerCase();
+  if(!$('subject').value) $('subject').value = f.name;
+  if(n.endsWith('.pdf') || n.endsWith('.docx') || n.endsWith('.doc')){
+    pendingFile = f;
+    body.value = '';
+    $('msg').textContent = 'ready: ' + f.name + ' (' + Math.round(f.size/1024) + ' KB)';
+    return;
+  }
+  pendingFile = null;
+  const r = new FileReader();
+  r.onload = () => { body.value = r.result; if(!$('subject').value) $('subject').value=f.name; };
+  r.readAsText(f);
+}));
+
+// --- load ACCEPTED articles from the receive stage (checklist readyToFilter=true) ---
+function loadArchived(){
+  const sel = $('archivedSel');
+  const msg = $('archivedMsg');
+  msg.textContent = 'loading accepted articles…';
+  fetch('/archived').then(r=>r.json()).then(d=>{
+    const arts = d.articles || [];
+    if(d.error){ msg.textContent = 'error: ' + d.error; return; }
+    if(!arts.length){ msg.textContent = 'no accepted (readyToFilter) articles yet — run the receive pipeline first.'; return; }
+    sel.innerHTML = '<option value="">— pick one —</option>' + arts.map((a,i)=>
+      `<option value="${i}">${esc((a.subject||'(no subject)').slice(0,80))}</option>`).join('');
+    msg.textContent = arts.length + ' accepted article(s) available from receive';
+    sel.onchange = () => {
+      const a = arts[+sel.value];
+      if(!a){ return; }
+      if(!a.path){ msg.textContent = 'article file not found on disk: ' + (a.articleFile||''); return; }
+      msg.textContent = 'loading: ' + a.articleFile;
+      fetch('/archived/read?path=' + encodeURIComponent(a.path)).then(r=>r.json()).then(d=>{
+        if(d.error){ msg.textContent = 'error: ' + d.error; return; }
+        $('subject').value = a.subject;
+        $('date').value = a.date || '';
+        body.value = d.bodyText || '';
+        pendingFile = null;
+        msg.textContent = 'loaded ✓ ' + (a.articleFile||'') + ' — click Judge with Jev';
+      }).catch(e=>{ msg.textContent = 'load error: ' + e.message; });
+    };
+  }).catch(e=>{ msg.textContent = 'load error: ' + e.message; });
+}
+$('loadArchived').addEventListener('click', loadArchived);
+loadArchived();
+
+function pct(v){ return Math.max(0, Math.min(100, v)); }
+
+// --- radar (same design as the n8n dashboard) ---
+const AXES = ['no_substance','not_identifiable','unattributed_claims','not_current','no_editorial_value','contact','category_fit','not_sme_voice'];
+const AXIS_LABELS = {no_substance:'Substance',not_identifiable:'Attribution',unattributed_claims:'Claims Attr.',not_current:'Timeliness',no_editorial_value:'Editorial Val.',contact:'Contact',category_fit:'Category Fit',not_sme_voice:'SME Voice'};
+
+function radarSVG(scores, outcome){
+  const n=AXES.length, cx=240, cy=200, R=120;
+  const ang=i=>-Math.PI/2 + i*2*Math.PI/n;
+  const pt=(i,r)=>[cx+r*Math.cos(ang(i)), cy+r*Math.sin(ang(i))];
+  // grid rings 1..5 with value labels on the top axis
+  let grid='';
+  for(let g=1;g<=5;g++){
+    const pts=AXES.map((_,i)=>pt(i,R*g/5).join(',')).join(' ');
+    const cls = g===5 ? 'grid-outer' : 'grid-line';
+    grid+=`<polygon class="${cls}" points="${pts}" fill="none"/>`;
+    const [lx,ly]=pt(0,R*g/5);
+    grid+=`<text class="ring-label" x="${lx-14}" y="${ly}" text-anchor="middle" dominant-baseline="middle">${g*20}</text>`;
+  }
+  // spokes + labels (anchor flips by side, more padding so nothing clips)
+  let spokes='';
+  AXES.forEach((ax,i)=>{
+    const [x,y]=pt(i,R);
+    spokes+=`<line class="grid-line" x1="${cx}" y1="${cy}" x2="${x}" y2="${y}"/>`;
+    const [lx,ly]=pt(i,R+34);
+    const c=Math.cos(ang(i));
+    let anchor, off=0;
+    if(c > 0.3){ anchor='start'; off=10; }
+    else if(c < -0.3){ anchor='end'; off=-10; }
+    else { anchor='middle'; off=0; }
+    spokes+=`<text class="axis-label" x="${lx+off}" y="${ly}" text-anchor="${anchor}" dominant-baseline="middle">${(AXIS_LABELS[ax]||ax).replace(/_/g,' ')}</text>`;
+  });
+  // threshold ring (60% of radius)
+  const thr=0.60;
+  const thrPts = AXES.map((_,i)=>pt(i,thr*R).join(',')).join(' ');
+  const threshPoly=`<polygon class="radar-thresh" points="${thrPts}"/>`;
+  // data polygon (scores are norm 0..1 from the API)
+  const colorCls = outcome==='ACCEPT'?'ACC':(outcome==='REJECT'?'REJ':'UNK');
+  const vals = AXES.map(ax=>Math.max(0,Math.min(1,Number((scores[ax]||{}).norm)||0)));
+  const dataPts = vals.map((v,i)=>pt(i,v*R).join(',')).join(' ');
+  const dots = AXES.map((ax,i)=>{
+    const [x,y]=pt(i,vals[i]*R);
+    const v=Math.round(Number((scores[ax]||{}).norm||0)*100);
+    return `<circle class="radar-dot ${colorCls}" cx="${x}" cy="${y}" r="3.5"/><text class="val-label" x="${x}" y="${y-7}" text-anchor="middle">${v}</text>`;
+  }).join('');
+  return `<polygon class="grid-outer" points="${AXES.map((_,i)=>pt(i,R).join(',')).join(' ')}"/>${grid}${spokes}${threshPoly}<polygon class="radar-poly ${colorCls}" points="${dataPts}"/>${dots}`;
+}
+
+function renderVerdict(d){
+  const v = d;
+  if(d.outcome === 'ERROR'){
+    $('resultCard').style.display='block';
+    $('verdict').innerHTML = `<div class="err">Error: ${esc(d.error||'unknown')}</div>`;
+    return;
+  }
+  const badge = d.outcome==='ACCEPT' ? 'b-accept' : (d.outcome==='REJECT'?'b-reject':(d.outcome==='EDITOR REVIEW'?'b-review':'b-err'));
+  const w = d.weighted||0;
+  let scores = '';
+  for(const [k,s] of Object.entries(d.scores||{})){
+    const p = pct((s.norm||0)*100);
+    const color = p>=60 ? 'var(--green)' : (p>=40?'var(--amber)':'var(--red)');
+    scores += `<div class="score-line"><span class="k">${esc(k.replace(/_/g,' '))}</span><span>${Math.round(p)}%</span></div>
+      <div class="bar"><div style="width:${p}%;background:${color}"></div></div>`;
+  }
+  let gates = '';
+  for(const [k,p] of Object.entries(d.gates||{})){
+    const yes = Math.round(p*100);
+    const no  = 100 - yes;
+    const hot = p >= (((d.gate_thresholds||{})[k]) ?? 0.85);
+    const lbl = (d.gate_labels||{})[k] || k.replace(/_/g,' ');
+    gates += `<div class="gate ${hot?'hot':''}" title="YES = the defect is present · NO = clean">
+      <div class="g-top">
+        <span class="g-name">${esc(lbl)}</span>
+        <span class="g-stat"><span class="g-no">NO ${no}%</span> · <span class="g-yes">YES ${yes}%</span></span>
+      </div>
+      <div class="g-bar"><div class="yes" style="width:${yes}%"></div><div class="no" style="width:${no}%"></div></div>
+    </div>`;
+  }
+  $('resultCard').style.display='block';
+  $('verdict').innerHTML = `
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <span class="badge ${badge}">${esc(d.outcome||'')}</span>
+      ${d.gate ? `<span class="badge b-err">${esc(d.gate)}</span>` : ''}
+      <span class="small">weighted ${w}% · threshold ${d.threshold} · confidence ${(d.confidence||0).toFixed(2)}</span>
+    </div>
+    <div class="meter">
+      <div style="width:${pct(w)}%"></div>
+      <div class="tick" style="left:${pct(d.threshold||60)}%"></div>
+    </div>
+    <div class="small">green = accept band · white tick = threshold</div>
+    ${d.reasons&&d.reasons.length ? `<div class="err" style="margin-top:10px">Reasons: ${esc(d.reasons.join(', '))}</div>` : ''}
+    <div class="gates-head">🛡 Hard gates ${d.gate ? '<span class="g-dot rej"></span><span style="color:var(--red);font-size:11px">REJECTED by ' + esc(d.gate) + '</span>' : '<span class="g-dot"></span><span style="color:var(--green);font-size:11px">all clear — no gate fired</span>'}</div>
+    <div class="gates">${gates}</div>
+    <div class="radar-wrap">
+      <div class="radar-svg">
+        <svg width="480" height="400" viewBox="0 0 480 400">${radarSVG(d.scores||{}, d.outcome)}</svg>
+        <div class="meta">Polygon = per-criterion scores (0–100) · dashed ring = accept threshold (60%) · numbers = raw score</div>
+      </div>
+      <div style="flex:1;min-width:220px">
+        <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px">Scored criteria</div>
+        ${scores}
+      </div>
+    </div>
+    <div class="mono" style="margin-top:12px">${esc(d.model||'')} · input ${(d.usage||{}).input_tokens||0} tok · output ${(d.usage||{}).output_tokens||0} tok</div>
+  `;
+  // persist so navigating Filter <-> Verdicts keeps this on return
+  try{
+    const saved = {
+      verdict: d,
+      article: {
+        subject: $('subject').value,
+        from: $('from').value,
+        date: $('date').value,
+        body: body.value
+      }
+    };
+    localStorage.setItem('msme_filter_last', JSON.stringify(saved));
+  }catch(e){}
+}
+
+$('judgeBtn').addEventListener('click', () => {
+  const btn = $('judgeBtn');
+  btn.disabled = true;
+  btn.textContent = 'judging…';
+  $('msg').textContent = '';
+  const finish = d => {
+    renderVerdict(d);
+    $('msg').textContent = 'done ✓';
+    btn.disabled=false; btn.textContent='Judge with Jev';
+  };
+  const fail = e => {
+    $('resultCard').style.display='block';
+    $('verdict').innerHTML = `<div class="err">request failed: ${esc(e.message)}</div>`;
+    $('msg').textContent = 'error';
+    btn.disabled=false; btn.textContent='Judge with Jev';
+  };
+  if(pendingFile){
+    // pdf/docx -> upload, server extracts text then judges
+    const fd = new FormData();
+    fd.append('file', pendingFile);
+    fd.append('subject', $('subject').value);
+    fd.append('from_email', $('from').value);
+    fd.append('date', $('date').value);
+    fetch('/filter-upload', {method:'POST', body: fd})
+      .then(r=>r.json()).then(finish).catch(fail);
+    return;
+  }
+  const payload = {
+    subject: $('subject').value,
+    from: $('from').value,
+    date: $('date').value,
+    bodyText: body.value
+  };
+  if(!payload.bodyText || !payload.bodyText.trim()){
+    $('msg').textContent='⚠ paste or upload an article first';
+    btn.disabled=false; btn.textContent='Judge with Jev';
+    return;
+  }
+  fetch('/filter', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)})
+    .then(r=>r.json()).then(finish).catch(fail);
+});
+
+$('clearBtn').addEventListener('click', () => {
+  pendingFile = null;
+  $('subject').value=''; $('from').value=''; $('date').value=''; body.value='';
+  $('file').value=''; $('resultCard').style.display='none'; $('msg').textContent='';
+  localStorage.removeItem('msme_filter_last');
+});
+
+// restore the last verdict + article when returning from the Verdicts page
+(function restoreLast(){
+  try{
+    const saved = JSON.parse(localStorage.getItem('msme_filter_last')||'null');
+    if(!saved || !saved.verdict) return;
+    $('subject').value = saved.article?.subject || '';
+    $('from').value = saved.article?.from || '';
+    $('date').value = saved.article?.date || '';
+    body.value = saved.article?.body || '';
+    renderVerdict(saved.verdict);
+    $('msg').textContent = 'restored last verdict';
+  }catch(e){}
+})();
+</script>
+</body>
+</html>

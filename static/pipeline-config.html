@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-store">
+<title>Receive Config — MSME Newsbot</title>
+<style>
+  :root{--bg:#0b1220;--card:#111827;--line:#1f2937;--txt:#e5e7eb;--mut:#94a3b8;
+        --accent:#2dd4bf;--accent-soft:rgba(45,212,191,.12);--ok:#34d399;--oksoft:rgba(52,211,153,.14);
+        --bad:#f87171;--badsoft:rgba(248,113,113,.14)}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font-family:"Inter",-apple-system,"Segoe UI",Roboto,sans-serif;padding:24px}
+  h1{font-size:20px;margin-bottom:4px;letter-spacing:-.01em}
+  .sub{color:var(--mut);font-size:12px;margin-bottom:20px}
+  .nav{display:flex;gap:6px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:6px;margin-bottom:20px;width:fit-content;flex-wrap:wrap}
+  .nav a{color:var(--mut);text-decoration:none;font-size:13px;font-weight:600;padding:7px 14px;border-radius:7px}
+  .nav a:hover{background:var(--accent-soft);color:var(--accent)}
+  .nav a.active{background:var(--accent-soft);color:var(--accent)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:16px}
+  .card h2{font-size:13px;font-weight:700;margin-bottom:4px}
+  .card .hint{color:var(--mut);font-size:11.5px;margin-bottom:14px}
+  .f{display:grid;grid-template-columns:220px 1fr;gap:10px;align-items:center;margin-bottom:12px}
+  @media(max-width:640px){.f{grid-template-columns:1fr}}
+  .f label{font-size:12.5px;font-weight:600;color:var(--txt)}
+  .f .k{font-size:10.5px;color:var(--mut);font-weight:500;display:block}
+  input,select,textarea{background:var(--bg);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:8px 12px;font-size:13px;width:100%;font-family:inherit}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)}
+  textarea{resize:vertical;line-height:1.5}
+  select option{background:var(--card)}
+  .ro{background:rgba(148,163,184,.08);border-color:var(--line);color:var(--mut);cursor:not-allowed}
+  button{font-family:inherit;border-radius:8px;padding:9px 18px;font-size:13px;cursor:pointer;font-weight:700;border:none}
+  #btnSave{background:var(--accent);color:#062a26}
+  #btnSave:hover{filter:brightness(1.1)}
+  #btnTest{background:var(--card);color:var(--ok);border:1px solid var(--ok)}
+  #btnTest:hover{background:var(--oksoft)}
+  #btnTest:disabled{opacity:.5;cursor:not-allowed}
+  .bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:6px}
+  #msg{font-size:12.5px;font-weight:700}
+  .ro-list{font-size:11.5px;color:var(--mut);line-height:1.9}
+  .ro-list b{color:var(--txt);font-weight:600}
+  #testOut{margin-top:14px;display:none}
+  .cfg-tabs{display:flex;gap:8px;margin:0 0 16px;flex-wrap:wrap}
+  .cfg-tab{background:var(--card);color:var(--mut);border:1px solid var(--line);border-radius:9px;padding:9px 16px;font-size:13px;font-weight:700;cursor:pointer}
+  .cfg-tab:hover{color:var(--accent);border-color:var(--accent)}
+  .cfg-tab.active{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
+  .cfg-panel{display:block}
+  table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:8px}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
+  th{color:var(--mut);font-weight:600;font-size:10.5px;text-transform:uppercase;letter-spacing:.03em}
+  .st{font-weight:700;font-size:11px;padding:2px 8px;border-radius:6px;display:inline-block}
+  .st.ok{background:var(--oksoft);color:var(--ok)}
+  .st.bad{background:var(--badsoft);color:var(--bad)}
+</style>
+</head>
+<body>
+<h1>Pipeline Config</h1>
+<div class="sub">Receive + filter settings in one place · SQLite checklist · Jev editorial judge</div>
+<div class="nav">
+  <a href="checklist.html">Checklist</a>
+  <a class="active" href="config.html">Config</a>
+</div>
+
+<div class="cfg-tabs">
+  <button class="cfg-tab active" id="tab-receive" onclick="showCfg('receive')">Config Receive</button>
+  <button class="cfg-tab" id="tab-filter" onclick="showCfg('filter')">Config Filter</button>
+</div>
+
+<div class="cfg-panel" id="cfg-receive">
+<div class="card">
+  <h2>AI provider</h2>
+  <div class="hint">Which model writes the checklist verification. Changing this affects new runs only.</div>
+  <div class="f">
+    <label>Provider<span class="k">LLM_PROVIDER</span></label>
+    <select id="LLM_PROVIDER"><option value="deepseek">DeepSeek</option><option value="gemini">Gemini</option></select>
+  </div>
+  <div class="f">
+    <label>DeepSeek model<span class="k">DEEPSEEK_MODEL</span></label>
+    <input id="DEEPSEEK_MODEL" placeholder="deepseek-flash">
+  </div>
+  <div class="f">
+    <label>DeepSeek API key<span class="k">DEEPSEEK_API_KEY — ******** = unchanged</span></label>
+    <input id="DEEPSEEK_API_KEY" type="password" placeholder="********" autocomplete="off">
+  </div>
+  <div class="f">
+    <label>Gemini model<span class="k">GEMINI_MODEL</span></label>
+    <input id="GEMINI_MODEL" placeholder="gemini-2.5-flash">
+  </div>
+  <div class="f">
+    <label>Gemini API key<span class="k">GEMINI_API_KEY — ******** = unchanged</span></label>
+    <input id="GEMINI_API_KEY" type="password" placeholder="********" autocomplete="off">
+  </div>
+</div>
+
+<div class="card">
+  <h2>Gmail</h2>
+  <div class="hint">Only fetched when you click Refresh on the Checklist page (never polled).</div>
+  <div class="f">
+    <label>Gmail search query<span class="k">GMAIL_QUERY</span></label>
+    <input id="GMAIL_QUERY" placeholder="in:inbox -category:promotions">
+  </div>
+  <div class="f">
+    <label>Unread only<span class="k">read-only</span></label>
+    <input class="ro" value="Yes — the picker lists unread emails only" readonly>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Website fetching</h2>
+  <div class="hint">Controls linked web pages and images. Off = no web pages or web images (attachments, Drive, OneDrive and Box still work).</div>
+  <div class="f">
+    <label>Mode<span class="k">WEB_FETCH_MODE</span></label>
+    <select id="WEB_FETCH_MODE">
+      <option value="off">Off — no web pages or web images</option>
+      <option value="known">Known — listed newswire sites only</option>
+      <option value="probe">Auto — known + up to 2 unknown links (recommended)</option>
+    </select>
+  </div>
+  <div class="f">
+    <label>Known hosts / paths<span class="k">WEB_KNOWN_SITES</span></label>
+    <textarea id="WEB_KNOWN_SITES" rows="4" placeholder="www.pitchmystory.com/newswire/&#10;news.cision.com/r/&#10;mynewsdesk.com"></textarea>
+  </div>
+  <div class="hint" style="margin-bottom:0">One per line or comma-separated. A host (<b>mynewsdesk.com</b>) matches every path; host/path (<b>news.cision.com/r/</b>) matches that section.</div>
+</div>
+
+<div class="card">
+  <h2>Google Sheets &amp; Drive (optional)</h2>
+  <div class="hint">SQLite is the checklist source of truth. These Sheet fields are optional and are not synced by receive; Drive folders hold the archived media.</div>
+  <div class="f">
+    <label>Checklist Sheet ID (optional)<span class="k">CHECKLIST_SHEET_ID</span></label>
+    <input id="CHECKLIST_SHEET_ID">
+  </div>
+  <div class="f">
+    <label>Sheet tab name (optional)<span class="k">CHECKLIST_TAB</span></label>
+    <input id="CHECKLIST_TAB" placeholder="Checklist">
+  </div>
+  <div class="f">
+    <label>Drive parent folder<span class="k">ARCHIVE_PARENT_FOLDER</span></label>
+    <input id="ARCHIVE_PARENT_FOLDER">
+  </div>
+</div>
+
+<div class="card">
+  <h2>Scheduler &amp; connection test</h2>
+  <div class="hint">Auto-run is intentionally locked off: the receive workflow is one email at a time.</div>
+  <div class="f">
+    <label>Auto-run<span class="k">ENABLE_AUTO — read-only</span></label>
+    <input class="ro" id="ENABLE_AUTO_RO" value="" readonly>
+  </div>
+  <div class="f">
+    <label>Poll interval (min)<span class="k">SCHEDULE_MINUTES</span></label>
+    <input id="SCHEDULE_MINUTES" type="number" min="1" placeholder="5">
+  </div>
+  <div class="bar">
+    <button id="btnTest" onclick="testConn()">Test connections</button>
+    <span class="ro-list">10s cooldown — repeated clicks return a cooldown notice instead of calling the APIs.</span>
+  </div>
+  <div id="testOut"></div>
+</div>
+</div>
+
+<div class="cfg-panel" id="cfg-filter" style="display:none">
+<div class="card">
+  <h2>Filter — Jev editorial judge</h2>
+  <div class="hint">Runs inside the same pipeline after a row is ready. Edit a rule card, then click that card's <b>Save</b>; the outer <b>Save settings</b> only saves the receive fields.</div>
+  <div class="f">
+    <label>Auto-filter ready articles<span class="k">ENABLE_AUTO_FILTER</span></label>
+    <select id="ENABLE_AUTO_FILTER">
+      <option value="true">On — run Jev when readyToFilter=true</option>
+      <option value="false">Off — receive only</option>
+    </select>
+  </div>
+  <div class="f">
+    <label>Auto-repurpose ACCEPT articles<span class="k">ENABLE_AUTO_REPURPOSE</span></label>
+    <select id="ENABLE_AUTO_REPURPOSE">
+      <option value="true">On — export + queue one engine run</option>
+      <option value="false">Off — export manually only</option>
+    </select>
+  </div>
+  <div class="f">
+    <label>Rule editor<span class="k">filter-config.html</span></label>
+    <div><a href="filter-config.html" target="_blank" style="color:var(--accent)">Open full filter rule editor ↗</a> · <a href="filter-history.html" target="_blank" style="color:var(--accent)">filter history ↗</a> · <a href="filters.json" target="_blank" style="color:var(--accent)">battery JSON ↗</a></div>
+  </div>
+  <iframe src="filter-config.html?embed=1" title="Filter rule editor" style="width:100%;height:720px;border:1px solid var(--line);border-radius:10px;background:#0b1020"></iframe>
+</div>
+</div>
+
+
+
+<div class="card">
+  <div class="bar">
+    <button id="btnSave" onclick="save()">Save settings</button>
+    <span id="msg"></span>
+  </div>
+</div>
+
+<script>
+const EDITABLE = ['LLM_PROVIDER','DEEPSEEK_MODEL','DEEPSEEK_API_KEY','GEMINI_MODEL','GEMINI_API_KEY',
+                  'GMAIL_QUERY','CHECKLIST_SHEET_ID','CHECKLIST_TAB','ARCHIVE_PARENT_FOLDER','SCHEDULE_MINUTES',
+                  'WEB_FETCH_MODE','WEB_KNOWN_SITES','ENABLE_AUTO_FILTER','ENABLE_AUTO_REPURPOSE'];
+const esc = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const $ = id => document.getElementById(id);
+
+function msg(text, color){ $('msg').textContent = text; $('msg').style.color = color || 'var(--mut)'; }
+
+function showCfg(which){
+  const rec = which !== 'filter';
+  document.getElementById('cfg-receive').style.display = rec ? 'block' : 'none';
+  document.getElementById('cfg-filter').style.display = rec ? 'none' : 'block';
+  document.getElementById('tab-receive').classList.toggle('active', rec);
+  document.getElementById('tab-filter').classList.toggle('active', !rec);
+}
+
+function load(){
+  fetch('/api/config').then(r=>r.json()).then(d=>{
+    const c = d.config || {};
+    EDITABLE.forEach(k=>{ const el=$(k); if(el && c[k]!==undefined && c[k]!==null) el.value = String(c[k]); });
+    $('ENABLE_AUTO_RO').value = c.ENABLE_AUTO ? 'Enabled' : 'Disabled (recommended)';
+  }).catch(e=>msg('load failed: '+e.message,'var(--bad)'));
+}
+
+function save(){
+  const body = {};
+  EDITABLE.forEach(k=>{ const el=$(k); if(el) body[k] = el.value; });
+  msg('saving…');
+  fetch('/api/config', {method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)})
+    .then(r=>r.json())
+    .then(d=>{
+      const c = d.config || {};
+      EDITABLE.forEach(k=>{ const el=$(k); if(el) el.value = c[k]!==undefined && c[k]!==null ? c[k] : ''; });
+      msg('saved ✓','var(--ok)');
+    })
+    .catch(e=>msg('save error: '+e.message,'var(--bad)'));
+}
+
+function testConn(){
+  const btn = $('btnTest');
+  btn.disabled = true; btn.textContent = 'Testing…';
+  $('testOut').style.display = 'none';
+  fetch('/api/test-connection', {method:'POST'})
+    .then(r=>r.json())
+    .then(d=>{
+      if(d.cooldown){ msg('cooldown — wait ' + d.wait + 's','var(--bad)'); btn.textContent='Test connections'; btn.disabled=false; return; }
+      const res = d.results || {};
+      const rows = Object.keys(res).map(k=>{
+        const v = res[k];
+        const good = (v===true) || (v && typeof v==='object' && (v.ok===true || v.ok===undefined));
+        const detail = (v && typeof v==='object') ? (v.detail||v.message||'') : '';
+        return `<tr><td>${esc(k)}</td><td><span class="st ${good?'ok':'bad'}">${good?'OK':'FAIL'}</span></td>
+                <td style="color:var(--mut)">${esc(String(detail).slice(0,120))}</td></tr>`;
+      }).join('');
+      $('testOut').style.display='block';
+      $('testOut').innerHTML = `<table><thead><tr><th>Service</th><th>Status</th><th>Detail</th></tr></thead><tbody>${rows}</tbody></table>`;
+      msg('test complete','var(--mut)');
+      btn.textContent='Test connections'; btn.disabled=false;
+    })
+    .catch(e=>{ msg('test error: '+e.message,'var(--bad)'); btn.textContent='Test connections'; btn.disabled=false; });
+}
+
+load();
+</script>
+</body>
+</html>

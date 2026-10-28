@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-store">
+<title>MSME Newsbot — Filter History</title>
+<style>
+  :root{--bg:#0b1220;--card:#111827;--line:#1f2937;--txt:#e5e7eb;--mut:#94a3b8;--accent:#2dd4bf;--ok:#34d399;--bad:#f87171;--warn:#fbbf24}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font-family:"Inter",-apple-system,"Segoe UI",Roboto,sans-serif;padding:24px}
+  a{color:var(--accent);text-decoration:none} a:hover{text-decoration:underline}
+  h1{font-size:20px;margin-bottom:4px}
+  .sub{color:var(--mut);font-size:12px;margin-bottom:18px}
+  .nav{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap}
+  .nav a{color:var(--mut);font-size:13px;font-weight:600;padding:7px 14px;border:1px solid var(--line);border-radius:8px;background:var(--card)}
+  .nav a.on{color:var(--accent);border-color:var(--accent)}
+  .layout{display:grid;grid-template-columns:340px minmax(0,1fr);gap:16px;align-items:start}
+  @media(max-width:850px){.layout{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+  .card h2{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);margin-bottom:10px}
+  .art{display:flex;flex-direction:column;gap:4px;padding:11px 10px;border:1px solid var(--line);border-radius:9px;margin-bottom:8px;cursor:pointer;background:#0f172a}
+  .art:hover{border-color:var(--accent)}
+  .art.on{border-color:var(--accent);background:rgba(45,212,191,.08)}
+  .art .t{font-size:12.5px;font-weight:600;line-height:1.35}
+  .art .m{font-size:11px;color:var(--mut);display:flex;gap:8px;flex-wrap:wrap}
+  .badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:10.5px;font-weight:800}
+  .badge.ACCEPT{background:rgba(52,211,153,.15);color:var(--ok)}
+  .badge.REJECT{background:rgba(248,113,113,.15);color:var(--bad)}
+  .badge.REVIEW{background:rgba(251,191,36,.15);color:var(--warn)}
+  .badge.ERROR{background:rgba(248,113,113,.15);color:var(--bad)}
+  .badge.old{background:#020617;color:#64748b;border:1px solid #1f2937}
+  .vrow{display:grid;grid-template-columns:110px 90px 80px 1fr 170px;gap:8px;padding:9px 8px;border-bottom:1px solid var(--line);font-size:12px;cursor:pointer;align-items:center}
+  .vrow:hover{background:#161e2e}
+  .vrow.on{background:rgba(45,212,191,.08)}
+  .vrow.old{opacity:.75}
+  .vrow .hash{font-family:ui-monospace,Menlo,monospace;font-size:10.5px;color:var(--mut)}
+  .empty{color:var(--mut);font-size:12px;padding:12px 0}
+  .defhead{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;margin-bottom:12px}
+  .defhead .title{font-size:14px;font-weight:700}
+  .defhead .meta{font-size:11px;color:var(--mut);line-height:1.6}
+  button{border:none;border-radius:8px;padding:8px 13px;font-weight:700;font-size:12px;cursor:pointer;font-family:inherit}
+  .primary{background:var(--accent);color:#062a26}
+  .ghost{background:var(--card);color:var(--mut);border:1px solid var(--line)}
+  .sec{margin-top:16px}
+  .sec h3{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);margin-bottom:8px}
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--mut);font-size:10.5px;text-transform:uppercase;letter-spacing:.03em}
+  .mono{font-family:ui-monospace,Menlo,monospace;font-size:11px;white-space:pre-wrap;color:#cbd5e1;line-height:1.5}
+  .diff{display:flex;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--mut);background:#0f172a;border:1px solid var(--line);border-radius:9px;padding:10px;margin-bottom:12px}
+  .diff b{color:var(--txt)}
+  .warn{color:var(--warn)}
+</style>
+</head>
+<body>
+<h1>Filter History</h1>
+<div class="sub">One article · every Jev version · exact rubric used · re-run with the current config</div>
+<div class="nav">
+  <a href="checklist.html">Checklist</a>
+  <a href="filter.html">Filter</a>
+  <a href="config.html">Config</a>
+  <a class="on" href="filter-history.html">Filter history</a>
+</div>
+
+<div class="layout">
+  <div class="card">
+    <h2>Articles with filter results</h2>
+    <div id="articles" class="empty">loading…</div>
+  </div>
+  <div class="card">
+    <div id="detail" class="empty">Pick an article to see its filter versions.</div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const state = {articles:[], checklist:'', versions:[], selected:null};
+
+function badge(outcome){
+  const o=String(outcome||'—').toUpperCase();
+  const cls=o==='ACCEPT'?'ACCEPT':o==='REJECT'?'REJECT':o==='EDITOR REVIEW'?'REVIEW':o==='ERROR'?'ERROR':'old';
+  return `<span class="badge ${cls}">${esc(o)}</span>`;
+}
+function dateLabel(s){ return String(s||'').slice(0,10); }
+
+function loadArticles(){
+  fetch('/checklist.json?_='+Date.now()).then(r=>r.json()).then(d=>{
+    state.articles=(d.articles||[]).filter(a=>a.filterStatus || a.filterOutcome)
+      .sort((a,b)=>String(b.date||'').localeCompare(String(a.date||''))||String(a.subject||'').localeCompare(String(b.subject||'')));
+    renderArticles();
+    const p=new URLSearchParams(location.search);
+    const cid=p.get('checklist_id');
+    if(cid){ selectArticle(cid); return; }
+    const tid=p.get('thread_id');
+    if(tid){ const a=state.articles.find(x=>x.threadId===tid); if(a) selectArticle(a.id); }
+  }).catch(e=>{ $('articles').textContent='load failed: '+e.message; });
+}
+function renderArticles(){
+  if(!state.articles.length){ $('articles').textContent='No filter results yet.'; return; }
+  $('articles').innerHTML=state.articles.map(a=>{
+    const key=String(a.id||'');
+    const out=a.filterOutcome||(a.filterVerdict||{}).outcome||'';
+    return `<div class="art ${String(state.checklist)===key?'on':''}" onclick="selectArticle('${esc(key)}')">
+      <div class="t">${esc(a.subject||'(no subject)')}</div>
+      <div class="m">${badge(out)} <span>${esc(String(a.filterWeighted??''))}${a.filterWeighted!=null?'%':''}</span> <span>${esc(dateLabel(a.date))}</span> <span>email #${esc(key)}</span></div>
+    </div>`;
+  }).join('');
+}
+function selectArticle(checklistId){
+  state.checklist=String(checklistId); state.selected=null; renderArticles();
+  $('detail').innerHTML='<div class="empty">loading history…</div>';
+  fetch('/api/filter-history?checklist_id='+encodeURIComponent(checklistId))
+    .then(r=>r.json()).then(d=>{
+      state.versions=(d.versions||[]);
+      if(!state.versions.length){ $('detail').innerHTML='<div class="empty">No saved filter versions for this email.</div>'; return; }
+      state.selected=state.versions[0].id;
+      renderHistory();
+      selectVersion(state.selected);
+    }).catch(e=>{ $('detail').innerHTML='<div class="empty">history failed: '+esc(e.message)+'</div>'; });
+}
+function renderHistory(){
+  const rows=state.versions.map((v,i)=>{
+    const old=i>0;
+    return `<div class="vrow ${state.selected===v.id?'on':''} ${old?'old':''}" onclick="selectVersion(${Number(v.id)})">
+      <span>${old?'<span class="badge old">old</span> ':''}v${esc(v.version)} · ${esc(dateLabel(v.created_at))}</span>
+      <span>${badge(v.outcome)}</span>
+      <span>${v.weighted==null?'—':esc(v.weighted)+'%'}</span>
+      <span class="hash">${esc(v.config_hash||'legacy — no snapshot')}</span>
+      <span>${esc(v.model||'—')}</span>
+    </div>`;
+  }).join('');
+  $('detail').innerHTML=`
+    <div class="defhead"><div><div class="title">${esc((state.versions[0].subject)||'')}</div>
+      <div class="meta">email #${esc(state.checklist)} · ${state.versions.length} version(s) · newest first; older versions are marked old.</div></div>
+      <div><button class="primary" onclick="rerun()">Re-run with current config</button></div></div>
+    <div>${rows}</div>
+    <div id="definition" class="sec"></div>`;
+}
+function selectVersion(id){
+  state.selected=id; renderHistory();
+  fetch('/api/filter-result?filter_result_id='+encodeURIComponent(id))
+    .then(r=>r.json()).then(v=>{ state.selectedData=v; renderDefinition(v); })
+    .catch(e=>{ $('definition').innerHTML='<div class="empty">definition failed: '+esc(e.message)+'</div>'; });
+}
+function renderDefinition(v){
+  const b=v.battery||{};
+  const gates=b.gates||{}; const scores=b.scores||{};
+  const newest=state.versions[0]||{};
+  const diff=compare(newest.battery||{}, b);
+  const gateRows=Object.entries(gates).map(([name,g])=>`<tr><td>${esc(g.label||name)}</td><td>${esc(g.threshold)}</td><td class="mono">${esc(g.instructions||'')}</td><td class="mono">${esc(criteriaText(g.criteria))}</td></tr>`).join('');
+  const scoreRows=Object.entries(scores).map(([name,s])=>`<tr><td>${esc(name)}</td><td>${esc(s.weight)}%</td><td class="mono">${esc(s.instructions||'')}</td><td class="mono">${esc(criteriaText(s.criteria))}</td></tr>`).join('');
+  $('definition').innerHTML=`
+    <div class="defhead"><div><div class="title">Version ${esc(v.version)} · ${badge(v.outcome)} ${v.weighted==null?'':esc(v.weighted)+'%'}</div>
+      <div class="meta">${esc(v.created_at||'')} · ${esc(v.model||'—')} · config ${esc(v.config_hash||'legacy')} · article ${esc(v.article_hash||'—')} · ${esc(v.article_len||0)} chars</div></div>
+      <button class="ghost" onclick="rerun()">Re-run</button></div>
+    ${diff.length?`<div class="diff">${diff.join(' ')}</div>`:''}
+    ${Object.keys(gates).length?`<div class="sec"><h3>Critical gates</h3><table><thead><tr><th>Gate</th><th>Threshold</th><th>Instruction</th><th>Criteria</th></tr></thead><tbody>${gateRows}</tbody></table></div>`:''}
+    ${Object.keys(scores).length?`<div class="sec"><h3>Weighted criteria</h3><table><thead><tr><th>Score</th><th>Weight</th><th>Instruction</th><th>Criteria</th></tr></thead><tbody>${scoreRows}</tbody></table></div>`:''}
+    ${!Object.keys(gates).length&&!Object.keys(scores).length?'<div class="warn">No rubric snapshot saved for this legacy result. Re-run it to save one.</div>':''}`;
+}
+function criteriaText(c){
+  if(!c || typeof c!=='object') return '';
+  return Object.entries(c).map(([k,v])=>`${k}: ${typeof v==='object'?(v.what||JSON.stringify(v)):v}`).join('\n');
+}
+function compare(a,b){
+  if(!a.gates || !b.gates) return [];
+  const out=[];
+  for(const [n,g] of Object.entries(b.gates||{})){
+    const old=(a.gates||{})[n]||{};
+    if(Number(old.threshold)!==Number(g.threshold)) out.push(`gate <b>${esc(n)}</b> threshold ${esc(old.threshold)} → <b>${esc(g.threshold)}</b>`);
+    if((old.instructions||'')!==(g.instructions||'')) out.push(`gate <b>${esc(n)}</b> wording changed`);
+  }
+  for(const [n,s] of Object.entries(b.scores||{})){
+    const old=(a.scores||{})[n]||{};
+    if(Number(old.weight)!==Number(s.weight)) out.push(`score <b>${esc(n)}</b> weight ${esc(old.weight)} → <b>${esc(s.weight)}</b>`);
+    if((old.instructions||'')!==(s.instructions||'')) out.push(`score <b>${esc(n)}</b> wording changed`);
+  }
+  if(Number(a.accept_threshold)!==Number(b.accept_threshold)) out.push(`accept threshold <b>${esc(a.accept_threshold)}</b> → <b>${esc(b.accept_threshold)}</b>`);
+  return out.length?out:['<span class="warn">No rubric difference from the newest version.</span>'];
+}
+function rerun(){
+  const src=state.selectedData;
+  if(!src){ return; }
+  if(!confirm('Re-run this article with the current rubric? A new filter version will be added to the same checklist row.')) return;
+  fetch('/api/filter/rerun?filter_result_id='+encodeURIComponent(src.id), {method:'POST'})
+    .then(r=>r.json()).then(d=>{
+      if(!d.ok){ alert('re-run failed: '+(d.error||'')); return; }
+      selectArticle(state.checklist);
+    }).catch(e=>alert('re-run error: '+e.message));
+}
+loadArticles();
+</script>
+</body>
+</html>

@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Receive Workflow Lab — MSME Newsbot</title>
+<style>
+  :root{
+    --bg:#0b1020; --card:#121a2e; --card2:#0f172a; --border:#22304a; --text:#e6e9f5;
+    --muted:#8b93ab; --teal:#2dd4bf; --green:#34d399; --amber:#fbbf24; --red:#f87171;
+    --purple:#a78bfa; --blue:#60a5fa; --ink:#06231e;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:14px/1.55 Inter,system-ui,"Segoe UI",Roboto,sans-serif;padding:24px 26px 60px}
+  h1{font-size:22px;margin:0 0 4px;letter-spacing:-.02em}
+  h2{font-size:17px;margin:0 0 12px}
+  h3{font-size:14px;margin:0 0 8px}
+  a{color:var(--teal)}
+  .sub{color:var(--muted);font-size:13px;margin:0 0 16px}
+  .nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px}
+  .nav a{color:var(--muted);text-decoration:none;padding:7px 13px;border:1px solid var(--border);border-radius:8px;font-weight:600;font-size:13px}
+  .nav a:hover{color:var(--teal);border-color:var(--teal)}
+  .nav a.on{background:var(--teal);color:var(--ink);border-color:var(--teal)}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .muted{color:var(--muted)}
+  .small{font-size:12px}
+  code{background:#0f172a;border:1px solid var(--border);border-radius:5px;padding:1px 5px;font:11.5px ui-monospace,Menlo,monospace;color:#5eead4}
+  .pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.02em}
+  .pill.ai{background:rgba(167,139,250,.16);color:var(--purple)}
+  .pill.code{background:rgba(96,165,250,.16);color:var(--blue)}
+  .pill.det{background:rgba(45,212,191,.14);color:var(--teal)}
+  .pill.out{background:rgba(251,191,36,.14);color:var(--amber)}
+  .pill.safe{background:rgba(52,211,153,.14);color:var(--green)}
+  .pill.bad{background:rgba(248,113,113,.14);color:var(--red)}
+  .pill.mut{background:#1c2538;color:var(--muted)}
+  .runbar{display:grid;grid-template-columns:minmax(220px,1.4fr) repeat(4,auto);gap:10px;align-items:end}
+  @media(max-width:1000px){.runbar{grid-template-columns:1fr 1fr}}
+  label.lab{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:700;margin-bottom:4px}
+  select,input[type=text],input[type=file],textarea{background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:9px;padding:9px 10px;font:13px/1.5 inherit;width:100%}
+  textarea{min-height:180px;font-family:ui-monospace,Menlo,monospace;font-size:12px}
+  button{background:var(--teal);color:var(--ink);border:none;border-radius:9px;padding:10px 15px;font-weight:800;font-size:13px;cursor:pointer}
+  button.ghost{background:transparent;color:var(--text);border:1px solid var(--border)}
+  button:disabled{opacity:.45;cursor:default}
+  .map{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:18px 0}
+  .chip{display:flex;align-items:center;gap:7px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:7px 11px;cursor:pointer;font-size:12.5px;font-weight:700;color:var(--muted)}
+  .chip:hover{border-color:var(--teal);color:var(--text)}
+  .chip.on{border-color:var(--teal);color:var(--text);box-shadow:0 0 0 1px var(--teal) inset}
+  .chip.done{border-color:rgba(52,211,153,.6);color:var(--green)}
+  .chip.run{border-color:var(--amber);color:var(--amber);animation:pulse 1s infinite}
+  .chip .dot{width:7px;height:7px;border-radius:50%;background:#334155}
+  .chip.done .dot{background:var(--green)}
+  .chip.run .dot{background:var(--amber)}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+  .layout{display:grid;grid-template-columns:270px minmax(0,1fr);gap:16px;align-items:start}
+  @media(max-width:1000px){.layout{grid-template-columns:1fr}}
+  .stages{position:sticky;top:16px;display:flex;flex-direction:column;gap:7px}
+  .stagebtn{display:flex;gap:10px;align-items:flex-start;text-align:left;background:var(--card);border:1px solid var(--border);border-radius:11px;padding:10px 11px;cursor:pointer;color:var(--text)}
+  .stagebtn:hover{border-color:var(--teal)}
+  .stagebtn.on{border-color:var(--teal);box-shadow:0 0 0 1px var(--teal) inset}
+  .stagebtn.done{border-color:rgba(52,211,153,.5)}
+  .stagebtn .num{width:24px;height:24px;border-radius:7px;background:var(--card2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--muted);flex:none}
+  .stagebtn.done .num{color:var(--green);border-color:var(--green)}
+  .stagebtn.run .num{color:var(--amber);border-color:var(--amber)}
+  .stagebtn .st{display:block;font-weight:800;font-size:12.5px}
+  .stagebtn .ds{display:block;font-size:11px;color:var(--muted);margin-top:2px;line-height:1.35}
+  .panel{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;min-height:520px}
+  .panelhead{display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;margin-bottom:12px}
+  .panelhead .big{font-size:19px;font-weight:800;letter-spacing:-.01em}
+  .tabs{display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid var(--border);padding-bottom:10px;margin-bottom:14px}
+  .tab{background:transparent;border:1px solid transparent;color:var(--muted);padding:7px 12px;border-radius:8px;font-weight:700;font-size:12.5px}
+  .tab:hover{color:var(--text)}
+  .tab.on{background:var(--card2);border-color:var(--border);color:var(--teal)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:900px){.grid2{grid-template-columns:1fr}}
+  .box{background:var(--card2);border:1px solid var(--border);border-radius:11px;padding:12px}
+  .box h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+  .box p{margin:0;font-size:13px;line-height:1.55;color:#cbd5e1}
+  ul.clean{margin:0;padding-left:18px;color:#cbd5e1;font-size:13px}
+  ul.clean li{margin:3px 0}
+  .kv{display:grid;grid-template-columns:150px 1fr;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-size:12.5px}
+  .kv:last-child{border:none}
+  .kv .k{color:var(--muted);font-weight:600}
+  pre{margin:0;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:12px;overflow:auto;max-height:520px;font:12px/1.55 ui-monospace,Menlo,Consolas,monospace;color:#dbeafe}
+  .cl{display:block;white-space:pre}
+  .cl i{display:inline-block;width:42px;color:#4b5d7a;font-style:normal;text-align:right;padding-right:12px;user-select:none}
+  .codehead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:12px 0 6px}
+  .codehead .fn{font:700 12px ui-monospace,Menlo,monospace;color:var(--teal)}
+  .codehead .src{font-size:11px;color:var(--muted)}
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--border);vertical-align:top}
+  th{color:var(--muted);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em}
+  .scroll{max-height:520px;overflow:auto}
+  .empty{color:var(--muted);text-align:center;padding:26px;font-size:13px}
+  .banner{padding:10px 12px;border-radius:10px;font-size:12.5px;font-weight:700;margin-bottom:14px}
+  .banner.ok{background:rgba(52,211,153,.12);color:var(--green);border:1px solid rgba(52,211,153,.35)}
+  .banner.warn{background:rgba(251,191,36,.12);color:var(--amber);border:1px solid rgba(251,191,36,.35)}
+  .banner.err{background:rgba(248,113,113,.12);color:var(--red);border:1px solid rgba(248,113,113,.35)}
+  .progress{height:7px;background:#1c2538;border-radius:6px;overflow:hidden;margin:12px 0}
+  .progress>i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--teal),var(--green));transition:width .35s}
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+  .filecard{background:var(--card2);border:1px solid var(--border);border-radius:11px;padding:11px}
+  .filecard:hover{border-color:#334155}
+  .filecard .fn{font:700 12.5px ui-monospace,Menlo,monospace;color:var(--text);word-break:break-all}
+  .filecard .role{font-size:11px;color:var(--teal);margin-top:2px}
+  .filecard .purpose{font-size:11.5px;color:#cbd5e1;margin-top:6px;line-height:1.45}
+  .filecard .why{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.4}
+  .filecard .imports{font-size:10.5px;color:var(--muted);margin-top:6px;word-break:break-word}
+  .filters{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0}
+  .fbtn{background:var(--card2);border:1px solid var(--border);color:var(--muted);padding:5px 10px;border-radius:8px;font-size:11.5px;font-weight:700;cursor:pointer}
+  .fbtn.on{color:var(--teal);border-color:var(--teal)}
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;padding:20px;z-index:60}
+  .modal.open{display:flex}
+  .modal .inner{background:var(--card);border:1px solid var(--border);border-radius:14px;max-width:680px;width:100%;max-height:85vh;overflow:auto;padding:18px}
+  .gloss{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;margin-top:10px}
+  .gloss .item{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px}
+  .gloss .item b{color:var(--teal);font-size:12.5px}
+  .gloss .item p{margin:4px 0 0;color:#cbd5e1;font-size:12px;line-height:1.5}
+  .footer{color:var(--muted);font-size:12px;margin-top:20px}
+  details summary{cursor:pointer;color:var(--teal);font-weight:700;font-size:12px}
+
+  /* ---- view switch + simple workflow chart ---- */
+  .viewtabs{display:flex;gap:4px;background:var(--card);border:1px solid var(--border);border-radius:11px;padding:4px;width:fit-content;margin:0 0 16px}
+  .viewtabs button{background:transparent;color:var(--muted);border:none;border-radius:8px;padding:8px 16px;font-weight:800;font-size:13px;cursor:pointer}
+  .viewtabs button:hover{color:var(--text)}
+  .viewtabs button.on{background:var(--teal);color:var(--ink)}
+  .chart-hero{background:linear-gradient(135deg,rgba(45,212,191,.10),rgba(96,165,250,.07));border:1px solid var(--border);border-radius:14px;padding:18px 20px;font-size:15px;line-height:1.6}
+  .chart-hero b{color:var(--teal)}
+  .chart-bar{height:7px;background:#1c2538;border-radius:6px;overflow:hidden;margin:16px 0 8px}
+  .chart-bar>i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--teal),var(--green));transition:width .4s ease}
+  .chart-narr{font-weight:800;color:var(--teal);min-height:24px;margin:6px 0 10px;font-size:14.5px}
+  .dg-wrap{overflow:auto;border-radius:14px;margin:0 0 8px;max-height:640px}
+  .dg{display:block;width:100%;min-width:900px;height:auto;background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:10px}
+  .dg-node{cursor:pointer}
+  .dg-node rect,.dg-node polygon{fill:var(--card);stroke:var(--border);stroke-width:1.6;transition:stroke .25s,stroke-width .25s,filter .25s}
+  .dg-node text{fill:var(--text);font-family:Inter,system-ui,"Segoe UI",sans-serif;font-size:13.5px;font-weight:700;text-anchor:middle}
+  .dg-node .dg-sub{fill:var(--muted);font-size:10.5px;font-weight:500}
+  .dg-node.ai rect{stroke:var(--purple)}
+  .dg-node.det rect{stroke:var(--teal)}
+  .dg-node.out rect{stroke:var(--amber)}
+  .dg-node.decision polygon{fill:rgba(251,191,36,.05);stroke:var(--amber)}
+  .dg-node.ready rect{stroke:var(--green)}
+  .dg-node.notready rect{stroke:var(--amber)}
+  .dg-node:hover rect,.dg-node:hover polygon{stroke:var(--teal)}
+  .dg-node.active rect,.dg-node.active polygon{stroke:var(--amber);stroke-width:2.6;filter:drop-shadow(0 0 10px rgba(251,191,36,.35))}
+  .dg-node.done rect,.dg-node.done polygon{stroke:var(--green)}
+  .dg-link{fill:none;stroke:#334155;stroke-width:1.7;vector-effect:non-scaling-stroke;transition:stroke .25s}
+  .dg-link.active{stroke:var(--amber);stroke-dasharray:7 6;animation:dash 1s linear infinite}
+  .dg-link.pass{stroke:var(--teal)}
+  .dg-note-link{fill:none;stroke:var(--teal);stroke-width:1.2;stroke-dasharray:4 4;opacity:.55;vector-effect:non-scaling-stroke}
+  .dg-note-bg{fill:rgba(45,212,191,.035);stroke:var(--border);stroke-dasharray:5 4;stroke-width:1.2;transition:stroke .25s}
+  .dg-media.active .dg-note-bg{stroke:var(--amber);stroke-width:1.8}
+  @keyframes dash{to{stroke-dashoffset:-13}}
+  .chart-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:4px}
+  .chart-detail{margin-top:16px}
+</style>
+</head>
+<body>
+  <h1>Receive Workflow Lab</h1>
+  <p class="sub">See the receive workflow as a simple animated diagram — or open the walkthrough for the real code, input/output and runnable examples. Nothing is saved or sent.</p>
+  <nav class="nav">
+    <a href="checklist.html">Checklist</a>
+    <a href="config.html">Config</a>
+    <a href="#codebase" onclick="setView('walk')">Code map</a>
+  </nav>
+
+  <div class="viewtabs">
+    <button id="tabWalk" class="on" onclick="setView('walk')">Walkthrough</button>
+    <button id="tabChart" onclick="setView('chart')">Workflow diagram</button>
+  </div>
+
+  <div id="walkView">
+  <section class="card">
+    <div class="runbar">
+      <div>
+        <label class="lab" for="sample">Example</label>
+        <select id="sample"></select>
+      </div>
+      <div>
+        <label class="lab">Run</label>
+        <button id="runExample" onclick="runExample()">Run example</button>
+      </div>
+      <div>
+        <label class="lab">Real data</label>
+        <button class="ghost" onclick="replayLatest()">Replay latest real run</button>
+      </div>
+      <div>
+        <label class="lab">Real email (Phase 2)</label>
+        <button class="ghost" onclick="openLive()">Live email dry-run…</button>
+      </div>
+      <div>
+        <label class="lab">Safety</label>
+        <span class="pill safe" title="No archive, Sheet, reply or DB write">sandbox · no writes</span>
+      </div>
+    </div>
+    <div class="progress"><i id="prog"></i></div>
+    <div id="banner" class="banner ok" style="display:none"></div>
+    <div class="row small muted" style="margin-top:6px">
+      <span id="runInfo">No run yet — pick an example and press Run example.</span>
+      <span id="aiBadge" class="pill mut">AI: simulated</span>
+    </div>
+  </section>
+
+  <div class="map" id="stageMap"></div>
+
+  <div class="layout">
+    <aside class="stages" id="stageList"></aside>
+    <section class="panel" id="panel">
+      <div class="empty">Loading the workflow…</div>
+    </section>
+  </div>
+  </div><!-- /walkView -->
+
+  <!-- ================= SIMPLE ANIMATED CHART ================= -->
+  <div id="chartView" style="display:none">
+    <div class="chart-hero">
+      <b>One email, nine stages, two decisions.</b> The robot finds the press release, reads it, keeps every source
+      that might be the article, picks the real one, checks the photos and logo, and saves a row for
+      the editor. Press <b>Play</b> to watch it happen.
+    </div>
+    <div class="chart-bar"><i id="chartProg"></i></div>
+    <div class="chart-narr" id="chartNarr">Press Play to walk through the workflow.</div>
+    <div class="chart-controls">
+      <button id="chartPlay" onclick="toggleChart()">▶ Play</button>
+      <button class="ghost" onclick="resetChart()">↺ Reset</button>
+      <span class="small muted" id="chartStep">0 / 11</span>
+      <span class="small muted" style="margin-left:auto">Click any node for a simple explanation.</span>
+    </div>
+    <div class="dg-wrap">
+      <svg class="dg" viewBox="0 0 1100 1120" role="img" aria-label="Receive workflow diagram">
+        <defs>
+          <marker id="dg-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="#475569"/>
+          </marker>
+        </defs>
+
+        <path class="dg-link" id="link-start-read" d="M550 78 V118" marker-end="url(#dg-arrow)"/>
+        <path class="dg-link" id="link-read-where" d="M550 176 V190" marker-end="url(#dg-arrow)"/>
+        <path class="dg-link" id="link-where-b-att" d="M550 300 V318 H155 V335" marker-end="url(#dg-arrow)"/>
+        <path class="dg-link" id="link-where-b-drive" d="M550 318 H418 V335" marker-end="url(#dg-arrow)"/>
+        <path class="dg-link" id="link-where-b-web" d="M550 318 H681 V335" marker-end="url(#dg-arrow)"/>
+        <path class="dg-link" id="link-where-b-body" d="M550 318 H944 V335" marker-end="url(#dg-arrow)"/>
+        <path class="dg-link" id="link-b-att-collect" d="M155 397 V420 H550 V445" marker-end="url(#dg-arrow)"/>
+        <path class="dg-link" id="link-b-drive-collect" d="M418 397 V420 H550 V445" marker-end="url(#dg-arrow)"/>
+        <path class="dg-link" id="link-b-web-collect" d="M681 397 V420 H550 V445" marker-end="url(#dg-arrow)"/>
+        <path class="dg-link" id="link-b-body-collect" d="M944 397 V420 H550 V445" marker-end="url(#dg-arrow)"/>
+        <path class="dg-link" id="link-collect-extract" d="M550 503 V543" marker-end="url(#dg-arrow)"/>
+        <path class="dg-link" id="link-extract-media" d="M550 601 V641" marker-end="url(#dg-arrow)"/>
+        <path class="dg-link" id="link-media-verify" d="M550 699 V739" marker-end="url(#dg-arrow)"/>
+        <path class="dg-link" id="link-verify-save" d="M550 797 V837" marker-end="url(#dg-arrow)"/>
+        <path class="dg-link" id="link-save-readyq" d="M550 895 V899" marker-end="url(#dg-arrow)"/>
+        <path class="dg-link" id="link-readyq-ready" d="M550 1003 V1019 H420 V1035" marker-end="url(#dg-arrow)"/>
+        <path class="dg-link" id="link-readyq-notready" d="M550 1019 H680 V1035" marker-end="url(#dg-arrow)"/>
+
+        <g class="dg-node" data-key="start" data-stage="receive" onclick="selectDiagram('start')">
+          <rect x="420" y="20" width="260" height="58" rx="12"/>
+          <text x="550" y="44">Email arrives</text><text class="dg-sub" x="550" y="62">Gmail inbox · unread</text>
+        </g>
+        <g class="dg-node" data-key="read" data-stage="normalize" onclick="selectDiagram('read')">
+          <rect x="420" y="118" width="260" height="58" rx="12"/>
+          <text x="550" y="142">Read &amp; clean</text><text class="dg-sub" x="550" y="160">cover note removed</text>
+        </g>
+        <g class="dg-node decision" data-key="where" data-stage="fetch" onclick="selectDiagram('where')">
+          <polygon points="550,190 720,245 550,300 380,245"/>
+          <text x="550" y="241">Where is the article?</text><text class="dg-sub" x="550" y="259">attachment · Drive · web · body</text>
+        </g>
+
+        <g class="dg-node" data-key="b-att" data-stage="fetch" onclick="selectDiagram('branches')">
+          <rect x="40" y="335" width="230" height="62" rx="12"/>
+          <text x="155" y="359">Attachment</text><text class="dg-sub" x="155" y="377">Gmail file</text>
+        </g>
+        <g class="dg-node" data-key="b-drive" data-stage="fetch" onclick="selectDiagram('branches')">
+          <rect x="303" y="335" width="230" height="62" rx="12"/>
+          <text x="418" y="359">Drive / OneDrive / Box</text><text class="dg-sub" x="418" y="377">media kit</text>
+        </g>
+        <g class="dg-node" data-key="b-web" data-stage="fetch" onclick="selectDiagram('branches')">
+          <rect x="566" y="335" width="230" height="62" rx="12"/>
+          <text x="681" y="359">Web page</text><text class="dg-sub" x="681" y="377">article or speech</text>
+        </g>
+        <g class="dg-node" data-key="b-body" data-stage="fetch" onclick="selectDiagram('branches')">
+          <rect x="829" y="335" width="230" height="62" rx="12"/>
+          <text x="944" y="359">Email body</text><text class="dg-sub" x="944" y="377">text in the email</text>
+        </g>
+
+        <g class="dg-node" data-key="collect" data-stage="fetch" onclick="selectDiagram('collect')">
+          <rect x="420" y="445" width="260" height="58" rx="12"/>
+          <text x="550" y="469">Collect candidates</text><text class="dg-sub" x="550" y="487">every fetched source</text>
+        </g>
+        <g class="dg-node ai" data-key="extract" data-stage="extract" onclick="selectDiagram('extract')">
+          <rect x="420" y="543" width="260" height="58" rx="12"/>
+          <text x="550" y="567">Extract article · AI</text><text class="dg-sub" x="550" y="585">the real release</text>
+        </g>
+        <g class="dg-node det" data-key="media" data-stage="media" onclick="selectDiagram('media')">
+          <rect x="420" y="641" width="260" height="58" rx="12"/>
+          <text x="550" y="665">Check media</text><text class="dg-sub" x="550" y="683">email vs article</text>
+        </g>
+        <path class="dg-note-link" d="M680 670 H720"/>
+        <g class="dg-media" id="mediaCallout">
+          <rect class="dg-note-bg" x="720" y="620" width="340" height="152" rx="12"/>
+          <text x="740" y="644" text-anchor="start" fill="var(--teal)" font-size="12" font-weight="800">Where is the image?</text>
+          <text x="740" y="666" text-anchor="start" fill="var(--text)" font-size="11.5" font-weight="700">In the email</text>
+          <text x="740" y="681" text-anchor="start" fill="var(--muted)" font-size="10">attachment · body · Drive · web</text>
+          <text x="740" y="697" text-anchor="start" fill="var(--text)" font-size="11">→ hasPic / hasLogo</text>
+          <text x="740" y="724" text-anchor="start" fill="var(--text)" font-size="11.5" font-weight="700">Inside the article</text>
+          <text x="740" y="739" text-anchor="start" fill="var(--muted)" font-size="10">PDF/DOCX embedded</text>
+          <text x="740" y="755" text-anchor="start" fill="var(--text)" font-size="11">→ hasImageInArticle / hasLogoInArticle</text>
+        </g>
+
+        <g class="dg-node ai" data-key="verify" data-stage="verify" onclick="selectDiagram('verify')">
+          <rect x="420" y="739" width="260" height="58" rx="12"/>
+          <text x="550" y="763">Decide readiness · AI</text><text class="dg-sub" x="550" y="781">subject vs headline</text>
+        </g>
+        <g class="dg-node out" data-key="save" data-stage="save" onclick="selectDiagram('save')">
+          <rect x="420" y="837" width="260" height="58" rx="12"/>
+          <text x="550" y="861">Save</text><text class="dg-sub" x="550" y="879">row + archive</text>
+        </g>
+
+        <g class="dg-node decision" data-key="readyq" data-stage="save" onclick="selectDiagram('readyq')">
+          <polygon points="550,899 710,951 550,1003 390,951"/>
+          <text x="550" y="947">Ready to filter?</text><text class="dg-sub" x="550" y="965">article + media + match</text>
+        </g>
+        <g class="dg-node ready" data-key="ready" data-stage="save" onclick="selectDiagram('ready')">
+          <rect x="300" y="1035" width="240" height="58" rx="12"/>
+          <text x="420" y="1059">Ready</text><text class="dg-sub" x="420" y="1077">→ Filter stage</text>
+        </g>
+        <g class="dg-node notready" data-key="notready" data-stage="save" onclick="selectDiagram('notready')">
+          <rect x="560" y="1035" width="240" height="58" rx="12"/>
+          <text x="680" y="1059">Not ready</text><text class="dg-sub" x="680" y="1077">→ Reply / review</text>
+        </g>
+      </svg>
+    </div>
+    <div class="card chart-detail" id="chartDetail">
+      <div class="muted small">Click a node above to see what goes in, what comes out, and why it matters.</div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <h3 style="margin:0 0 4px">Where is the image? — the four media flags</h3>
+      <p class="small muted" style="margin:0 0 12px">The same picture gets a different flag depending on where it lives.</p>
+      <div class="grid2">
+        <div class="box">
+          <h4>In the email</h4>
+          <ul class="clean">
+            <li><b>Attached photo</b> → <code>hasPic</code></li>
+            <li><b>Attached logo file</b> → <code>hasLogo</code></li>
+            <li><b>Body image / asset link</b> → <code>hasPic</code> / <code>hasLogo</code></li>
+            <li><b>Drive / OneDrive / Box / web image</b> → <code>hasPic</code> / <code>hasLogo</code></li>
+          </ul>
+        </div>
+        <div class="box">
+          <h4>Inside the article PDF/DOCX</h4>
+          <ul class="clean">
+            <li><b>Embedded photo</b> → <code>hasImageInArticle</code></li>
+            <li><b>Header / embedded logo</b> → <code>hasLogoInArticle</code></li>
+            <li><b>Never</b> counted as <code>hasPic</code></li>
+          </ul>
+        </div>
+      </div>
+      <div class="box" style="margin-top:12px">
+        <h4>Logo or photo? (by dimensions)</h4>
+        <p>≤ 300 px, a wide/short strip, or a repeated header/footer → <b>logo</b>. A large image (≥ 500 px) → <b>photo</b>. A header image in a DOCX is always a logo.</p>
+      </div>
+    </div>
+    <div class="grid2" style="margin-top:16px">
+      <div class="box">
+        <h4>When is an email ready?</h4>
+        <div class="row" style="gap:8px;margin-top:4px">
+          <span class="pill code">article found</span><b>+</b>
+          <span class="pill det">photo or logo</span><b>+</b>
+          <span class="pill out">subject match &gt; 60</span><b>=</b>
+          <span class="pill safe">readyToFilter</span>
+        </div>
+        <p class="small muted" style="margin-top:8px">If one of the three is missing, the row is not ready and the filter does not run.</p>
+      </div>
+      <div class="box">
+        <h4>What happens next</h4>
+        <p>Ready rows go to the <b>Filter</b> stage, where Jev applies the editorial rules. Not-ready rows stay back for a reply or a human check.</p>
+        <p style="margin-top:8px"><a href="filter.html" target="_blank">Open the filter →</a></p>
+      </div>
+    </div>
+  </div>
+
+  <section class="card only-walk" id="codebase" style="margin-top:20px">
+    <h2>Project code map — what every <span class="muted">.py</span> does</h2>
+    <p class="small muted" style="margin-top:-6px">
+      <b class="pill safe">NEEDED</b> runtime · <b class="pill code">NEEDED</b> feature (may be off) ·
+      <b class="pill mut">TOOLING</b> operator/support · <b class="pill bad">NOT RUNTIME</b> analysis, one-off or test.
+    </p>
+    <div id="fileSummary" class="row small muted"></div>
+    <div class="filters" id="fileFilters"></div>
+    <div class="row" style="margin:8px 0 12px">
+      <input type="text" id="fileSearch" placeholder="Search a file, role or purpose…" oninput="renderFiles()">
+    </div>
+    <div class="cards" id="fileCards"></div>
+  </section>
+
+  <section class="card only-walk" style="margin-top:20px">
+    <h2>Plain-English glossary</h2>
+    <div class="gloss">
+      <div class="item"><b>Normalize</b><p>Turn the raw email into a clean package: subject, sender, body without the cover note, attachments and links.</p></div>
+      <div class="item"><b>Attachment</b><p>A file sent with the email (PDF, DOCX, image). The pipeline downloads it and reads its text.</p></div>
+      <div class="item"><b>Media kit</b><p>A Drive/OneDrive/Box folder with the release and photos. The pipeline fetches it when the email links to one.</p></div>
+      <div class="item"><b>Candidate</b><p>One fetched source (attachment, Drive doc, web page, email body) that might be the article. The extract AI picks one.</p></div>
+      <div class="item"><b>Deterministic</b><p>Code that does not call an AI — for example, reading image dimensions to tell a logo from a photo.</p></div>
+      <div class="item"><b>readyToFilter</b><p>True only when there is an article, some media (photo or logo), and the subject matches the headline above 60.</p></div>
+      <div class="item"><b>needs_human</b><p>The source could not be fetched (view-only Drive file, blocked page). The run stops instead of guessing.</p></div>
+      <div class="item"><b>Archive</b><p>The local folder for one email: article.md, images/ and originals/. The filter and reports read it.</p></div>
+    </div>
+  </section>
+
+  <div class="modal" id="liveModal" onclick="if(event.target===this)closeLive()">
+    <div class="inner">
+      <div class="row" style="justify-content:space-between">
+        <h2 style="margin:0">Live email dry-run</h2>
+        <button class="ghost" onclick="closeLive()">✕ close</button>
+      </div>
+      <div class="banner warn" style="margin-top:12px">
+        This uses the real Gmail message and the real AI provider. It does <b>not</b> write the archive,
+        Sheet, database or send a reply. It may take 1–3 minutes and spend AI tokens.
+      </div>
+      <label class="lab" for="liveEmail">Unread email</label>
+      <select id="liveEmail"></select>
+      <div class="row" style="margin-top:12px">
+        <button onclick="runLive()">Run dry-run</button>
+        <span class="small muted" id="liveMsg"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    The lab is read-only by design. The live receive pipeline and the filter stage are unchanged.
+  </div>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const pretty = o => JSON.stringify(o, null, 2);
+const STAGE_TRACE = { media:'logo_scan', save:'archive' };
+let META = null, ACTIVE = null, TAB = 'explain', RUN = null, POLL = null, UPLOAD = null, LATEST_REAL = null, FILE_FILTER = 'all', LAST_RENDER = '';
+
+async function api(path, opts){
+  const r = await fetch(path, opts);
+  const d = await r.json().catch(()=>({error:'invalid JSON'}));
+  if(!r.ok) throw new Error(d.detail || d.error || ('HTTP '+r.status));
+  return d;
+}
+
+/* ---------------- load + render shell ---------------- */
+async function init(){
+  try{
+    META = await api('/api/workflow/stages');
+    const s = await api('/api/workflow/samples');
+    LATEST_REAL = (s.recent_runs||[])[0] || null;
+    const sel = $('sample'); sel.innerHTML='';
+    (s.samples||[]).forEach(x=>{
+      const o=document.createElement('option'); o.value=x.id; o.textContent=x.label; o.title=x.description; sel.appendChild(o);
+    });
+    renderStages(); renderMap(); renderFiles(); renderPanel();
+    $('runInfo').textContent = LATEST_REAL ? 'Latest real run: '+(LATEST_REAL.subject||'').slice(0,80) : 'No run yet — press Run example.';
+  }catch(e){
+    $('panel').innerHTML='<div class="banner err">Could not load the workflow: '+esc(e.message)+'</div>';
+  }
+}
+
+function stageById(id){ return (META.stages||[]).find(s=>s.id===id); }
+function traceFor(id){
+  if(!RUN) return null;
+  const key = STAGE_TRACE[id] || id;
+  return (RUN.stages||[]).find(x=>x.stage===key) || null;
+}
+function statusOf(id){
+  if(!RUN) return 'idle';
+  const t = traceFor(id);
+  if(t) return t.status === 'error' ? 'error' : (t.status === 'blocked' ? 'blocked' : 'done');
+  if(RUN.status==='running'){ return 'idle'; }
+  return 'idle';
+}
+
+function renderMap(){
+  const map=$('stageMap'); map.innerHTML='';
+  (META.stages||[]).forEach(s=>{
+    const b=document.createElement('div');
+    b.className='chip '+(s.id===ACTIVE?'on ':'')+(statusOf(s.id)==='done'?'done':'');
+    b.innerHTML='<span class="dot"></span>'+s.n+' · '+esc(s.title);
+    b.onclick=()=>selectStage(s.id);
+    map.appendChild(b);
+  });
+}
+
+function renderStages(){
+  const box=$('stageList'); box.innerHTML='';
+  (META.stages||[]).forEach(s=>{
+    const st=statusOf(s.id);
+    const b=document.createElement('button');
+    b.className='stagebtn '+(s.id===ACTIVE?'on ':'')+(st==='done'?'done ':'')+(st==='running'?'run':'');
+    b.innerHTML='<span class="num">'+s.n+'</span><span><span class="st">'+esc(s.title)+'</span><span class="ds">'+esc(s.summary)+'</span></span>';
+    b.onclick=()=>selectStage(s.id);
+    box.appendChild(b);
+  });
+}
+
+function selectStage(id){
+  ACTIVE=id; TAB='explain'; UPLOAD=null; LAST_RENDER=''; renderStages(); renderMap(); renderPanel();
+}
+
+/* ---------------- panel ---------------- */
+function renderPanel(){
+  const s=stageById(ACTIVE) || (META.stages||[])[0];
+  if(!s){ $('panel').innerHTML='<div class="empty">No stage.</div>'; return; }
+  ACTIVE=s.id;
+  const typePill = s.type==='ai'?'ai':(s.type==='output'?'out':(s.type==='deterministic'?'det':'code'));
+  $('panel').innerHTML = `
+    <div class="panelhead">
+      <div style="font-size:30px;line-height:1">${s.icon||'•'}</div>
+      <div style="flex:1">
+        <div class="big">${s.n}. ${esc(s.title)}</div>
+        <div class="small muted">${esc(s.summary)}</div>
+      </div>
+      <span class="pill ${typePill}">${esc(s.type)}</span>
+    </div>
+    <div class="tabs">
+      ${['explain','code','input','output'].map(t=>`<button class="tab ${TAB===t?'on':''}" onclick="setTab('${t}')">${t[0].toUpperCase()+t.slice(1)}</button>`).join('')}
+    </div>
+    <div id="tabBody"></div>`;
+  renderTab();
+}
+
+function setTab(t){ TAB=t; LAST_RENDER=''; renderPanel(); }
+
+function renderTab(){
+  const s=stageById(ACTIVE); const body=$('tabBody');
+  if(!s){ return; }
+  if(TAB==='explain') body.innerHTML = explainHtml(s);
+  else if(TAB==='code') renderCode(s, body);
+  else if(TAB==='input') renderInput(s, body);
+  else renderOutput(s, body);
+}
+
+function explainHtml(s){
+  return `
+    <div class="grid2">
+      <div class="box"><h4>What it does</h4><p>${esc(s.summary)}</p></div>
+      <div class="box"><h4>Why it matters</h4><p>${esc(s.why)}</p></div>
+      <div class="box"><h4>What goes in</h4><ul class="clean">${(s.inputs||[]).map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+      <div class="box"><h4>What comes out</h4><ul class="clean">${(s.outputs||[]).map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+    </div>
+    ${(s.details||[]).length?`<div class="box" style="margin-top:12px"><h4>Details</h4><ul class="clean">${s.details.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`:''}
+    <div class="box" style="margin-top:12px;border-color:rgba(248,113,113,.3)">
+      <h4>What can go wrong</h4><p>${esc(s.risk)}</p>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button class="ghost" onclick="setTab('code')">See the code</button>
+      ${s.runnable==='stage'?`<button class="ghost" onclick="setTab('input')">Run this stage</button>`:''}
+      ${s.runnable==='upload'?`<button class="ghost" onclick="setTab('input')">Scan a PDF/DOCX</button>`:''}
+    </div>`;
+}
+
+async function renderCode(s, body){
+  body.innerHTML='<div class="empty">Loading code…</div>';
+  try{
+    const d = await api('/api/workflow/code?stage='+encodeURIComponent(s.id));
+    body.innerHTML = (d.excerpts||[]).map(x=>`
+      <div class="codehead"><span class="fn">${esc(x.label||x.symbol)}()</span><span class="src">${esc(x.file)} · line ${x.start||'?'} · ${x.lines||0} lines</span></div>
+      ${x.error?`<div class="banner err">${esc(x.error)}</div>`:`<pre>${codeLines(x.code)}</pre>`}
+    `).join('') || '<div class="empty">No code excerpt.</div>';
+  }catch(e){ body.innerHTML='<div class="banner err">'+esc(e.message)+'</div>'; }
+}
+
+function codeLines(code){
+  return String(code||'').split('\n').map((l,i)=>`<span class="cl"><i>${i+1}</i>${esc(l)}</span>`).join('');
+}
+
+function renderInput(s, body){
+  if(s.runnable==='none' || s.runnable==='full-only'){
+    body.innerHTML=`<div class="banner warn">This stage is part of the full pipeline. Use <b>Run example</b> or a <b>live email dry-run</b> to see its real input/output.</div>`;
+    return;
+  }
+  if(s.runnable==='upload'){
+    body.innerHTML = `
+      <div class="box">
+        <h4>Upload a PDF or DOCX</h4>
+        <p class="small muted" style="margin-bottom:10px">The file is read in memory only. No copy is saved.</p>
+        <input type="file" id="mediaFile" accept=".pdf,.docx,.doc">
+        <div class="row" style="margin-top:10px"><button onclick="scanFile()">Scan file</button><span class="small muted" id="mediaMsg"></span></div>
+      </div>`;
+    return;
+  }
+  const sample = stageSample(s.id);
+  body.innerHTML = `
+    <div class="box">
+      <h4>Edit the input (JSON)</h4>
+      <p class="small muted" style="margin-bottom:8px">Empty <code>{}</code> uses the built-in example. <b>Simulated AI</b> returns the example response; tick Live AI to use the real provider.</p>
+      <textarea id="stageInput">${esc(sample)}</textarea>
+      <div class="row" style="margin-top:10px">
+        <button onclick="runStage()">Run this stage</button>
+        <label class="small muted"><input type="checkbox" id="liveAI" style="vertical-align:middle"> Live AI (costs tokens)</label>
+        <span class="small muted" id="stageMsg"></span>
+      </div>
+    </div>`;
+}
+
+function stageSample(id){
+  if(id==='save') return JSON.stringify({row:{
+    subject:'Fwd: [PRESS RELEASE] Acme Robotics Opens New SME Innovation Hub in Penang',
+    threadId:'lab-thread', date:'2026-10-20', folderId:'', folderUrl:'',
+    articleFile:'Acme-Robotics.md', hasArticle:'true', hasPic:'false', hasLogo:'true',
+    hasLogoInArticle:'false', hasImageInArticle:'false', subjectMatch:'true',
+    subjectScore:'88', readyToFilter:'true'
+  }}, null, 2);
+  if(id==='verify') return JSON.stringify({
+    article:{subject:'Acme Robotics ...', from:'Editor MSME', date:'2026-10-20', bodyText:'FOR IMMEDIATE RELEASE...'},
+    image_names:['Acme-Robotics-logo.png'],
+    flags:{hasPic:false,hasLogo:true,docLogo:false,docPhoto:false,visionLogo:false,aiLogo:false,aiImage:false,hasLogoFile:true},
+    evidence:'Logo attachment present.'
+  }, null, 2);
+  return '{}';
+}
+
+async function renderOutput(s, body){
+  const t = traceFor(s.id);
+  if(RUN && RUN.mode==='replay' && (s.id==='normalize' || s.id==='receive')){
+    body.innerHTML='<div class="banner warn">The stored trace starts after this step. Run the example to see it live, or open the real run in the live flow.</div>';
+    return;
+  }
+  if(s.id==='media' && UPLOAD){
+    body.innerHTML = mediaHtml(UPLOAD); return;
+  }
+  if(!t && !(s.id==='save' && RUN && RUN.result && RUN.result.row)){
+    body.innerHTML='<div class="banner warn">No output yet. Press <b>Run example</b> above (or run this stage).</div>'; return;
+  }
+  let html='';
+  if(t) html += `<div class="box"><h4>Stage output · ${esc(t.status)} · ${t.ms||0} ms</h4>${detailHtml(t.detail)}</div>`;
+  if(s.id==='save' && RUN && RUN.result && RUN.result.row){
+    html += `<div class="box" style="margin-top:12px"><h4>The 14-column checklist row</h4>${rowHtml(RUN.result.row)}</div>`;
+    if(RUN.result.archive) html += `<div class="box" style="margin-top:12px"><h4>Archive preview</h4>${detailHtml(RUN.result.archive)}</div>`;
+  }
+  body.innerHTML=html;
+}
+
+function detailHtml(d){
+  if(d==null) return '<div class="empty">—</div>';
+  if(typeof d==='string') return '<pre style="max-height:400px">'+esc(d)+'</pre>';
+  if(typeof d!=='object') return '<div class="kv"><span class="k">value</span><span>'+esc(d)+'</span></div>';
+  const entries=Object.entries(d);
+  const simple=entries.filter(([k,v])=>v==null || ['string','number','boolean'].includes(typeof v));
+  const complex=entries.filter(([k,v])=>v!=null && !['string','number','boolean'].includes(typeof v));
+  let out='';
+  if(simple.length) out += simple.map(([k,v])=>{
+    const val = (typeof v==='string' && v.length>500) ? v.slice(0,500)+'…' : v;
+    return `<div class="kv"><span class="k">${esc(k)}</span><span style="word-break:break-word">${esc(val)}</span></div>`;
+  }).join('');
+  if(complex.length) out += `<details style="margin-top:8px"><summary>full JSON (${complex.length} nested field${complex.length>1?'s':''})</summary><pre style="max-height:420px;margin-top:8px">${esc(pretty(d))}</pre></details>`;
+  return out || '<div class="empty">—</div>';
+}
+
+function rowHtml(row){
+  const keys=Object.keys(row||{});
+  if(!keys.length) return '<div class="empty">—</div>';
+  return '<div class="scroll"><table><thead><tr><th>column</th><th>value</th></tr></thead><tbody>'+
+    keys.map(k=>`<tr><td class="muted">${esc(k)}</td><td>${esc(row[k])}</td></tr>`).join('')+'</tbody></table></div>';
+}
+
+function mediaHtml(d){
+  return `
+    <div class="box">
+      <h4>${esc(d.filename)} · ${Math.round((d.size||0)/1024)} KB</h4>
+      <div class="kv"><span class="k">text</span><span>${d.textLen||0} characters</span></div>
+      <div class="kv"><span class="k">has image</span><span>${d.hasImage?'yes':'no'}</span></div>
+      <div class="kv"><span class="k">has logo</span><span>${d.hasLogo?'yes':'no'}</span></div>
+      <div class="kv"><span class="k">has photo</span><span>${d.hasPhoto?'yes':'no'}</span></div>
+      <div class="kv"><span class="k">truncated</span><span>${d.truncated?'yes':'no'}</span></div>
+    </div>
+    <div class="box" style="margin-top:12px"><h4>Images (${(d.images||[]).length})</h4>
+      <div class="scroll"><table><thead><tr><th>name</th><th>width</th><th>height</th><th>pages</th><th>kind</th></tr></thead><tbody>
+      ${(d.images||[]).map(i=>`<tr><td>${esc(i.name)}</td><td>${i.width||0}</td><td>${i.height||0}</td><td>${i.pages||1}</td><td><span class="pill ${i.kind==='logo'?'det':(i.kind==='photo'?'out':'mut')}">${esc(i.kind)}</span></td></tr>`).join('')||'<tr><td colspan="5" class="muted">no embedded images</td></tr>'}
+      </tbody></table></div>
+    </div>
+    <div class="box" style="margin-top:12px"><h4>Text preview</h4><pre style="max-height:300px">${esc(d.textPreview||'')}</pre></div>`;
+}
+
+/* ---------------- runs ---------------- */
+async function runExample(){
+  const sample=$('sample').value||'simple_release';
+  await startRun({mode:'example', sample}, 'Simulated AI · example');
+}
+async function runStage(){
+  const s=stageById(ACTIVE); const msg=$('stageMsg');
+  let input={};
+  try{ input=JSON.parse($('stageInput').value||'{}'); }
+  catch(e){ msg.textContent='Invalid JSON: '+e.message; return; }
+  const ai=$('liveAI') && $('liveAI').checked ? 'live':'sim';
+  await startRun({mode:'stage', stage:s.id, input, ai}, ai==='live'?'Live AI · this stage':'Simulated AI · this stage');
+}
+async function runLive(){
+  const id=$('liveEmail').value;
+  if(!id){ $('liveMsg').textContent='Pick an email first.'; return; }
+  closeLive();
+  await startRun({mode:'live', email_id:id}, 'Live AI · real email dry-run');
+}
+
+async function startRun(body, label){
+  clearInterval(POLL);
+  RUN=null; UPLOAD=null; LAST_RENDER='';
+  $('banner').style.display='none'; $('prog').style.width='0%';
+  $('runInfo').textContent='Starting…'; $('aiBadge').textContent=label;
+  $('aiBadge').className='pill '+(label.startsWith('Live')?'bad':'ai');
+  try{
+    const r=await api('/api/workflow/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    POLL=setInterval(()=>poll(r.run_id), 700);
+    await poll(r.run_id);
+  }catch(e){
+    $('banner').className='banner err'; $('banner').style.display=''; $('banner').textContent=e.message;
+  }
+}
+
+async function poll(runId){
+  try{
+    const r=await api('/api/workflow/run-status?run_id='+encodeURIComponent(runId));
+    RUN=r;
+    const total=(META.stages||[]).length;
+    const done=(META.stages||[]).filter(s=>statusOf(s.id)==='done').length;
+    $('prog').style.width=Math.round(100*done/total)+'%';
+    renderStages(); renderMap();
+    const key=ACTIVE+'|'+TAB+'|'+((r.stages||[]).length)+'|'+r.status;
+    if(key!==LAST_RENDER){ LAST_RENDER=key; renderPanel(); }
+    if(r.status==='done'){
+      clearInterval(POLL);
+      const row=r.result && r.result.row;
+      const ready=row && row.readyToFilter==='true';
+      $('banner').className='banner '+(ready?'ok':'warn'); $('banner').style.display='';
+      $('banner').innerHTML='Run complete — '+(row?('article <b>'+esc(row.hasArticle)+'</b> · media <b>'+esc(row.hasPic==='true'||row.hasLogo==='true'||row.hasImageInArticle==='true'?'yes':'no')+'</b> · readyToFilter <b>'+esc(row.readyToFilter)+'</b>'):'done')+'. Nothing was written.';
+      $('runInfo').textContent='Finished in '+r.elapsed+'s · '+((r.stages||[]).length)+' stages · '+(r.result&&r.result.simulated?'simulated AI':'real data');
+    } else if(r.status==='error'){
+      clearInterval(POLL);
+      $('banner').className='banner err'; $('banner').style.display='';
+      $('banner').textContent='Run failed: '+(r.error||'unknown error');
+      $('runInfo').textContent='Failed after '+r.elapsed+'s';
+    } else {
+      $('runInfo').textContent='Running… '+done+'/'+total+' stages';
+    }
+  }catch(e){
+    clearInterval(POLL);
+    $('banner').className='banner err'; $('banner').style.display=''; $('banner').textContent=e.message;
+  }
+}
+
+function replayLatest(){
+  if(!LATEST_REAL){ alert('No real run found yet. Process an email first.'); return; }
+  const stages=Object.entries(LATEST_REAL.stages||{}).map(([k,v])=>({stage:k,status:v.status||'done',detail:v.detail||{},ms:0}));
+  RUN={mode:'replay',status:'done',stages,result:{row:LATEST_REAL.row||{}},meta:{subject:LATEST_REAL.subject,created_at:LATEST_REAL.created_at}};
+  $('banner').className='banner ok'; $('banner').style.display='';
+  $('banner').innerHTML='Replaying the latest real run — <b>'+esc((LATEST_REAL.subject||'').slice(0,90))+'</b> ('+esc(LATEST_REAL.created_at||'')+'). Read-only.';
+  $('runInfo').textContent='Real run · '+(LATEST_REAL.email_id||'')+' · '+((stages.length))+' stages';
+  $('aiBadge').textContent='AI: real run'; $('aiBadge').className='pill code';
+  $('prog').style.width='100%';
+  selectStage('verify');
+}
+
+/* ---------------- upload ---------------- */
+async function scanFile(){
+  const f=$('mediaFile').files[0]; const msg=$('mediaMsg');
+  if(!f){ msg.textContent='Choose a PDF or DOCX first.'; return; }
+  msg.textContent='Scanning '+f.name+'…';
+  const fd=new FormData(); fd.append('file',f);
+  try{
+    UPLOAD=await api('/api/workflow/upload',{method:'POST',body:fd});
+    msg.textContent='Done.';
+    TAB='output'; renderPanel();
+  }catch(e){ msg.textContent='Error: '+e.message; }
+}
+
+/* ---------------- live modal ---------------- */
+async function openLive(){
+  const m=$('liveModal'); m.classList.add('open');
+  const sel=$('liveEmail'); sel.innerHTML='<option value="">loading…</option>'; $('liveMsg').textContent='';
+  try{
+    const d=await api('/api/emails');
+    const emails=d.emails||[];
+    sel.innerHTML = emails.length ? emails.map(e=>`<option value="${esc(e.id)}">${esc((e.subject||'(no subject)').slice(0,100))} — ${esc((e.from||'').slice(0,40))}</option>`).join('') : '<option value="">no unread email</option>';
+  }catch(e){ sel.innerHTML='<option value="">could not load emails</option>'; $('liveMsg').textContent=e.message; }
+}
+function closeLive(){ $('liveModal').classList.remove('open'); }
+
+/* ---------------- codebase map ---------------- */
+function statusClass(st){
+  if(st==='core') return 'safe';
+  if(st==='feature'||st==='support') return 'code';
+  if(st==='tooling'||st==='ops') return 'mut';
+  return 'bad';
+}
+function renderFiles(){
+  if(!META || !META.file_map) return;
+  const all=META.file_map.files||[];
+  const q=($('fileSearch').value||'').toLowerCase().trim();
+  const sum=META.file_map.summary||{};
+  $('fileSummary').innerHTML = Object.keys(sum).sort().map(k=>`<span class="pill ${statusClass(k)}">${k}: ${sum[k]}</span>`).join(' ');
+  const filters=[['all','All'],['core','Core / needed'],['feature','Feature / optional'],['tooling','Tooling & support'],['analysis','Not runtime'],['test','Tests']];
+  $('fileFilters').innerHTML=filters.map(([k,l])=>`<button class="fbtn ${FILE_FILTER===k?'on':''}" onclick="setFileFilter('${k}')">${l}</button>`).join('');
+  const rows=all.filter(f=>{
+    if(FILE_FILTER!=='all'){
+      if(FILE_FILTER==='core' && f.status!=='core') return false;
+      if(FILE_FILTER==='feature' && f.status!=='feature') return false;
+      if(FILE_FILTER==='tooling' && !['tooling','ops','support'].includes(f.status)) return false;
+      if(FILE_FILTER==='analysis' && !['analysis','one-off'].includes(f.status)) return false;
+      if(FILE_FILTER==='test' && f.status!=='test') return false;
+    }
+    if(!q) return true;
+    return [f.file,f.role,f.purpose,f.reason].join(' ').toLowerCase().includes(q);
+  });
+  $('fileCards').innerHTML = rows.map(f=>`
+    <div class="filecard">
+      <div class="row" style="justify-content:space-between;align-items:flex-start">
+        <span class="fn">${esc(f.file)}</span>
+        <span class="pill ${statusClass(f.status)}">${esc(f.needed_label)}</span>
+      </div>
+      <div class="role">${esc(f.role)}</div>
+      <div class="purpose">${esc(f.purpose||'—')}</div>
+      <div class="why">${esc(f.reason)}</div>
+      <div class="imports">${f.lines} lines · imported by: ${esc((f.imported_by||[]).slice(0,6).join(', ')||'—')}${(f.imported_by||[]).length>6?' …':''}</div>
+    </div>`).join('') || '<div class="empty">No file matches.</div>';
+}
+function setFileFilter(f){ FILE_FILTER=f; renderFiles(); }
+
+
+/* ---------------- animated workflow diagram ---------------- */
+const DIAGRAM = [
+  {key:'start', nodes:['start'], links:[], stage:'receive', narr:'An email arrives in the inbox.'},
+  {key:'read', nodes:['read'], links:['link-start-read'], stage:'normalize', narr:'Clean the email: remove the cover note, keep the text, files and links.'},
+  {key:'where', nodes:['where'], links:['link-read-where'], stage:'fetch', narr:'Where is the article? It can be in an attachment, a media kit, a web page or the email body.'},
+  {key:'branches', nodes:['b-att','b-drive','b-web','b-body'], links:['link-where-b-att','link-where-b-drive','link-where-b-web','link-where-b-body'], stage:'fetch', narr:'Fetch every possible source: attachment, Drive/OneDrive/Box, web page and email body.'},
+  {key:'collect', nodes:['collect'], links:['link-b-att-collect','link-b-drive-collect','link-b-web-collect','link-b-body-collect'], stage:'fetch', narr:'Keep every fetched text as a candidate.'},
+  {key:'extract', nodes:['extract'], links:['link-collect-extract'], stage:'extract', narr:'The AI picks the real article from the candidates.'},
+  {key:'media', nodes:['media'], links:['link-extract-media'], stage:'media', narr:'Find every image: in the email or inside the article. Then classify it as a logo or a photo.'},
+  {key:'verify', nodes:['verify'], links:['link-media-verify'], stage:'verify', narr:'Compare the subject with the headline and set the checklist flags.'},
+  {key:'save', nodes:['save'], links:['link-verify-save'], stage:'save', narr:'Write the 14-column row and archive the article.'},
+  {key:'readyq', nodes:['readyq'], links:['link-save-readyq'], stage:'save', narr:'Is it ready to filter?'},
+  {key:'outcomes', nodes:['ready','notready'], links:['link-readyq-ready','link-readyq-notready'], stage:'save', narr:'Yes → the filter. No → a reply or a human check.'},
+];
+const DIAGRAM_DETAIL = {
+  where: {
+    title:'Where is the article?', type:'decision',
+    simple:'The release can be one of four things. The pipeline fetches every one of them before the AI chooses.',
+    inputs:['the cleaned email','attachment inventory','every link in the email'],
+    outputs:['one or more candidate texts'],
+    why:'Collecting every source first means a missing link, a second language version or a Drive-only photo cannot hide the real article.',
+    details:[
+      'Attachment: one or more files on the email.',
+      'Drive / OneDrive / Box: a media-kit folder or file linked from the email.',
+      'Web page: a public article or speech page linked from the email.',
+      'Email body: the release is written directly in the message.',
+      'The pipeline collects all of them before the AI chooses; nothing is discarded early.',
+    ],
+  },
+  branches: {
+    title:'Fetch every source', type:'code',
+    simple:'Download the attachment, walk the Drive/OneDrive/Box media kit, fetch the public web page, or use the email body.',
+    inputs:['attachments','Drive / OneDrive / Box links','public web links','the email body'],
+    outputs:['candidate texts + downloaded media','fetch failures / needs_human'],
+    why:'One email can carry the release, the photos and other language versions in different places. The pipeline collects all of them.',
+    details:[
+      'Attachment: Gmail API download; all attachments are candidates, not only the chosen one.',
+      'PDF text: first 30 pages / 150k chars; DOCX images: 10 kept / 25 examined.',
+      'Drive: folders and single files, shared drives, Google-native exports, English release pick.',
+      'OneDrive public share; Box press kit; public web article/speech.',
+      'Email-body images and direct asset links are downloaded and classified.',
+      'Caps: Drive 60 MB, Box 25 MB; a view-only/refused file or blocked page → needs_human.',
+    ],
+  },
+  media: {
+    title:'Where is the image?', type:'deterministic',
+    simple:'The same picture gets a different flag depending on where it lives: in the email or inside the article.',
+    inputs:['article PDF/DOCX','attached images','email body images','Drive / OneDrive / Box / web images'],
+    outputs:['hasPic — a real photo file from the email / Drive / web','hasLogo — a standalone logo','hasImageInArticle — a photo embedded in the article','hasLogoInArticle — a logo embedded in the article'],
+    why:'hasPic never includes an image inside the article; that is hasImageInArticle or hasLogoInArticle. This keeps the four checklist flags honest.',
+    details:[
+      'In the email (attachment/body/Drive/web) → hasPic for a photo, hasLogo for a logo.',
+      'Inside the article PDF/DOCX → hasImageInArticle for a photo, hasLogoInArticle for a logo.',
+      'An in-article image is never counted as hasPic.',
+      'Logo: ≤300 px, wide/short strip, repeated header/footer, or a DOCX header image.',
+      'Photo: a large image (≥500 px). Dimensions are read from the real bytes, not guessed.',
+      'Limits: 10 images kept / 25 examined per document.',
+    ],
+  },
+  collect: {
+    title:'Collect candidates', type:'code',
+    simple:'Every fetched text is kept as a candidate; the AI sees the email body plus the candidates.',
+    inputs:['attachment texts','media-kit texts','web page text','email body'],
+    outputs:['a ranked candidate pool'],
+    why:'The AI chooses from evidence, not from a filename guess.',
+    details:[
+      'Every fetched text is deduplicated by content and scored against the subject.',
+      'The best candidates are labelled C1..Cn and sent to the extract AI with the email body.',
+      'The extract AI can choose a C# label, email_body or none.',
+      'If the AI returns nothing, a real candidate/attachment text is used as a fallback.',
+    ],
+  },
+  readyq: {
+    title:'Is it ready to filter?', type:'decision',
+    simple:'Yes only when there is an article, some media (a photo or a logo), and the subject matches the headline above 60.',
+    inputs:['article text','media flags','subject match score'],
+    outputs:['readyToFilter = true or false'],
+    why:'This is the rule the editor sees. Missing media or a weak subject match means the filter would judge the wrong content.',
+    details:[
+      'Article: hasArticle=true.',
+      'Media: hasPic OR hasLogo OR hasImageInArticle OR hasLogoInArticle OR a logo file.',
+      'Subject: subjectScore > 60; an exact headline/filename or ≥60% token coverage can boost it.',
+      'All three are required; code recomputes readyToFilter after the AI.',
+      'A blocked source sets needs_human and forces not-ready.',
+    ],
+  },
+  ready: {
+    title:'Ready → Filter stage', type:'outcome',
+    simple:'The row is ready and the same pipeline calls Jev for the editorial rules.',
+    inputs:['the checklist row'], outputs:['the filter verdict'],
+    why:'Only complete articles should reach the filter.',
+    details:[
+      'The row is saved and the article appears in the filter ready list.',
+      'The filter (Jev) runs inside the same pipeline; 3 gates + 11 scores are linked to the row.',
+      'The receive pipeline does not auto-run the filter; the filter/report page does.',
+    ],
+  },
+  notready: {
+    title:'Not ready → Reply / review', type:'outcome',
+    simple:'The row is saved but does not go to the filter. The sender can be asked for the missing text or media, or a human reviews it.',
+    inputs:['the checklist row'], outputs:['a reply or a human check'],
+    why:'Stops the filter from judging an incomplete article.',
+    details:[
+      'The row is still saved with readyToFilter=false.',
+      'If replies are enabled, the sender gets a short reason and a request to resend.',
+      'Otherwise the row stays for a human check; fix the source and re-run.',
+      'A needs_human row has no article file and no archive.',
+    ],
+  },
+  outcomes: {
+    title:'Two outcomes', type:'outcome',
+    simple:'Ready rows go to the filter. Not-ready rows are still saved, but the sender may get a reply or a human reviews them.',
+    inputs:['the checklist row'], outputs:['filter verdict or reply / review'],
+    why:'A row is never thrown away; only ready rows reach the editorial filter.',
+    details:[
+      'Ready → filter ready list; not ready → reply / human review.',
+      'Both outcomes keep a checklist row; nothing is silently dropped.',
+      'The run log records success / needs_human / error and the model + tokens.',
+    ],
+  },
+};
+const REDUCE = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+let chartTimer = null, chartIndex = 0, chartStarted = false;
+
+function node(key){ return document.querySelector('.dg-node[data-key="' + key + '"]'); }
+
+function setView(v){
+  const chart = v === 'chart';
+  const walk = $('walkView'), cv = $('chartView');
+  if(!walk || !cv) return;
+  walk.style.display = chart ? 'none' : '';
+  cv.style.display = chart ? '' : 'none';
+  $('tabWalk').classList.toggle('on', !chart);
+  $('tabChart').classList.toggle('on', chart);
+  document.querySelectorAll('.only-walk').forEach(el => el.style.display = chart ? 'none' : '');
+  if(chart){
+    history.replaceState(null, '', '#chart');
+    if(!chartStarted){ chartStarted = true; setTimeout(playChart, 350); }
+  } else {
+    history.replaceState(null, '', '');
+    pauseChart();
+  }
+}
+
+function pauseChart(){
+  if(chartTimer){ clearTimeout(chartTimer); chartTimer = null; }
+  const b = $('chartPlay');
+  if(b) b.textContent = (chartIndex > 0 && chartIndex < DIAGRAM.length) ? '▶ Resume' : '▶ Play';
+}
+
+function resetChart(){
+  pauseChart();
+  chartIndex = 0;
+  document.querySelectorAll('.dg-node').forEach(n => n.classList.remove('active','done'));
+  document.querySelectorAll('.dg-link').forEach(l => l.classList.remove('active','pass'));
+  const callout = $('mediaCallout'); if(callout) callout.classList.remove('active');
+  $('chartProg').style.width = '0%';
+  $('chartStep').textContent = '0 / ' + DIAGRAM.length;
+  $('chartNarr').textContent = 'Press Play to walk through the workflow.';
+  $('chartPlay').textContent = '▶ Play';
+  $('chartDetail').innerHTML = '<div class="muted small">Click a node above to see what goes in, what comes out, and why it matters.</div>';
+}
+
+function toggleChart(){
+  if(chartTimer) pauseChart();
+  else playChart();
+}
+
+function playChart(){
+  resetChart();
+  const allNodes = document.querySelectorAll('.dg-node');
+  const allLinks = document.querySelectorAll('.dg-link');
+  if(!allNodes.length) return;
+  if(REDUCE){
+    allNodes.forEach(n => n.classList.add('done'));
+    allLinks.forEach(l => l.classList.add('pass'));
+    $('chartProg').style.width = '100%';
+    $('chartStep').textContent = DIAGRAM.length + ' / ' + DIAGRAM.length;
+    $('chartNarr').textContent = '✅ The workflow in order — open a node for the simple explanation.';
+    return;
+  }
+  $('chartPlay').textContent = '⏸ Pause';
+  const step = () => {
+    DIAGRAM.slice(0, chartIndex).forEach(p => {
+      p.nodes.forEach(k => { const n = node(k); if(n){ n.classList.remove('active'); n.classList.add('done'); } });
+      p.links.forEach(id => { const l = document.getElementById(id); if(l){ l.classList.remove('active'); l.classList.add('pass'); } });
+    });
+    const s = DIAGRAM[chartIndex];
+    const callout = $('mediaCallout');
+    if(callout) callout.classList.toggle('active', s.key === 'media');
+    s.nodes.forEach(k => { const n = node(k); if(n) n.classList.add('active'); });
+    s.links.forEach(id => { const l = document.getElementById(id); if(l) l.classList.add('active'); });
+    $('chartNarr').textContent = (chartIndex + 1) + '. ' + s.narr;
+    $('chartProg').style.width = Math.round(((chartIndex + 1) / DIAGRAM.length) * 100) + '%';
+    $('chartStep').textContent = (chartIndex + 1) + ' / ' + DIAGRAM.length;
+    showDiagramDetail(s);
+    const n0 = node(s.nodes[0]);
+    if(n0) n0.scrollIntoView({block:'center', behavior:'smooth'});
+    chartIndex++;
+    if(chartIndex < DIAGRAM.length){
+      chartTimer = setTimeout(step, 1500);
+    } else {
+      chartTimer = setTimeout(() => {
+        chartTimer = null;
+        allNodes.forEach(n => { n.classList.remove('active'); n.classList.add('done'); });
+        allLinks.forEach(l => { l.classList.remove('active'); l.classList.add('pass'); });
+        $('chartNarr').textContent = '✅ Done — the email is on the checklist; ready rows go to the filter.';
+        $('chartPlay').textContent = '▶ Play again';
+      }, 1500);
+    }
+  };
+  step();
+}
+
+function showDiagramDetail(step){
+  const custom = DIAGRAM_DETAIL[step.key];
+  const meta = ((META && META.stages) || []).find(x => x.id === step.stage) || {};
+  const title = custom ? custom.title : (meta.title || step.key);
+  const simple = custom ? custom.simple : (meta.summary || '');
+  const inputs = custom ? custom.inputs : (meta.inputs || []);
+  const outputs = custom ? custom.outputs : (meta.outputs || []);
+  const why = custom ? custom.why : (meta.why || '');
+  const details = custom ? (custom.details || []) : (meta.details || []);
+  const type = custom ? (custom.type || 'decision') : (meta.type || 'step');
+  const pill = type === 'ai' ? 'ai' : (type === 'output' || type === 'outcome' ? 'out' : (type === 'deterministic' ? 'det' : 'code'));
+  const stage = step.stage || custom && custom.stage || 'save';
+  $('chartDetail').innerHTML = `
+    <div class="row" style="justify-content:space-between">
+      <h3 style="margin:0">${esc(title)}</h3>
+      <span class="pill ${pill}">${esc(type)}</span>
+    </div>
+    <p class="muted" style="margin:8px 0 12px">${esc(simple)}</p>
+    <div class="grid2">
+      <div class="box"><h4>What goes in</h4><ul class="clean">${(inputs || []).map(x => '<li>' + esc(x) + '</li>').join('') || '<li>—</li>'}</ul></div>
+      <div class="box"><h4>What comes out</h4><ul class="clean">${(outputs || []).map(x => '<li>' + esc(x) + '</li>').join('') || '<li>—</li>'}</ul></div>
+    </div>
+    <div class="box" style="margin-top:12px"><h4>Why it matters</h4><p>${esc(why)}</p></div>
+    ${(details || []).length ? `<div class="box" style="margin-top:12px"><h4>Details</h4><ul class="clean">${details.map(x => '<li>' + esc(x) + '</li>').join('')}</ul></div>` : ''}
+    <div class="row" style="margin-top:12px"><button class="ghost" onclick="openWalkFromChart('${stage}')">Open in walkthrough →</button></div>`;
+}
+
+function selectDiagram(key){
+  pauseChart();
+  document.querySelectorAll('.dg-node').forEach(n => n.classList.remove('active'));
+  const callout = $('mediaCallout'); if(callout) callout.classList.toggle('active', key === 'media');
+  let step = DIAGRAM.find(s => s.nodes.includes(key));
+  if(key === 'ready' || key === 'notready'){
+    step = {key, nodes:[key], links:[], stage:'save'};
+  }
+  if(!step) step = {key, nodes:[key], links:[], stage:'save'};
+  step.nodes.forEach(k => { const n = node(k); if(n) n.classList.add('active'); });
+  showDiagramDetail(step);
+}
+
+function openWalkFromChart(id){ setView('walk'); selectStage(id); }
+
+window.addEventListener('hashchange', () => {
+  if(location.hash === '#chart') setView('chart');
+  else if(location.hash === '') setView('walk');
+});
+
+init();
+if(location.hash === '#chart') setTimeout(() => setView('chart'), 400);
+
+init();
+</script>
+</body>
+</html>

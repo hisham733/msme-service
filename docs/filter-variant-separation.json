@@ -1,0 +1,451 @@
+{
+  "generated": "2026-10-13T11:03:01",
+  "rejects": [
+    "sme email with reject 5-13/PRESS RELEASE- CelcomDigi to offe",
+    "test filter emails/Tealive revs up F1 season with high-octan",
+    "test filter emails/Press Information - So AMG. Introducing t"
+  ],
+  "accepts": [
+    "test filter emails/MALAYSIA GENERATES RM305.62 MILLION IN SA",
+    "test filter emails/MATRADE AND ICBC MALAYSIA SIGN LANDMARK P",
+    "Invest Melaka Brings Melakas Halal Ecosystem Together at MIH",
+    "test filter emails/MDEC Press Release CEO Anuar Fariz Fadzil",
+    "test filter emails/Pos Malaysia Launches SME Jumpstart Works"
+  ],
+  "filters": [
+    {
+      "name": "royal_respect",
+      "kind": "gate",
+      "variants": [
+        {
+          "variant": "base",
+          "rej": 98,
+          "acc": 98,
+          "sep": 0
+        },
+        {
+          "variant": "1",
+          "rej": 98,
+          "acc": 98,
+          "sep": 0
+        },
+        {
+          "variant": "2",
+          "rej": 99,
+          "acc": 99,
+          "sep": 0
+        },
+        {
+          "variant": "3",
+          "rej": 99,
+          "acc": 99,
+          "sep": 0
+        }
+      ],
+      "best": "base"
+    },
+    {
+      "name": "religious_respect",
+      "kind": "gate",
+      "variants": [
+        {
+          "variant": "base",
+          "rej": 98,
+          "acc": 98,
+          "sep": 0
+        },
+        {
+          "variant": "1",
+          "rej": 98,
+          "acc": 98,
+          "sep": 0
+        },
+        {
+          "variant": "2",
+          "rej": 99,
+          "acc": 99,
+          "sep": 0
+        },
+        {
+          "variant": "3",
+          "rej": 99,
+          "acc": 99,
+          "sep": 0
+        }
+      ],
+      "best": "base"
+    },
+    {
+      "name": "racial_respect",
+      "kind": "gate",
+      "variants": [
+        {
+          "variant": "base",
+          "rej": 98,
+          "acc": 98,
+          "sep": 0
+        },
+        {
+          "variant": "1",
+          "rej": 99,
+          "acc": 98,
+          "sep": -1
+        },
+        {
+          "variant": "2",
+          "rej": 98,
+          "acc": 98,
+          "sep": 0
+        },
+        {
+          "variant": "3",
+          "rej": 98,
+          "acc": 98,
+          "sep": 0
+        }
+      ],
+      "best": "base"
+    },
+    {
+      "name": "sme_relevance",
+      "kind": "score",
+      "variants": [
+        {
+          "variant": "base",
+          "rej": 9,
+          "acc": 92,
+          "sep": 83
+        },
+        {
+          "variant": "1",
+          "rej": 9,
+          "acc": 92,
+          "sep": 83
+        },
+        {
+          "variant": "2",
+          "rej": 9,
+          "acc": 92,
+          "sep": 83
+        },
+        {
+          "variant": "3",
+          "rej": 9,
+          "acc": 92,
+          "sep": 83
+        }
+      ],
+      "best": "base"
+    },
+    {
+      "name": "sme_voice_business_updates",
+      "kind": "score",
+      "variants": [
+        {
+          "variant": "base",
+          "rej": 22,
+          "acc": 75,
+          "sep": 53
+        },
+        {
+          "variant": "1",
+          "rej": 49,
+          "acc": 78,
+          "sep": 29
+        },
+        {
+          "variant": "2",
+          "rej": 8,
+          "acc": 46,
+          "sep": 38
+        },
+        {
+          "variant": "3",
+          "rej": 8,
+          "acc": 45,
+          "sep": 37
+        }
+      ],
+      "best": "base"
+    },
+    {
+      "name": "commercial_intent",
+      "kind": "score",
+      "variants": [
+        {
+          "variant": "base",
+          "rej": 29,
+          "acc": 91,
+          "sep": 62
+        },
+        {
+          "variant": "1",
+          "rej": 7,
+          "acc": 33,
+          "sep": 26
+        },
+        {
+          "variant": "2",
+          "rej": 19,
+          "acc": 57,
+          "sep": 38
+        },
+        {
+          "variant": "3",
+          "rej": 7,
+          "acc": 33,
+          "sep": 26
+        }
+      ],
+      "best": "base"
+    },
+    {
+      "name": "substance",
+      "kind": "score",
+      "variants": [
+        {
+          "variant": "base",
+          "rej": 87,
+          "acc": 90,
+          "sep": 3
+        },
+        {
+          "variant": "1",
+          "rej": 94,
+          "acc": 95,
+          "sep": 1
+        },
+        {
+          "variant": "2",
+          "rej": 96,
+          "acc": 96,
+          "sep": 0
+        },
+        {
+          "variant": "3",
+          "rej": 92,
+          "acc": 94,
+          "sep": 2
+        }
+      ],
+      "best": "base"
+    },
+    {
+      "name": "source_attribution",
+      "kind": "score",
+      "variants": [
+        {
+          "variant": "base",
+          "rej": 96,
+          "acc": 97,
+          "sep": 1
+        },
+        {
+          "variant": "1",
+          "rej": 87,
+          "acc": 95,
+          "sep": 8
+        },
+        {
+          "variant": "2",
+          "rej": 92,
+          "acc": 98,
+          "sep": 6
+        },
+        {
+          "variant": "3",
+          "rej": 91,
+          "acc": 98,
+          "sep": 7
+        }
+      ],
+      "best": "1"
+    },
+    {
+      "name": "claims_statistics",
+      "kind": "score",
+      "variants": [
+        {
+          "variant": "base",
+          "rej": 62,
+          "acc": 77,
+          "sep": 15
+        },
+        {
+          "variant": "1",
+          "rej": 12,
+          "acc": 16,
+          "sep": 4
+        },
+        {
+          "variant": "2",
+          "rej": 70,
+          "acc": 86,
+          "sep": 16
+        },
+        {
+          "variant": "3",
+          "rej": 71,
+          "acc": 87,
+          "sep": 16
+        }
+      ],
+      "best": "2"
+    },
+    {
+      "name": "timeliness",
+      "kind": "score",
+      "variants": [
+        {
+          "variant": "base",
+          "rej": 63,
+          "acc": 64,
+          "sep": 1
+        },
+        {
+          "variant": "1",
+          "rej": 59,
+          "acc": 62,
+          "sep": 3
+        },
+        {
+          "variant": "2",
+          "rej": 92,
+          "acc": 95,
+          "sep": 3
+        },
+        {
+          "variant": "3",
+          "rej": 58,
+          "acc": 62,
+          "sep": 4
+        }
+      ],
+      "best": "3"
+    },
+    {
+      "name": "geographic_relevance",
+      "kind": "score",
+      "variants": [
+        {
+          "variant": "base",
+          "rej": 94,
+          "acc": 97,
+          "sep": 3
+        },
+        {
+          "variant": "1",
+          "rej": 96,
+          "acc": 98,
+          "sep": 2
+        },
+        {
+          "variant": "2",
+          "rej": 90,
+          "acc": 97,
+          "sep": 7
+        },
+        {
+          "variant": "3",
+          "rej": 90,
+          "acc": 97,
+          "sep": 7
+        }
+      ],
+      "best": "2"
+    },
+    {
+      "name": "safety_reputation",
+      "kind": "score",
+      "variants": [
+        {
+          "variant": "base",
+          "rej": 86,
+          "acc": 92,
+          "sep": 6
+        },
+        {
+          "variant": "1",
+          "rej": 86,
+          "acc": 92,
+          "sep": 6
+        },
+        {
+          "variant": "2",
+          "rej": 86,
+          "acc": 92,
+          "sep": 6
+        },
+        {
+          "variant": "3",
+          "rej": 86,
+          "acc": 92,
+          "sep": 6
+        }
+      ],
+      "best": "base"
+    },
+    {
+      "name": "political_advocacy",
+      "kind": "score",
+      "variants": [
+        {
+          "variant": "base",
+          "rej": 96,
+          "acc": 93,
+          "sep": -3
+        },
+        {
+          "variant": "1",
+          "rej": 99,
+          "acc": 98,
+          "sep": -1
+        },
+        {
+          "variant": "2",
+          "rej": 99,
+          "acc": 98,
+          "sep": -1
+        },
+        {
+          "variant": "3",
+          "rej": 99,
+          "acc": 98,
+          "sep": -1
+        }
+      ],
+      "best": "1"
+    },
+    {
+      "name": "overall_editorial_test",
+      "kind": "score",
+      "variants": [
+        {
+          "variant": "base",
+          "rej": 25,
+          "acc": 77,
+          "sep": 52
+        },
+        {
+          "variant": "1",
+          "rej": 25,
+          "acc": 77,
+          "sep": 52
+        },
+        {
+          "variant": "2",
+          "rej": 25,
+          "acc": 77,
+          "sep": 52
+        },
+        {
+          "variant": "3",
+          "rej": 25,
+          "acc": 78,
+          "sep": 53
+        }
+      ],
+      "best": "3"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+data/
+emails/
+creds/
+.git/
+__pycache__/
+*.pyc
+*.pyo
+*.log
+.DS_Store
+all_emails/
+Resolt/
+session-analysis/
+decisions/
+todo/
+.claude/
+.git/

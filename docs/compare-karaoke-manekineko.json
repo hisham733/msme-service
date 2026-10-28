@@ -1,0 +1,42 @@
+{
+  "article": "Karaoke Manekineko Celebrates Opening 20 Outlets with New Promotions",
+  "old": {
+    "outcome": "REJECT",
+    "weighted": 44,
+    "fired": []
+  },
+  "new": {
+    "outcome": "REJECT",
+    "weighted": 56,
+    "fired": []
+  },
+  "results": {
+    "royalty": 0.01,
+    "religion": 0.02,
+    "race": 0.01,
+    "no_wider_value": 0.95,
+    "is_it_commercial_intent": 0.98,
+    "not_geographically_relevant": 0.05,
+    "no_substance": 0.38,
+    "not_identifiable": 0.04,
+    "unattributed_claims": 0.75,
+    "not_current": 0.15,
+    "no_editorial_value": 0.73,
+    "contact": 0.51,
+    "category_fit": 0.45,
+    "not_sme_voice": 0.73,
+    "old_not_sme_relevant": 0.95,
+    "old_defamatory": 0.12,
+    "old_political": 0.01,
+    "nsr_consumer": 0.06,
+    "nsr_single_company": 0.91,
+    "nsr_event": 0.07,
+    "nsr_education": 0.02,
+    "nsr_foreign_delegation": 0.03,
+    "disc_content": 0.01,
+    "unsubst_claims": 0.02,
+    "partisan_campaign": 0.03,
+    "attacks_government": 0.07,
+    "is_negative_or_attacking": 0.01
+  }
+}

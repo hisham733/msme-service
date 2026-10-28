@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-store">
+<title>Receive Logs — MSME Newsbot</title>
+<style>
+  :root{--bg:#0b1220;--card:#111827;--line:#1f2937;--txt:#e5e7eb;--mut:#94a3b8;
+        --accent:#2dd4bf;--accent-soft:rgba(45,212,191,.12);--ok:#34d399;--oksoft:rgba(52,211,153,.14);
+        --bad:#f87171;--badsoft:rgba(248,113,113,.14)}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font-family:"Inter",-apple-system,"Segoe UI",Roboto,sans-serif;padding:24px}
+  h1{font-size:20px;margin-bottom:4px;letter-spacing:-.01em}
+  .sub{color:var(--mut);font-size:12px;margin-bottom:20px}
+  .nav{display:flex;gap:6px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:6px;margin-bottom:20px;width:fit-content;flex-wrap:wrap}
+  .nav a{color:var(--mut);text-decoration:none;font-size:13px;font-weight:600;padding:7px 14px;border-radius:7px}
+  .nav a:hover{background:var(--accent-soft);color:var(--accent)}
+  .nav a.active{background:var(--accent-soft);color:var(--accent)}
+  .bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+  button{font-family:inherit;border-radius:8px;padding:8px 16px;font-size:13px;cursor:pointer;font-weight:700;border:none}
+  #btnClear{background:var(--card);color:var(--bad);border:1px solid var(--bad)}
+  #btnClear:hover{background:var(--badsoft)}
+  #msg{font-size:12px;color:var(--mut)}
+  .tablewrap{overflow:auto;max-height:70vh;border:1px solid var(--line);border-radius:10px}
+  table{width:100%;border-collapse:collapse;background:var(--card);font-size:12.5px}
+  th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--mut);font-weight:600;font-size:10.5px;text-transform:uppercase;letter-spacing:.03em;position:sticky;top:0;background:#0f172a;z-index:2}
+  .mono{font-family:ui-monospace,monospace;font-size:11.5px}
+  .st{font-weight:700;font-size:11px;padding:2px 8px;border-radius:6px;display:inline-block;white-space:nowrap}
+  .st.ok{background:var(--oksoft);color:var(--ok)}
+  .st.bad{background:var(--badsoft);color:var(--bad)}
+  .st.run{background:var(--accent-soft);color:var(--accent)}
+  .empty{display:none;color:var(--mut);text-align:center;padding:40px;font-size:13px}
+  .errtext{color:var(--bad);font-size:11.5px;max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block}
+</style>
+</head>
+<body>
+<h1>Receive Logs</h1>
+<div class="sub">One row per pipeline run · refreshed <span id="gen">—</span> · auto-refresh 15s</div>
+<div class="nav">
+  <a href="checklist.html">Checklist</a>
+  <a href="config.html">Config</a>
+</div>
+
+<div class="bar">
+  <button id="btnClear" onclick="clearData()">Empty data</button>
+  <span id="msg"></span>
+</div>
+
+<div class="tablewrap">
+<table>
+  <thead><tr>
+    <th>When</th><th>Status</th><th>Subject</th><th>Email ID</th><th>Model</th><th>Error</th>
+  </tr></thead>
+  <tbody id="tbody"></tbody>
+</table>
+</div>
+<div id="empty" class="empty">No runs logged yet — process an email from the Checklist page.</div>
+
+<script>
+const esc = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const $ = id => document.getElementById(id);
+function fmt(ts){ if(!ts) return '—'; const d=new Date(ts); return isNaN(d)?ts:d.toLocaleString(); }
+
+function load(){
+  fetch('/api/logs').then(r=>r.json()).then(d=>{
+    $('gen').textContent = new Date().toLocaleTimeString();
+    const rows = d.logs || [];
+    $('empty').style.display = rows.length ? 'none' : 'block';
+    $('tbody').innerHTML = rows.slice().reverse().map(l=>{
+      const s = l.status || '';
+      const cls = s==='error' ? 'bad' : (s==='running' ? 'run' : 'ok');
+      return `<tr>
+        <td class="mono" style="white-space:nowrap">${fmt(l.created_at)}</td>
+        <td><span class="st ${cls}">${esc(s||'—')}</span></td>
+        <td>${esc((l.subject||'').slice(0,90))}</td>
+        <td class="mono">${esc(l.email_id||'—')}</td>
+        <td class="mono">${esc(l.model||'—')}</td>
+        <td>${l.error ? `<span class="errtext" title="${esc(l.error)}">${esc(l.error)}</span>` : '<span style="color:var(--mut)">—</span>'}</td>
+      </tr>`;
+    }).join('');
+  }).catch(()=>{});
+}
+
+function clearData(){
+  if(!confirm('Clear ALL receive data? This removes checklist rows, run logs and pipeline results (Drive folders are kept).')) return;
+  $('msg').textContent = 'clearing…';
+  fetch('/api/clear', {method:'POST'})
+    .then(r=>r.json())
+    .then(d=>{
+      const bits=[];
+      if(d.sqlite) bits.push('local');
+      if(d.sheet) bits.push('sheet');
+      $('msg').textContent = 'cleared ✓ ('+(bits.join(' + ')||'nothing')+')';
+      load();
+    })
+    .catch(e=>{ $('msg').textContent = 'clear error: '+e.message; });
+}
+
+load();
+setInterval(load, 15000);
+</script>
+</body>
+</html>

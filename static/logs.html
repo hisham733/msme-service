@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Filter Logs — Jev Editorial Judge</title>
+<style>
+  :root{
+    --bg:#0b1020; --card:#141a2e; --card2:#1a2138; --border:#232b45;
+    --text:#e5e9f5; --muted:#8b93ab; --teal:#2dd4bf; --green:#34d399;
+    --red:#f87171; --amber:#fbbf24;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;font-size:14px;padding:28px;max-width:1100px;margin:0 auto}
+  h1{font-size:20px;font-weight:700}
+  .sub{color:var(--muted);font-size:13px;margin-top:4px}
+  .nav{display:flex;gap:8px;margin:18px 0 22px}
+  .nav a{color:var(--muted);text-decoration:none;font-size:13px;padding:6px 14px;border:1px solid var(--border);border-radius:8px;background:var(--card)}
+  .nav a.on{color:var(--teal);border-color:var(--teal)}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:18px}
+  .card h2{font-size:14px;font-weight:700;margin-bottom:12px;color:var(--teal)}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+  th{color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+  .badge{display:inline-block;padding:2px 10px;border-radius:16px;font-weight:700;font-size:12px}
+  .b-accept{background:rgba(52,211,153,.15);color:var(--green)}
+  .b-reject{background:rgba(248,113,113,.15);color:var(--red)}
+  .b-err{background:rgba(251,191,36,.15);color:var(--amber)}
+  .mono{font-family:ui-monospace,monospace;font-size:12px;color:var(--muted)}
+  .bar{height:5px;background:var(--card2);border-radius:3px;margin-top:3px;overflow:hidden}
+  .bar > div{height:100%}
+  #empty,#errEmpty{color:var(--muted);text-align:center;padding:30px 0}
+  .err-text{color:var(--red);font-size:12px;max-width:420px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+</style>
+</head>
+<body>
+  <h1>Filter Logs</h1>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+    <div class="sub">Judgement history + errors · <span id="gen">—</span> · refresh 15s</div>
+    <button id="clearBtn" style="background:rgba(248,113,113,.15);color:var(--red);border:1px solid var(--red);border-radius:8px;padding:6px 14px;font-weight:700;font-size:12px;cursor:pointer">🗑 Empty data</button>
+  </div>
+  <div class="nav">
+    <a href="/filter.html">Filter</a>
+    <a href="/verdicts.html">Verdicts</a>
+    <a href="/config.html">Config</a>
+    <a href="/lab.html">Jev Lab</a>
+  </div>
+
+  <div class="card">
+    <h2>Judgements</h2>
+    <table>
+      <thead><tr><th>When</th><th>Outcome</th><th>Weight</th><th>Gate</th><th>Subject</th><th>From</th></tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+    <div id="empty" style="display:none">No judgements yet.</div>
+  </div>
+
+  <div class="card">
+    <h2>Errors</h2>
+    <table>
+      <thead><tr><th>When</th><th>Subject</th><th>Error</th></tr></thead>
+      <tbody id="errBody"></tbody>
+    </table>
+    <div id="errEmpty" style="display:none">No errors — clean run.</div>
+  </div>
+
+<script>
+const esc = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const $ = id => document.getElementById(id);
+function fmt(ts){ if(!ts) return '—'; const d=new Date(ts.replace('Z','Z')); return isNaN(d)?ts:d.toLocaleString(); }
+function load(){
+  fetch('/logs.json').then(r=>r.json()).then(d=>{
+    $('gen').textContent = new Date().toLocaleTimeString();
+    const rows = d.logs || [];
+    const errs = d.errors || [];
+    $('empty').style.display = rows.length ? 'none' : 'block';
+    $('errEmpty').style.display = errs.length ? 'none' : 'block';
+    $('tbody').innerHTML = rows.slice().reverse().map(v=>{
+      const badge = v.outcome==='ACCEPT'?'b-accept':(v.outcome==='REJECT'?'b-reject':'b-err');
+      const w = Number(v.weighted)||0;
+      const color = w>=60?'var(--green)':(w>=40?'var(--amber)':'var(--red)');
+      return `<tr>
+        <td class="mono" style="white-space:nowrap">${fmt(v.ts)}</td>
+        <td><span class="badge ${badge}">${esc(v.outcome||'')}</span></td>
+        <td style="min-width:80px">${w}%<div class="bar"><div style="width:${Math.max(0,Math.min(100,w))}%;background:${color}"></div></div></td>
+        <td class="mono">${esc(v.gate||'—')}</td>
+        <td>${esc((v.subject||'').slice(0,80))}</td>
+        <td class="mono" style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(v.from||'')}</td>
+      </tr>`;
+    }).join('');
+    $('errBody').innerHTML = errs.slice().reverse().map(e=>`
+      <tr>
+        <td class="mono" style="white-space:nowrap">${fmt(e.ts)}</td>
+        <td>${esc((e.subject||'').slice(0,80))}</td>
+        <td class="err-text" title="${esc(e.error||'')}">${esc(e.error||'')}</td>
+      </tr>`).join('');
+  }).catch(()=>{});
+}
+load();
+setInterval(load, 15000);
+
+document.getElementById('clearBtn').addEventListener('click', () => {
+  if(!confirm('Empty all filter verdict + error data? This cannot be undone.')) return;
+  fetch('/clear', {method:'POST'})
+    .then(r=>r.json())
+    .then(d=>{
+      alert(d.ok ? 'Data cleared ✓' : 'Error: ' + (d.cleared?.verdicts_error || d.cleared?.errors_error || 'unknown'));
+      load();
+    })
+    .catch(e=>alert('clear failed: ' + e.message));
+});
+</script>
+</body>
+</html>

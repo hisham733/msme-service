@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Test Articles — filter variants</title>
+<style>
+  :root{--bg:#0b1020;--card:#141a2e;--card2:#1a2138;--border:#232b45;--text:#e5e9f5;--muted:#8b93ab;
+        --teal:#2dd4bf;--green:#34d399;--red:#f87171;--amber:#fbbf24;--purple:#a78bfa}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;font-size:13px;padding:20px;max-width:1500px;margin:0 auto}
+  h1{font-size:20px;font-weight:700}.sub{color:var(--muted);font-size:12px;margin-top:4px}
+  .nav{display:flex;gap:8px;margin:14px 0 16px;flex-wrap:wrap}
+  .nav a{color:var(--muted);text-decoration:none;font-size:12px;padding:6px 12px;border:1px solid var(--border);border-radius:8px;background:var(--card)}
+  .nav a.on{color:var(--teal);border-color:var(--teal)}
+  .nav2{display:flex;gap:8px;margin:12px 0}
+  .recd{overflow:auto;max-height:80vh;border:1px solid var(--border);border-radius:10px;background:var(--card)}
+  .recd table{white-space:nowrap;font-size:11.5px}
+  .recd th,.recd td{position:relative}
+  .stick{position:sticky;left:0;background:var(--card);z-index:2;min-width:230px;max-width:230px;white-space:normal}
+  .recd thead th{position:sticky;top:0;background:var(--card2);z-index:3}
+  .recd thead th.stick{z-index:4}
+  .stickr{position:sticky;right:0;background:var(--card);z-index:2;border-left:2px solid var(--teal)}
+  .recd thead th.stickr{z-index:4}
+  .grpstart{border-left:2px solid var(--teal) !important}
+  .grpalt{background:#ffffff07}
+  .recd thead th.grpalt{background:#ffffff10}
+  .tabbtn{background:var(--card2);color:var(--muted);border:1px solid var(--border);border-radius:8px;padding:9px 18px;font-weight:700;font-size:13px;cursor:pointer}
+  .tabbtn.on{background:var(--teal);color:#06231e;border-color:var(--teal)}
+  button{font-family:inherit;border:none;border-radius:8px;padding:8px 14px;font-weight:700;font-size:12px;cursor:pointer}
+  .btn{background:var(--teal);color:#06231e}.btn2{background:var(--purple);color:#1a1030}.btn3{background:var(--card2);color:var(--text);border:1px solid var(--border)}
+  .bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0}
+  .wrap{display:grid;grid-template-columns:320px 1fr;gap:16px}
+  @media(max-width:900px){.wrap{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px}
+  .list{max-height:75vh;overflow:auto}
+  .item{padding:8px 10px;border-radius:8px;cursor:pointer;font-size:12.5px;border:1px solid transparent;margin-bottom:4px}
+  .item:hover{background:var(--card2)}
+  .item.on{background:var(--card2);border-color:var(--teal)}
+  .item .res{font-size:11px;font-weight:700}
+  .ok{color:var(--green)}.rej{color:var(--red)}.rev{color:var(--amber)}
+  .fcol{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:12px}
+  .fcard{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px}
+  .fcard.gate{border-left:3px solid var(--red)}.fcard.score{border-left:3px solid var(--green)}.fcard.context{border-left:3px solid var(--purple)}
+  .fcard h3{font-size:12.5px;margin-bottom:6px}
+  .fcard .meta{color:var(--muted);font-size:11px;font-weight:400}
+  table{width:100%;border-collapse:collapse;font-size:11.5px}
+  th,td{text-align:left;padding:4px 6px;border-bottom:1px solid var(--border);white-space:nowrap}
+  th{color:var(--muted);font-size:10px;text-transform:uppercase}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+  .fire{background:#f8717122;color:var(--red);font-weight:700}
+  .good{color:var(--green);font-weight:700}
+  .best{background:#34d39926;color:var(--green);font-weight:800}
+  .worst{background:#f8717126;color:var(--red);font-weight:800}
+  table.matrix td,table.matrix th{white-space:nowrap}
+  table.matrix .grp td{color:var(--teal);font-weight:700;background:#ffffff08}
+  table.matrix .mean td{font-weight:800;border-top:2px solid var(--border)}
+  .legend{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:12px;margin:10px 0;line-height:1.6}
+  .legend b{color:var(--teal)}
+  .banner{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:10px;font-size:12.5px}
+  .banner .big{font-weight:800;font-size:15px}
+  .muted{color:var(--muted)}.mono{font-family:ui-monospace,monospace}
+  .overlay{position:fixed;inset:0;background:rgba(5,8,20,.72);display:none;align-items:center;justify-content:center;z-index:9999}
+  .overlay.on{display:flex}
+  .overlay .box{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:26px 36px;text-align:center;min-width:300px}
+  .spinner{width:44px;height:44px;border:4px solid #ffffff22;border-top-color:var(--teal);border-radius:50%;margin:0 auto 14px;animation:spin 1s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  #summary{width:100%}
+</style>
+</head>
+<body>
+<h1>Test Articles — filter variants</h1>
+<div class="sub">Pick an article → see every filter with its <b>variants</b> (base, _1, _2, _3) and their YES%/NO%. Batch = 1 Jev call.</div>
+<div class="nav">
+  <a href="/filter.html">Filter</a><a href="/verdicts.html">Verdicts</a><a href="/config.html">Config</a><a href="/lab.html">Jev Lab</a>
+  <a class="on" href="/testfilter.html">Test Articles</a>
+</div>
+
+<div class="nav2">
+  <button class="tabbtn on" id="tb-articles" onclick="showTab('articles')">Articles</button>
+  <button class="tabbtn" id="tb-records" onclick="showTab('records')">Records</button>
+  <button class="tabbtn" id="tb-reports" onclick="showTab('reports')">Reports</button>
+</div>
+
+<div id="articlesView">
+<div class="bar">
+  <a class="btn" href="/reportmanager.html" style="text-decoration:none;background:var(--teal);color:#06231e">Report Manager ⬇</a>
+  <button class="btn" onclick="runAll()">Run ALL articles (batch)</button>
+  <button class="btn2" onclick="runSelected('batch')">Run selected (batch)</button>
+  <button class="btn3" onclick="runSelected('alone')">Run selected (alone)</button>
+  <button class="btn3" id="viewBtn" onclick="toggleView()">View: cards</button>
+  <input id="nArt" type="number" value="10" min="1" title="how many articles" style="width:64px;padding:7px;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:8px">
+  <button class="btn" onclick="buildReport()">Build report (N articles)</button>
+  <button class="btn3" onclick="learnJev()">Learn jev_best_qu</button>
+  <button class="btn3" onclick="promoteJev()">Promote jev_best_qu → live</button>
+  <button class="btn3" onclick="syncLab()">Sync lab → live</button>
+  <button class="btn3" onclick="rollbackJev()">Rollback to built-in</button>
+  <span id="msg" class="muted"></span>
+</div>
+
+<div class="legend">
+  <b>How to read:</b> every question asks the <i>good</i> condition; <b>YES%</b> = probability the good condition holds (NO% = 100 − YES%).
+  <br>• <b>Gates</b> → <span style="color:var(--red);font-weight:700">REJECT</span> when the good is <b>ABSENT</b> (YES ≤ 15% for threshold 0.85). High YES is good.
+  <br>• <b>Scores</b> → the good side is <b>YES%</b>; contribute <b>YES% × weight</b> to the weighted score. High YES is good.
+  <br>• <b>Overall</b> → any gate fires ⇒ REJECT; otherwise <b>weighted ≥ 60</b> ⇒ ACCEPT.
+  <br>• In each filter table: <span style="color:var(--green);font-weight:700">green = best variant</span>, <span style="color:var(--red);font-weight:700">red = worst variant</span> (chosen by that filter’s deciding value).
+</div>
+
+<div class="wrap">
+  <div class="card"><div class="list" id="list">loading…</div></div>
+  <div>
+    <div class="card" id="summaryCard" style="display:none">
+      <h3 style="margin-bottom:8px">Summary</h3>
+      <div id="summary"></div>
+    </div>
+    <div id="article" class="card" style="margin-bottom:14px"><span class="muted">select an article →</span></div>
+    <div id="variants"></div>
+  </div>
+</div>
+</div><!-- /articlesView -->
+
+<div id="recordsView" style="display:none"></div>
+<div id="reportView" style="display:none"></div>
+
+<div class="overlay" id="overlay"><div class="box"><div class="spinner"></div><div id="ovtitle" style="font-weight:700">Running…</div><div id="ovmsg" class="muted" style="margin-top:6px"></div></div></div>
+
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const pct=n=>{const y=Math.round(n*100);return {yes:y,no:100-y}};
+function baseOf(i){return i.replace(/_\d+$/,'').replace(/_jev_best_qu$/,'').replace(/_jev_learn$/,'');}
+let BATTERY=null, VARQ={}, ORDER=[], ARTICLES=[], STATE=null, CURRENT=null, RESULTS={}, VIEW='cards', RECMODE='base';
+const COLS=['base','1','2','3'];
+function toggleView(){ VIEW=(VIEW==='cards')?'matrix':'cards'; $('viewBtn').textContent='View: '+VIEW; renderVariants(); }
+async function learnJev(){
+  ov('Learning jev_best_qu…','from article-records.json');
+  try{
+    const r=await (await fetch('/testfilter/learn',{method:'POST'})).json();
+    if(r.ok){ $('msg').textContent='learned jev_best_qu for '+r.learned.length+' questions ('+r.rejects+' rej / '+r.accepts+' acc)'; if(VIEW==='reports') loadReports(); }
+    else { alert('learn error: '+(r.error||'')); }
+  }catch(e){ alert('learn error: '+e.message); }
+  finally{ ovoff(); }
+}
+async function promoteJev(){
+  if(!confirm('Write all jev_best_qu wordings into the LIVE filter (data/filter_settings.json)? This changes the real Stage-1 judgement.')) return;
+  try{
+    const r=await (await fetch('/testfilter/promote',{method:'POST'})).json();
+    alert(r.ok? ('Promoted → gates: '+r.promoted.gates.length+', scores: '+r.promoted.scores.length) : ('error: '+(r.error||'')));
+  }catch(e){ alert('promote error: '+e.message); }
+}
+async function syncLab(){
+  if(!confirm('Copy the current Jev Lab base wording into the LIVE filter (data/filter_settings.json)?')) return;
+  try{
+    const r=await (await fetch('/testfilter/sync',{method:'POST'})).json();
+    alert(r.ok? ('Synced lab → live · gates '+r.synced.gates+', scores '+r.synced.scores) : ('error: '+(r.error||'')));
+  }catch(e){ alert('sync error: '+e.message); }
+}
+async function rollbackJev(){
+  if(!confirm('Rollback: restore BUILT-IN wording in the Jev Lab file AND clear all filter_settings overrides?')) return;
+  try{
+    const r=await (await fetch('/testfilter/rollback',{method:'POST'})).json();
+    alert(r.ok? 'Rolled back to built-in defaults' : ('error: '+(r.error||'')));
+  }catch(e){ alert('rollback error: '+e.message); }
+}
+let _t=null,_s0=0;
+function ov(title,msg){$('ovtitle').textContent=title;$('ovmsg').textContent=msg;$('overlay').classList.add('on');_s0=Date.now();clearInterval(_t);_t=setInterval(()=>$('ovmsg').textContent=msg+' · '+Math.floor((Date.now()-_s0)/1000)+'s',500);}
+function ovoff(){$('overlay').classList.remove('on');clearInterval(_t);}
+
+async function boot(){
+  const c=await (await fetch('/config.json')).json(); BATTERY=c.battery;
+  ORDER=[...Object.keys(BATTERY.gates||{}),...Object.keys(BATTERY.scores||{}),...Object.keys(BATTERY.context||{})];
+  const v=await (await fetch('/lab/payload?file=jev-variants.json')).json();
+  VARQ=v.ok? v.payload.questions : {};
+  const a=await (await fetch('/testfilter/articles')).json(); ARTICLES=a.articles||[];
+  renderList();
+}
+function variantsFor(base){return Object.keys(VARQ).filter(id=>baseOf(id)===base);}
+function renderList(){
+  $('list').innerHTML=ARTICLES.map(a=>{
+    const r=RESULTS[a.folder]; const res=r?`<span class="res ${r.outcome==='ACCEPT'?'ok':r.outcome==='REJECT'?'rej':'rev'}">${r.outcome}${r.weighted!=null?' '+r.weighted+'%':''}</span>`:'';
+    const dis=a.hasArticle?'':' <span class="muted">(no .md)</span>';
+    return `<div class="item ${CURRENT===a.folder?'on':''}" onclick="select('${esc(a.folder)}')">${esc(a.folder.slice(0,70))}${dis} ${res}</div>`;
+  }).join('');
+}
+async function select(folder){
+  CURRENT=folder; renderList();
+  const d=await (await fetch('/testfilter/article?folder='+encodeURIComponent(folder))).json();
+  if(d.error){ $('article').innerHTML='<span class="rej">'+esc(d.error)+'</span>'; return; }
+  STATE={subject:d.subject,from:'',date:'',bodyText:d.bodyText};
+  $('article').innerHTML=`<h3 style="margin-bottom:6px">${esc(d.subject)}</h3><div class="muted mono" style="font-size:11px">${esc(d.md)} · ${d.bodyText.length} chars</div>
+    <details style="margin-top:6px"><summary class="muted">show text</summary><pre class="muted" style="white-space:pre-wrap;font-size:11px;margin-top:6px;max-height:240px;overflow:auto">${esc(d.bodyText.slice(0,4000))}</pre></details>`;
+  renderVariants();
+}
+function questionsAll(){const q={};for(const b of ORDER) for(const id of variantsFor(b)) q[id]=VARQ[id];return q;}
+async function ask(mode){
+  if(!STATE) return;
+  const qs=questionsAll(); const n=Object.keys(qs).length;
+  ov(mode==='alone'?'Running selected — alone…':'Running selected — batch…',`${CURRENT.slice(0,40)} · ${mode} · ${n} q`);
+  try{
+    const r=await (await fetch('/lab/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({state:STATE,questions:qs,mode})})).json();
+    RESULTS[CURRENT]=summarize(r.results||{}, mode);
+    renderList(); renderVariants();
+  }finally{ ovoff(); }
+}
+async function runSelected(mode){ await ask(mode); }
+function summarize(res){
+  const g=BATTERY.gates||{},s=BATTERY.scores||{};
+  let fired=[], wsum=0,tot=0;
+  for(const [k,q] of Object.entries(g)){const v=res[k]; if(v!=null && (1-v)>=q.threshold) fired.push(k);}
+  for(const [k,q] of Object.entries(s)){const v=res[k]; if(v!=null){tot+=v*q.weight; wsum+=q.weight;}}
+  const weighted=wsum?Math.round(tot/wsum*100):null;
+  const outcome=fired.length?'REJECT':(weighted!=null&&weighted>=60?'ACCEPT':'REJECT');
+  return {outcome,weighted,fired,results:res};
+}
+function idFor(b,c){ return c==='base'? b : b+'_'+c; }
+function statsFor(vid){
+  const arts=Object.keys(RESULTS);
+  const vals=arts.map(f=>{const r=RESULTS[f]?.results?.[vid]; return r==null?null:pct(r).yes;}).filter(x=>x!=null);
+  if(!vals.length) return null;
+  return {min:Math.min(...vals),max:Math.max(...vals),mean:Math.round(vals.reduce((a,c)=>a+c,0)/vals.length),n:vals.length};
+}
+function renderReport(){
+  const arts=Object.keys(RESULTS).filter(f=>RESULTS[f]&&RESULTS[f].results);
+  if(!arts.length){ $('variants').innerHTML='<span class="muted">no results — click “Build report”.</span>'; return; }
+  // overall per variant (all filters × all articles)
+  const overall=COLS.map(c=>{
+    const vals=[];
+    for(const b of ORDER){ const vid=idFor(b,c); for(const f of arts){ const r=RESULTS[f].results[vid]; if(r!=null) vals.push(pct(r).yes); } }
+    if(!vals.length) return {c,min:null,mean:null,max:null};
+    return {c,min:Math.min(...vals),max:Math.max(...vals),mean:Math.round(vals.reduce((a,x)=>a+x,0)/vals.length)};
+  });
+  const om=overall.map(o=>o.mean).filter(x=>x!=null); const omn=Math.min(...om), omx=Math.max(...om);
+  let ohtml=`<div class="legend">Aggregated over <b>${arts.length}</b> articles. <b>min / mean / max GOOD% (NO)</b> per variant — higher is better. <span class="best" style="padding:0 6px">green = best</span>, <span class="worst" style="padding:0 6px">red = worst</span>.</div>
+    <div style="font-weight:700;color:var(--teal);margin:4px 0 6px">OVERALL — mean GOOD% per variant (all filters × ${arts.length} articles)</div>
+    <table class="matrix"><thead><tr><th>variant</th><th class="num">min</th><th class="num">mean</th><th class="num">max</th></tr></thead><tbody>`;
+  for(const o of overall){ let cls=''; if(o.mean!=null&&omn!==omx){ if(o.mean===omx) cls='best'; else if(o.mean===omn) cls='worst'; }
+    ohtml+=`<tr><td class="mono">${esc(o.c)}</td><td class="num muted">${o.min==null?'—':o.min+'%'}</td><td class="num ${cls}">${o.mean==null?'—':o.mean+'%'}</td><td class="num muted">${o.max==null?'—':o.max+'%'}</td></tr>`; }
+  ohtml+='</tbody></table>';
+  // per filter
+  const sec=(title,kinds)=>{ const ids=ORDER.filter(x=>kinds.includes(kindOf(x))); if(!ids.length) return '';
+    let out=`<div style="font-weight:700;color:var(--teal);margin:14px 0 6px">${title}</div><table class="matrix"><thead><tr><th>filter</th><th>variant</th><th class="num">min</th><th class="num">mean</th><th class="num">max</th><th class="num">n</th></tr></thead><tbody>`;
+    for(const b of ids){ const vids=variantsFor(b); const st=vids.map(v=>({v,st:statsFor(v)})).filter(x=>x.st);
+      const means=st.map(x=>x.st.mean); const mn=means.length?Math.min(...means):null, mx=means.length?Math.max(...means):null;
+      for(const it of st){ const v=it.v, s=it.st; let cls=''; if(mn!=null&&mx!=null&&mn!==mx){ if(s.mean===mx) cls='best'; else if(s.mean===mn) cls='worst'; }
+        out+=`<tr><td>${esc(b)}</td><td class="mono">${esc(v.replace(b,'').replace(/^_/,'')||'base')}</td><td class="num muted">${s.min}%</td><td class="num ${cls}">${s.mean}%</td><td class="num muted">${s.max}%</td><td class="num muted">${s.n}</td></tr>`; }
+    }
+    return out+'</tbody></table>';
+  };
+  $('variants').innerHTML=ohtml+sec('HARD GATES',['gate'])+sec('SCORED CRITERIA',['score'])+sec('CONTEXT',['context']);
+}
+async function buildReport(){
+  const N=Math.max(1,parseInt($('nArt').value,10)||10);
+  const arts=ARTICLES.filter(a=>a.hasArticle).slice(0,N);
+  ov('Building report…',`0/${arts.length}`);
+  for(let i=0;i<arts.length;i++){ const a=arts[i];
+    ov('Building report…',`${i+1}/${arts.length} · ${a.folder.slice(0,36)}`);
+    if(RESULTS[a.folder]&&RESULTS[a.folder].results) continue;
+    let d; try{ d=await (await fetch('/testfilter/article?folder='+encodeURIComponent(a.folder))).json(); }catch(e){ continue; }
+    if(d.error) continue;
+    const st={subject:d.subject,from:'',date:'',bodyText:d.bodyText};
+    try{ const r=await (await fetch('/lab/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({state:st,questions:questionsAll(),mode:'batch'})})).json();
+      RESULTS[a.folder]=summarize(r.results||{},'batch'); }catch(e){}
+    renderList();
+  }
+  ovoff(); VIEW='report'; $('viewBtn').textContent='View: report'; renderVariants();
+}
+function renderMatrix(){
+  const R=RESULTS[CURRENT]; const res=R?R.results:{};
+  const head='<tr><th>filter</th><th class="num">thr/wt</th>'+COLS.map(c=>`<th class="num">${c}</th>`).join('')+'</tr>';
+  const sums={}, cnts={}; COLS.forEach(c=>{sums[c]=0;cnts[c]=0;});
+  const sec=(title,kinds)=>{
+    const ids=ORDER.filter(x=>kinds.includes(kindOf(x))); if(!ids.length) return '';
+    let s=`<tr class="grp"><td colspan="${2+COLS.length}">${title}</td></tr>`;
+    for(const b of ids){ const kind=kindOf(b); const q=BATTERY.gates?.[b]||BATTERY.scores?.[b]||BATTERY.context?.[b]||{};
+      const vals=COLS.map(c=>{const v=res[idFor(b,c)]; if(v==null) return null; const y=pct(v).yes; sums[c]+=y; cnts[c]++; return y;});
+      const pres=vals.filter(x=>x!=null); const mn=pres.length?Math.min(...pres):null, mx=pres.length?Math.max(...pres):null;
+      const cells=vals.map(v=>{ if(v==null) return '<td class="num muted">—</td>'; let cls=''; if(mn!=null&&mx!=null&&mn!==mx){ if(v===mx) cls='best'; else if(v===mn) cls='worst'; } return `<td class="num ${cls}">${v}%</td>`; }).join('');
+      const meta=kind==='gate'?('thr '+q.threshold):kind==='score'?(q.weight+'%'):'—';
+      s+=`<tr><td>${esc(b)}</td><td class="num muted">${esc(meta)}</td>${cells}</tr>`;
+    }
+    return s;
+  };
+  const meanRow=`<tr class="mean"><td>MEAN GOOD%</td><td class="num muted">—</td>`+
+    COLS.map(c=>cnts[c]?`<td class="num">${Math.round(sums[c]/cnts[c])}%</td>`:'<td class="num muted">—</td>').join('')+'</tr>';
+  $('variants').innerHTML=`<div class="legend">Compare each <b>variant</b> across all filters. Across every filter, <b>higher GOOD% = better</b> (defect least present). In each row <span class="best" style="padding:0 6px">green = best</span>, <span class="worst" style="padding:0 6px">red = worst</span>. Last row = mean GOOD% per variant.</div>
+    <table class="matrix"><thead>${head}</thead>
+    <tbody>${sec('HARD GATES',['gate'])}${sec('SCORED CRITERIA',['score'])}${sec('CONTEXT',['context'])}${meanRow}</tbody></table>`;
+}
+function renderVariants(){
+  if(VIEW==='report'){ return renderReport(); }
+  if(!CURRENT){ $('variants').innerHTML=''; return; }
+  if(VIEW==='matrix'){ return renderMatrix(); }
+  const R=RESULTS[CURRENT]; const res=R?R.results:{};
+  let html='';
+  if(R){
+    const col=R.outcome==='ACCEPT'?'ok':R.outcome==='REJECT'?'rej':'rev';
+    html+=`<div class="banner"><span class="big ${col}">${R.outcome}</span>
+      ${R.weighted!=null?` · weighted <b>${R.weighted}%</b>`:''}
+      ${R.fired&&R.fired.length?` · fired: <span class="rej">${esc(R.fired.join(', '))}</span>`:' · no gate fired'}
+      <div class="muted" style="margin-top:4px">A gate fires when its good value is absent; otherwise weighted (from scores’ YES%×weight) ≥ 60 ⇒ ACCEPT.</div></div>`;
+  }
+  const grp=(title,kinds,note)=>{
+    const ids=ORDER.filter(b=>kinds.includes(kindOf(b)));
+    if(!ids.length) return;
+    html+=`<div style="margin:12px 0 6px;font-weight:700;color:var(--teal)">${title} <span class="muted" style="font-weight:400">— ${note}</span></div><div class="fcol">`;
+    for(const b of ids){
+      const q=BATTERY.gates?.[b]||BATTERY.scores?.[b]||BATTERY.context?.[b]||{};
+      const kind=kindOf(b);
+      const meta=kind==='gate'?`gate · fires when the good is absent → ${q.outcome||'REJECT'}`
+               :kind==='score'?`score · weight ${q.weight}% · good = NO%`
+               :'context (not a gate)';
+      const yesH=kind==='score'?'YES ✱':'YES';
+      const noH =kind==='score'?'NO':'NO ✱';
+      const vids=variantsFor(b);
+      // deciding value per kind: gates/context -> YES (low is good); scores -> NO (high is good)
+      const dec=vids.map(id=>{const v=res[id]; if(v==null) return null; return kind==='score'?pct(v).yes:pct(v).no;});
+      const present=dec.filter(x=>x!=null);
+      const mn=present.length?Math.min(...present):null, mx=present.length?Math.max(...present):null;
+      const rows=vids.map((id,i)=>{
+        const v=res[id]; const p=v==null?null:pct(v);
+        const d=dec[i];
+        let best=false,worst=false;
+        if(d!=null && mn!==mx){
+          if(kind==='score'){ best=(d===mx); worst=(d===mn); }
+          else { best=(d===mn); worst=(d===mx); }
+        }
+        const yesCls = kind==='score' ? '' : (best?'best':(worst?'worst':''));
+        const noCls  = kind==='score' ? (best?'best':(worst?'worst':'')) : (kind==='gate'?'muted':'');
+        const label=id.replace(b,'').replace(/^_/,'')||'base';
+        return `<tr><td class="mono">${esc(label)}</td>
+          <td class="num ${yesCls}">${p?p.yes+'%':'—'}</td>
+          <td class="num ${noCls}">${p?p.no+'%':'—'}</td></tr>`;
+      }).join('');
+      html+=`<div class="fcard ${kind}"><h3>${esc(b)} <span class="meta">${esc(meta)}</span></h3>
+        <table><thead><tr><th>variant</th><th class="num">${yesH}</th><th class="num">${noH}</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+    }
+    html+=`</div>`;
+  };
+  grp('HARD GATES',['gate'],'REJECT when the good is absent · <span style="color:var(--green)">green = best (highest good)</span>, <span style="color:var(--red)">red = worst</span>');
+  grp('SCORED CRITERIA',['score'],'good = YES% · <span style="color:var(--green)">green = best (highest good)</span>, <span style="color:var(--red)">red = worst</span>');
+  grp('CONTEXT',['context'],'shown to editors; never routes · green = least negative');
+  $('variants').innerHTML=html;
+}
+function kindOf(b){ if((BATTERY.gates||{})[b]) return 'gate'; if((BATTERY.scores||{})[b]) return 'score'; return 'context'; }
+
+async function runAll(){
+  ov('Running ALL articles (batch)…','');
+  for(let i=0;i<ARTICLES.length;i++){
+    const a=ARTICLES[i]; if(!a.hasArticle) continue;
+    ov('Running ALL articles (batch)…',`${i+1}/${ARTICLES.length} · ${a.folder.slice(0,40)}`);
+    let d; try{ d=await (await fetch('/testfilter/article?folder='+encodeURIComponent(a.folder))).json(); }catch(e){ continue; }
+    if(d.error) continue;
+    const st={subject:d.subject,from:'',date:'',bodyText:d.bodyText};
+    try{
+      const r=await (await fetch('/lab/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({state:st,questions:questionsAll(),mode:'batch'})})).json();
+      RESULTS[a.folder]=summarize(r.results||{},'batch');
+    }catch(e){}
+    renderList(); renderSummary();
+  }
+  ovoff();
+  if(CURRENT) renderVariants();
+}
+function renderSummary(){
+  $('summaryCard').style.display='block';
+  const rows=ARTICLES.filter(a=>RESULTS[a.folder]).map(a=>{const R=RESULTS[a.folder];
+    return `<tr><td>${esc(a.folder.slice(0,60))}</td><td class="${R.outcome==='ACCEPT'?'ok':R.outcome==='REJECT'?'rej':'rev'}"><b>${R.outcome}</b></td><td class="num">${R.weighted!=null?R.weighted+'%':''}</td><td class="muted">${(R.fired||[]).join(', ')}</td></tr>`;}).join('');
+  $('summary').innerHTML=`<table id="summary"><thead><tr><th>article</th><th>outcome</th><th class="num">weighted</th><th>fired gates</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+function showTab(t){
+  $('articlesView').style.display = t==='articles'?'':'none';
+  $('recordsView').style.display = t==='records'?'':'none';
+  $('reportView').style.display = t==='reports'?'':'none';
+  $('tb-articles').classList.toggle('on', t==='articles');
+  $('tb-records').classList.toggle('on', t==='records');
+  $('tb-reports').classList.toggle('on', t==='reports');
+  if(t==='records') loadRecords();
+  if(t==='reports') loadReports();
+}
+async function loadRecords(){
+  $('recordsView').innerHTML='<div class="card muted">loading records…</div>';
+  try{
+    const d=await (await fetch('/lab/payload?file=article-records.json')).json();
+    $('recordsView').innerHTML = d.ok ? renderRecords(d.payload) : `<div class="card rej">${esc(d.error)}</div>`;
+  }catch(e){ $('recordsView').innerHTML=`<div class="card rej">${esc(e.message)}</div>`; }
+}
+function toggleRecordMode(){ RECMODE=(RECMODE==='base')?'all':'base'; loadRecords(); }
+function recArticleCell(r, colspan){
+  if(!r.hasArticle||r.error) return `<td class="stick muted">${esc((r.folder||'').slice(0,60))}</td><td colspan="${colspan}" class="muted">no article</td>`;
+  const oc=r.outcome||'—'; const cls=oc==='ACCEPT'?'ok':(oc==='REJECT'?'rej':'rev');
+  return `<td class="stick" title="${esc(r.folder||'')}">${esc((r.subject||r.folder||'').slice(0,80))}</td><td class="${cls}"><b>${esc(oc)}</b></td><td class="num">${r.weighted==null?'':r.weighted+'%'}</td>`;
+}
+function renderRecords(p){
+  const G=p.gates||[], S=p.scores||[], thr=p.gate_thresholds||{}, cols=p.cols||COLS, recs=p.records||[];
+  let thead='', body='';
+  if(RECMODE==='base'){
+    thead=`<tr><th class="stick">article</th><th>outcome</th><th class="num">W%</th>`+
+      G.map(g=>`<th class="num" title="${esc(g)} — GOOD% (fires when good ≤ ${100-Math.round((thr[g]||0.85)*100)}%)">${esc(g)}<span style="color:var(--green)"> good</span></th>`).join('')+
+      S.map(s=>`<th class="num" title="${esc(s)} — GOOD%">${esc(s)}<span style="color:var(--green)"> good</span></th>`).join('')+`</tr>`;
+    const arts_=recs.filter(r=>r.hasArticle&&!r.error);
+    const stat=getter=>{const vals=arts_.map(getter).filter(x=>x!=null); return {mn:vals.length?Math.min(...vals):null,mx:vals.length?Math.max(...vals):null};};
+    const gs={}, ss={}; G.forEach(g=>gs[g]=stat(r=>r.results?.[g])); S.forEach(s=>ss[s]=stat(r=>r.results?.[s]));
+    body=recs.map(r=>{
+      if(!r.hasArticle||r.error) return `<tr>${recArticleCell(r,2+G.length+S.length)}</tr>`;
+      const gc=G.map(g=>{const good=r.results?.[g]; const fire=(good!=null&&(100-good)>=Math.round((thr[g]||0.85)*100));
+        let cls=''; const st=gs[g]; if(good!=null&&st.mn!=null&&st.mn!==st.mx){ if(good===st.mx) cls='best'; else if(good===st.mn) cls='worst'; }
+        if(!cls&&fire) cls='fire';
+        return `<td class="num ${cls}">${good==null?'—':good+'%'}</td>`;}).join('');
+      const sc=S.map(s=>{const good=r.results?.[s];
+        let cls='muted'; const st=ss[s]; if(good!=null&&st.mn!=null&&st.mn!==st.mx){ if(good===st.mx) cls='best'; else if(good===st.mn) cls='worst'; }
+        return `<td class="num ${cls}">${good==null?'—':good+'%'}</td>`;}).join('');
+      return `<tr>${recArticleCell(r,1)}${gc}${sc}</tr>`;
+    }).join('');
+  } else {
+    const top=(names,unit,off)=>names.map((n,i)=>{const gi=off+i; return `<th class="num grpstart ${gi%2?'grpalt':''}" colspan="${cols.length}">${esc(n)} <span class="good">${unit}</span></th>`;}).join('');
+    const sub=(names,off)=>names.map((n,i)=>{const gi=off+i; return cols.map(c=>`<th class="num ${gi%2?'grpalt':''} ${c==='base'?'grpstart':''}" style="font-weight:400">${esc(c)}</th>`).join('');}).join('');
+    thead=`<tr><th class="stick" rowspan="2">article</th><th rowspan="2">outcome</th><th class="num" rowspan="2">W%</th>`+
+      top(G,'good%',0)+top(S,'good%',G.length)+`<th class="num stickr" rowspan="2" title="variant with highest avg GOOD% (best) and lowest (worst) across all filters">high / low variant</th></tr><tr>`+sub(G,0)+sub(S,G.length)+`</tr>`;
+    body=recs.map(r=>{
+      if(!r.hasArticle||r.error) return `<tr>${recArticleCell(r,2+(G.length+S.length)*cols.length+1)}</tr>`;
+      const JWI=cols.indexOf('jev_best_qu');
+      const gc=G.map((g,i)=>{
+        const vals=cols.map(c=>r.results?.[idFor(g,c)]);
+        const pres=vals.filter(x=>x!=null); const mn=pres.length?Math.min(...pres):null, mx=pres.length?Math.max(...pres):null;
+        const jw=vals[JWI];
+        const bestIdx=(mx==null)?-1:((jw!=null && jw>=mx-1)?JWI:vals.findIndex(v=>v===mx));
+        const worstIdx=(mn==null||mn===mx)?-1:vals.findIndex(v=>v===mn);
+        return cols.map((c,ci)=>{ const good=vals[ci];
+          let cls=''; if(good!=null){ if(ci===bestIdx) cls='best'; else if(ci===worstIdx) cls='worst'; }
+          const fire=(good!=null&&good<=100-Math.round((thr[g]||0.85)*100)); if(!cls&&fire) cls='fire';
+          return `<td class="num ${cls} ${i%2?'grpalt':''} ${c==='base'?'grpstart':''}" title="gate ${esc(g)} · ${esc(c)} · GOOD ${good}%">${good==null?'—':good+'%'}</td>`;}).join('');
+      }).join('');
+      const sc=S.map((s,k)=>{
+        const vals=cols.map(c=>r.results?.[idFor(s,c)]);
+        const pres=vals.filter(x=>x!=null); const mn=pres.length?Math.min(...pres):null, mx=pres.length?Math.max(...pres):null;
+        const jw=vals[JWI];
+        const bestIdx=(mx==null)?-1:((jw!=null && jw>=mx-1)?JWI:vals.findIndex(v=>v===mx));
+        const worstIdx=(mn==null||mn===mx)?-1:vals.findIndex(v=>v===mn);
+        const gi=G.length+k;
+        return cols.map((c,ci)=>{ const good=vals[ci]; let cls='muted';
+          if(good!=null){ if(ci===bestIdx) cls='best'; else if(ci===worstIdx) cls='worst'; }
+          return `<td class="num ${cls} ${gi%2?'grpalt':''} ${c==='base'?'grpstart':''}" title="score ${esc(s)} · ${esc(c)} · GOOD ${good}%">${good==null?'—':good+'%'}</td>`;}).join('');
+      }).join('');
+      // last column: lowest & highest variant overall for this article (mean YES% across all filters)
+      const vm=cols.map(c=>{const vals=[]; for(const g of G){const v=r.results?.[idFor(g,c)]; if(v!=null) vals.push(v);} for(const s of S){const v=r.results?.[idFor(s,c)]; if(v!=null) vals.push(v);} return vals.length?Math.round(vals.reduce((a,x)=>a+x,0)/vals.length):null;});
+      const idx=vm.map((m,i)=>[m,i]).filter(x=>x[0]!=null);
+      let lowCell='—';
+      if(idx.length){
+        const minv=Math.min(...idx.map(x=>x[0])), maxv=Math.max(...idx.map(x=>x[0]));
+        const bqi=cols.indexOf('jev_best_qu'), bqv=vm[bqi];
+        const hiIdx=(bqv!=null && bqv>=maxv-1)?bqi:idx.find(x=>x[0]===maxv)[1];
+        let loIdx=idx.find(x=>x[0]===minv)[1];
+        if(loIdx===hiIdx){ const alt=idx.find(x=>x[1]!==hiIdx); if(alt) loIdx=alt[1]; }
+        lowCell=`<span class="best" style="padding:0 6px;border-radius:6px">🟢 ${esc(cols[hiIdx])} ${vm[hiIdx]}%</span> <span class="worst" style="padding:0 6px;border-radius:6px">🔴 ${esc(cols[loIdx])} ${vm[loIdx]}%</span>`;
+      }
+      return `<tr>${recArticleCell(r,1)}${gc}${sc}<td class="num stickr" style="white-space:nowrap">${lowCell}</td></tr>`;
+    }).join('');
+  }
+  return `<div class="legend"><b>Records</b> — one row per article (${recs.length}) · mode: <b>${RECMODE==='base'?'base wording':'ALL variants (base,1,2,3)'}</b>. All columns = <b>GOOD%</b> (probability the good condition holds; higher = better; a gate that fires shows a low score). <span class="best" style="padding:0 6px">green = best</span> <span class="worst" style="padding:0 6px">red = worst</span>: in “ALL variants” per filter row (highest good); in “base” across articles (per column). Generated ${esc(p.generated||'')}.
+    <br><button class="btn3" onclick="toggleRecordMode()" style="margin-top:6px">Switch to ${RECMODE==='base'?'ALL variants':'base only'}</button></div>
+    <div class="recd"><table><thead>${thead}</thead><tbody>${body}</tbody></table></div>`;
+}
+async function loadReports(){
+  $('reportView').innerHTML='<div class="card muted">loading reports…</div>';
+  let html='';
+  try{
+    const r10=await (await fetch('/lab/payload?file=filter-variants-report-10.json')).json();
+    html += r10.ok ? renderReport10View(r10.payload) : `<div class="card rej">report10: ${esc(r10.error)}</div>`;
+  }catch(e){ html+=`<div class="card rej">report10: ${esc(e.message)}</div>`; }
+  try{
+    const sep=await (await fetch('/lab/payload?file=filter-variant-separation.json')).json();
+    html += sep.ok ? renderSepView(sep.payload) : `<div class="card rej">separation: ${esc(sep.error)}</div>`;
+  }catch(e){ html+=`<div class="card rej">separation: ${esc(e.message)}</div>`; }
+  $('reportView').innerHTML=html;
+}
+function renderReport10View(p){
+  const cv=o=>({variant:o.variant, mean:o.mean, min:o.min, max:o.max, n:o.n});
+  const ov=(p.overall||[]).map(cv); const om=ov.map(o=>o.mean); const mn=Math.min(...om), mx=Math.max(...om);
+  let h=`<div class="card"><h3>10-Article report — min / mean / max GOOD% (YES) per variant</h3>
+    <div class="muted" style="margin:6px 0">over ${p.articles.length} articles × all filters · higher = better · <span class="best" style="padding:0 6px">green = best</span> <span class="worst" style="padding:0 6px">red = worst</span></div>
+    <table class="matrix"><thead><tr><th>variant</th><th class="num">mean</th><th class="num">min</th><th class="num">max</th><th class="num">n</th></tr></thead><tbody>`;
+  for(const o of ov){ const cls=(o.mean===mx&&mn!==mx)?'best':((o.mean===mn&&mn!==mx)?'worst':''); h+=`<tr><td class="mono">${esc(o.variant)}</td><td class="num ${cls}">${o.mean}%</td><td class="num muted">${o.min}%</td><td class="num muted">${o.max}%</td><td class="num muted">${o.n}</td></tr>`; }
+  h+='</tbody></table></div>';
+  const grp=(kind,title)=>{ const fs=(p.filters||[]).filter(f=>f.kind===kind); if(!fs.length) return '';
+    let s=`<div class="card"><h3>${title} — GOOD% (NO)</h3><table class="matrix"><thead><tr><th>filter</th><th>variant</th><th class="num">mean</th><th class="num">min</th><th class="num">max</th><th class="num">n</th></tr></thead><tbody>`;
+    for(const f of fs){ const vs=f.variants.map(cv); const means=vs.map(v=>v.mean).filter(x=>x!=null); const fmn=means.length?Math.min(...means):null, fmx=means.length?Math.max(...means):null;
+      for(const v of vs){ const cls=(fmx!=null&&v.mean===fmx&&fmn!==fmx)?'best':((fmn!=null&&v.mean===fmn&&fmn!==fmx)?'worst':''); s+=`<tr><td>${esc(f.name)}</td><td class="mono">${esc(v.variant)}</td><td class="num ${cls}">${v.mean}%</td><td class="num muted">${v.min}%</td><td class="num muted">${v.max}%</td><td class="num muted">${v.n}</td></tr>`; } }
+    return s+'</tbody></table></div>'; };
+  return h+grp('gate','HARD GATES')+grp('score','SCORED CRITERIA')+grp('context','CONTEXT');
+}
+function renderSepView(p){
+  let h=`<div class="card"><h3>Separation — accepts high GOOD%, rejects low</h3>
+    <div class="muted" style="margin:6px 0"><b>rejects:</b> ${esc((p.rejects||[]).join(' · '))}<br><b>accepts:</b> ${esc((p.accepts||[]).join(' · '))}<br>separation = mean GOOD%(accepts) − mean GOOD%(rejects) · higher = better · green = best variant.</div>
+    <table class="matrix"><thead><tr><th>filter</th><th>kind</th><th>variant</th><th class="num">good%(rej)</th><th class="num">good%(acc)</th><th class="num">separation</th></tr></thead><tbody>`;
+  for(const f of p.filters){ for(const v of f.variants){ const cls=(f.best===v.variant)?'best':''; h+=`<tr><td>${esc(f.name)}</td><td class="muted">${esc(f.kind)}</td><td class="mono">${esc(v.variant)}</td><td class="num muted">${v.rej==null?'—':v.rej+'%'}</td><td class="num muted">${v.acc==null?'—':v.acc+'%'}</td><td class="num ${cls}">${v.sep==null?'—':v.sep}</td></tr>`; } }
+  h+='</tbody></table><div style="margin-top:8px"><b>Recommended per filter:</b> '+ p.filters.map(f=>`${esc(f.name)}=<b style="color:var(--green)">${esc(f.best||'—')}</b>`).join(' · ')+'</div></div>';
+  return h;
+}
+boot();
+</script>
+</body>
+</html>
