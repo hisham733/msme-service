@@ -6,6 +6,9 @@ _Hand-maintained. All pages are served from this flat folder by one combined app
 
 | Page | URL | Served by | Shows |
 |---|---|---|---|
+| `login.html` | `/login` on :8899 | `dashboard.py` | local sign-in (public); 7-day session |
+| `account.html` | `/account.html` on :8899 | `dashboard.py` | change own password; forced after an admin reset |
+| `users.html` | `/users.html` on :8899 | `dashboard.py` | admin user management + audit log |
 | `editor.html` | `/editor.html` on :8899 | `dashboard.py` | end-user editor: every received email, stage/rejection reason, local draft; light theme |
 | `checklist.html` | `/` and `/checklist.html` on :8899 | `dashboard.py` | operations: 14-col flags, KPIs, email dropdown, Run/Refresh/CSV/Clear |
 | `flow.html` | `/flow.html` on :8899 | `dashboard.py` | animated receive pipeline + per-stage detail, tokens, model |
@@ -31,4 +34,6 @@ _Hand-maintained. All pages are served from this flat folder by one combined app
 - `/config.html` is the combined pipeline config; `/filter-config.html` is the full filter rule editor.
 - **Hidden from the nav (still reachable by URL):** `flow.html`, `workflow-lab.html`, `receive-logs.html`, `/workflow.html`, `/logs.html`.
 - Pages fetch **relative** URLs so each app is same-origin (no CORS).
+- `auth.js` is a **public** shared helper loaded by every protected page: adds `X-CSRF-Token`,
+  redirects on 401 and renders the signed-in user. The gate is in `combined.py`/`auth.py`.
 - Adding a page: put it here, add the route in the owning app, and add a row above.

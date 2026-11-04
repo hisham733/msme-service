@@ -490,7 +490,7 @@
     },
     "overall_editorial_test": {
       "type": "noul",
-      "instructions": "Considering an editorial product for Malaysian SME/business readers, does this release provide enough genuine business value to be advanced to a human editor?",
+      "instructions": "Considering an editorial product for Malaysian SME/business readers, does this release provide enough genuine business value to be advanced to a human editor??",
       "criteria": {}
     },
     "overall_editorial_test_1": {

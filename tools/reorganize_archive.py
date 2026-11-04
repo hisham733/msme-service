@@ -32,7 +32,7 @@ from pathlib import Path
 ROOT_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT_DIR))
 
-import archive_layout as AL
+from msme.receive import archive_layout as AL
 
 DEFAULT_ROOT = "all_emails"
 DEFAULT_CUTOFF = "2026-10-15"

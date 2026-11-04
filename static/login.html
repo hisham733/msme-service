@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign in — MSME AI News</title>
+<style>
+  :root{--bg:#0b1020;--card:#141a2e;--border:#232b45;--text:#e5e9f5;--muted:#8b93ab;--teal:#2dd4bf;--red:#f87171}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{min-height:100vh;display:flex;align-items:center;justify-content:center;background:
+    radial-gradient(900px 500px at 20% -10%,#18233f 0,transparent 60%),var(--bg);
+    color:var(--text);font-family:Inter,system-ui,-apple-system,sans-serif;padding:24px}
+  .card{width:100%;max-width:380px;background:var(--card);border:1px solid var(--border);
+    border-radius:16px;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,.45)}
+  .brand{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  .dot{width:10px;height:10px;border-radius:50%;background:var(--teal);box-shadow:0 0 14px var(--teal)}
+  h1{font-size:18px;font-weight:800;letter-spacing:.01em}
+  .sub{color:var(--muted);font-size:12.5px;margin:2px 0 22px}
+  label{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;
+    letter-spacing:.05em;margin:14px 0 6px}
+  input{width:100%;background:#0d1326;border:1px solid var(--border);color:var(--text);
+    border-radius:10px;padding:11px 12px;font-size:14px;outline:none}
+  input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(45,212,191,.12)}
+  button{width:100%;margin-top:20px;background:var(--teal);color:#06231e;border:none;
+    border-radius:10px;padding:11px;font-size:14px;font-weight:800;cursor:pointer}
+  button:disabled{opacity:.6;cursor:wait}
+  .err{min-height:18px;margin-top:12px;color:var(--red);font-size:12.5px}
+  .foot{margin-top:22px;color:var(--muted);font-size:11px;line-height:1.5;text-align:center}
+</style>
+</head>
+<body>
+  <form class="card" id="form" autocomplete="on">
+    <div class="brand"><span class="dot"></span><h1>MSME AI News</h1></div>
+    <div class="sub">Sign in to the operations dashboard or the editor.</div>
+    <label for="username">Username</label>
+    <input id="username" name="username" autocomplete="username" required autofocus>
+    <label for="password">Password</label>
+    <input id="password" name="password" type="password" autocomplete="current-password" required>
+    <button id="go" type="submit">Sign in</button>
+    <div class="err" id="err"></div>
+    <div class="foot">Access is enforced by this app. Sessions last 7 days.</div>
+  </form>
+<script>
+(function(){
+  var form=document.getElementById('form'), err=document.getElementById('err'),
+      go=document.getElementById('go');
+  form.addEventListener('submit', async function(e){
+    e.preventDefault();
+    err.textContent=''; go.disabled=true; go.textContent='Signing in…';
+    try{
+      var r=await fetch('/api/auth/login',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({username:document.getElementById('username').value.trim(),
+                             password:document.getElementById('password').value})
+      });
+      var d=await r.json().catch(function(){return {};});
+      if(!r.ok){ err.textContent=d.error||('Sign-in failed ('+r.status+')'); return; }
+      if(d.must_change_password){ location.href='/account.html'; return; }
+      location.href='/editor.html';
+    }catch(ex){
+      err.textContent='Network error. Check the service and try again.';
+    }finally{
+      go.disabled=false; go.textContent='Sign in';
+    }
+  });
+})();
+</script>
+</body>
+</html>

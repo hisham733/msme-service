@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Users — MSME AI News</title>
+<style>
+  :root{--bg:#0b1020;--card:#141a2e;--card2:#1a2138;--border:#232b45;--text:#e5e9f5;--muted:#8b93ab;--teal:#2dd4bf;--green:#34d399;--red:#f87171;--amber:#fbbf24;--purple:#a78bfa}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif;font-size:14px;padding:28px;max-width:1050px;margin:0 auto}
+  h1{font-size:20px;font-weight:800}
+  .sub{color:var(--muted);font-size:13px;margin-top:4px}
+  .nav{display:flex;gap:8px;margin:18px 0 22px;flex-wrap:wrap}
+  .nav a{color:var(--muted);text-decoration:none;font-size:13px;padding:6px 14px;border:1px solid var(--border);border-radius:8px;background:var(--card)}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:18px}
+  .card h2{font-size:14px;font-weight:700;margin-bottom:12px;color:var(--teal)}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th{color:var(--muted);text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;padding:7px 8px;border-bottom:1px solid var(--border)}
+  td{padding:8px;border-bottom:1px solid #1c243a;vertical-align:middle}
+  select,input{background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:7px 9px;font-size:12.5px;outline:none}
+  button{background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 11px;font-size:12px;cursor:pointer}
+  button.primary{background:var(--teal);border-color:var(--teal);color:#06231e;font-weight:800}
+  button.danger{color:var(--red);border-color:rgba(248,113,113,.4)}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+  .fld{display:flex;flex-direction:column;gap:5px}
+  .fld label{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+  .msg{min-height:18px;margin-top:10px;font-size:12.5px}
+  .tag{font-size:10px;padding:2px 7px;border-radius:9px;font-weight:700}
+  .tag.admin{background:rgba(167,139,250,.16);color:var(--purple)}
+  .tag.editor{background:rgba(52,211,153,.14);color:var(--green)}
+  .tag.off{background:rgba(248,113,113,.14);color:var(--red)}
+  .mono{font-family:ui-monospace,monospace;font-size:11.5px;color:var(--muted)}
+  pre{white-space:pre-wrap;word-break:break-word;max-height:240px;overflow:auto;background:#0d1326;border:1px solid var(--border);border-radius:8px;padding:10px;font-size:11px;color:var(--muted)}
+</style>
+</head>
+<body>
+  <h1>Users</h1>
+  <div class="sub">Admin and editor accounts. Every change is written to the audit log.</div>
+  <div class="nav">
+    <a href="/">Operations</a>
+    <a href="/editor.html">Editor</a>
+    <a href="/filter-config.html">Filter config</a>
+    <a href="/account.html">Account</a>
+  </div>
+
+  <div class="card">
+    <h2>Add a user</h2>
+    <div class="row">
+      <div class="fld"><label>Username</label><input id="nu" placeholder="e.g. editor.aina"></div>
+      <div class="fld"><label>Role</label><select id="nr"><option value="editor">editor</option><option value="admin">admin</option></select></div>
+      <div class="fld"><label>Initial password</label><input id="np" type="password" placeholder="min 12 chars"></div>
+      <button class="primary" id="create">Create</button>
+    </div>
+    <div class="msg" id="createMsg"></div>
+  </div>
+
+  <div class="card">
+    <h2>Accounts</h2>
+    <table>
+      <thead><tr><th>User</th><th>Role</th><th>State</th><th>Last login</th><th>Actions</th></tr></thead>
+      <tbody id="rows"><tr><td colspan="5" class="mono">loading…</td></tr></tbody>
+    </table>
+    <div class="msg" id="msg"></div>
+  </div>
+
+  <div class="card">
+    <h2>Recent audit</h2>
+    <table>
+      <thead><tr><th>When</th><th>Actor</th><th>Action</th><th>Target</th><th>Detail</th></tr></thead>
+      <tbody id="audit"><tr><td colspan="5" class="mono">loading…</td></tr></tbody>
+    </table>
+  </div>
+
+<script src="/auth.js"></script>
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id);};
+  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  function msg(text, ok){ var el=$('msg'); el.textContent=text; el.style.color=ok?'var(--green)':'var(--red)'; }
+  function cm(text, ok){ var el=$('createMsg'); el.textContent=text; el.style.color=ok?'var(--green)':'var(--red)'; }
+
+  async function json(url, options){
+    var r=await fetch(url, options||{});
+    var d=await r.json().catch(function(){return {};});
+    if(!r.ok) throw new Error(d.error||('HTTP '+r.status));
+    return d;
+  }
+
+  async function load(){
+    try{
+      var d=await json('/api/users');
+      var me=(window.MSME_USER||{}).username||'';
+      $('rows').innerHTML=(d.users||[]).map(function(u){
+        var roleTag='<span class="tag '+esc(u.role)+'">'+esc(u.role)+'</span>';
+        var state=u.active?'<span class="tag editor">active</span>':'<span class="tag off">disabled</span>';
+        return '<tr>'+
+          '<td><b>'+esc(u.username)+'</b>'+(u.username===me?' <span class="mono">(you)</span>':'')+'</td>'+
+          '<td>'+roleTag+'</td><td>'+state+'</td>'+
+          '<td class="mono">'+esc(u.last_login_at||'—')+'</td>'+
+          '<td>'+
+            '<select data-id="'+u.id+'" class="roleSel">'+
+              '<option value="editor"'+(u.role==='editor'?' selected':'')+'>editor</option>'+
+              '<option value="admin"'+(u.role==='admin'?' selected':'')+'>admin</option></select> '+
+            '<button data-id="'+u.id+'" class="saveRole">Save role</button> '+
+            '<button data-id="'+u.id+'" data-active="'+(u.active?1:0)+'" class="toggle">'+(u.active?'Disable':'Enable')+'</button> '+
+            '<button data-id="'+u.id+'" class="reset danger">Reset password</button>'+
+          '</td></tr>';
+      }).join('') || '<tr><td colspan="5" class="mono">no users</td></tr>';
+
+      document.querySelectorAll('.saveRole').forEach(function(b){
+        b.addEventListener('click', async function(){
+          var id=b.dataset.id, sel=document.querySelector('.roleSel[data-id="'+id+'"]');
+          try{ await json('/api/users/'+id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({role:sel.value})}); msg('Role updated.',1); load(); }
+          catch(e){ msg(e.message); }
+        });
+      });
+      document.querySelectorAll('.toggle').forEach(function(b){
+        b.addEventListener('click', async function(){
+          var id=b.dataset.id, active=b.dataset.active!=='1';
+          try{ await json('/api/users/'+id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({active:active})}); msg(active?'Account enabled.':'Account disabled.',1); load(); }
+          catch(e){ msg(e.message); }
+        });
+      });
+      document.querySelectorAll('.reset').forEach(function(b){
+        b.addEventListener('click', async function(){
+          var pw=prompt('New password (min 12 characters). The user must change it at next login:');
+          if(!pw) return;
+          try{ await json('/api/users/'+b.dataset.id+'/password',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pw})}); msg('Password reset.',1); load(); }
+          catch(e){ msg(e.message); }
+        });
+      });
+    }catch(e){ $('rows').innerHTML='<tr><td colspan="5" style="color:var(--red)">'+esc(e.message)+'</td></tr>'; }
+  }
+
+  async function loadAudit(){
+    try{
+      var d=await json('/api/audit?limit=50');
+      $('audit').innerHTML=(d.audit||[]).map(function(a){
+        var detail='';
+        try{
+          var before=a.before_json?JSON.parse(a.before_json):null, after=a.after_json?JSON.parse(a.after_json):null;
+          detail=JSON.stringify({before:before,after:after});
+        }catch(e){ detail=(a.before_json||'')+' '+(a.after_json||''); }
+        return '<tr><td class="mono">'+esc(a.created_at||'')+'</td><td>'+esc(a.actor_username||'system')+'</td>'+
+          '<td>'+esc(a.action)+'</td><td class="mono">'+esc((a.target_type||'')+(a.target_id?(' #'+a.target_id):''))+'</td>'+
+          '<td><pre>'+esc(detail)+'</pre></td></tr>';
+      }).join('') || '<tr><td colspan="5" class="mono">no audit rows</td></tr>';
+    }catch(e){ $('audit').innerHTML='<tr><td colspan="5" style="color:var(--red)">'+esc(e.message)+'</td></tr>'; }
+  }
+
+  $('create').addEventListener('click', async function(){
+    cm('');
+    try{
+      await json('/api/users',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({username:$('nu').value.trim(),role:$('nr').value,password:$('np').value})});
+      cm('User created. They must change the password at first login.',1);
+      $('nu').value=''; $('np').value=''; load(); loadAudit();
+    }catch(e){ cm(e.message); }
+  });
+
+  window.addEventListener('msme:user', function(){ load(); loadAudit(); });
+  if(window.MSME_USER) { load(); loadAudit(); }
+})();
+</script>
+</body>
+</html>

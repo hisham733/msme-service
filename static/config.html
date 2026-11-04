@@ -61,10 +61,10 @@
   <h1>Filter Config</h1>
   <div class="sub">Live settings for the Jev editorial judge · click a rule card to edit it · <span id="gen">—</span></div>
   <div class="nav">
-    <a href="/filter.html">Filter</a>
-    <a href="/verdicts.html">Verdicts</a>
-    <a class="on" href="/config.html">Config</a>
-    <a href="/lab.html">Jev Lab</a>
+    <a href="/filter.html" data-role="admin">Filter</a>
+    <a href="/verdicts.html" data-role="admin">Verdicts</a>
+    <a class="on" href="/config.html" data-role="admin">Config</a>
+    <a href="/lab.html" data-role="admin">Jev Lab</a>
   </div>
 
   <div class="note">Click any gate or criterion card to expand and edit its wording.
@@ -102,6 +102,13 @@
       <button style="float:right;background:var(--teal);color:#06231e;border:none;border-radius:8px;padding:6px 12px;font-weight:700;font-size:12px;cursor:pointer" onclick="addRule('score')">+ Add criterion</button></h2>
     <div class="rules" id="scores">loading…</div>
   </div>
+
+<div class="card" style="margin-top:18px">
+  <h2>Config versions</h2>
+  <div class="note">Every save records who, when and the full battery. Restore is admin-only and always creates a new version.</div>
+  <div id="versions" class="mono" style="line-height:1.9">loading…</div>
+  <pre id="versionJson" style="display:none;white-space:pre-wrap;word-break:break-word;max-height:340px;overflow:auto;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px;margin-top:10px;font-size:11px;color:var(--muted)"></pre>
+</div>
 
 <script>
 if (location.search.indexOf("embed=1") !== -1) document.body.classList.add("embed");
@@ -366,7 +373,43 @@ function load(){
     updateTotalLive();
   }).catch(()=>{ $('settingsGrid').innerHTML='failed to load'; });
 }
+
+function loadVersions(){
+  fetch('/config-versions?limit=25').then(function(r){return r.ok?r.json():{versions:[]};}).then(function(d){
+    var admin = ((window.MSME_USER||{}).role === 'admin');
+    var rows = d.versions || [];
+    var box = document.getElementById('versions');
+    if(!rows.length){ box.textContent = 'No versions yet.'; return; }
+    box.innerHTML = rows.map(function(v){
+      return '<div style="border-bottom:1px solid var(--border);padding:7px 0;margin-bottom:4px">'+
+        '<b>#'+v.id+'</b> · '+esc(v.created_at||'')+' · '+esc(v.actor_username||'system')+
+        ' · '+esc(v.action||'')+(v.restored_from?(' · from #'+v.restored_from):'')+
+        ' · <span style="font-size:11px">hash '+esc(v.config_hash||'')+'</span><br>'+
+        '<button onclick="viewVersion('+v.id+')" style="background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:3px 10px;font-size:11px;cursor:pointer;margin-top:4px">View</button>'+
+        (admin?' <button onclick="restoreVersion('+v.id+')" style="background:var(--teal);border:none;color:#06231e;border-radius:8px;padding:3px 10px;font-size:11px;font-weight:700;cursor:pointer;margin-top:4px">Restore</button>':'')+
+        '</div>';
+    }).join('');
+  }).catch(function(){ document.getElementById('versions').textContent='failed to load versions'; });
+}
+function viewVersion(id){
+  fetch('/config-versions/'+id).then(function(r){return r.json();}).then(function(d){
+    var el=document.getElementById('versionJson');
+    el.style.display='block';
+    el.textContent=JSON.stringify(d.snapshot||d,null,2);
+  });
+}
+function restoreVersion(id){
+  if(!confirm('Restore config version #'+id+'? This applies now and creates a new version.')) return;
+  fetch('/config-versions/'+id+'/restore',{method:'POST'}).then(function(r){return r.json();}).then(function(d){
+    if(d.ok){ load(); loadVersions(); alert('Restored. New version #'+d.version+'.'); }
+    else alert('error: '+(d.error||''));
+  }).catch(function(e){ alert('error: '+e.message); });
+}
+window.addEventListener('msme:user', loadVersions);
+
 load();
+loadVersions();
 </script>
+<script src="/auth.js"></script>
 </body>
 </html>

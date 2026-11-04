@@ -27,8 +27,8 @@ import io
 import json
 import mimetypes
 import os
-import sqlite3
 import re
+import sqlite3
 import sys
 import time
 from datetime import datetime, timezone
@@ -38,11 +38,10 @@ ROOT_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT_DIR))
 
 from googleapiclient.errors import HttpError
-from httplib2 import ServerNotFoundError
 from googleapiclient.http import MediaFileUpload, MediaIoBaseUpload
+from httplib2 import ServerNotFoundError
 
-import config
-import creds
+from msme import config, creds
 
 DRIVE_ROOT = "1FBDLuI9mhMKioX4piwjtPe8BmQEIncTV"   # Email_Articles
 FOLDER_MIME = "application/vnd.google-apps.folder"

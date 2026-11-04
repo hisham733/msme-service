@@ -4,7 +4,7 @@ _Not read by runtime code. Moved here 2026-10-27 from the project root and `docs
 
 | File | What it is |
 |---|---|
-| `MALAYSIA SME_AI Editorial Guidelines_Sept 2026.docx` | client editorial guideline; source for `docs/GUIDELINE-MAPPING.md` |
+| `MALAYSIA SME_AI Editorial Guidelines_Sept 2026.docx` | client editorial guideline; source for `docs/filter/GUIDELINE-MAPPING.md` |
 | `AI_New-meeting-2026-9-21.pptx` | 21 Sep meeting deck |
 | `FILTER-RULES.pdf` | guideline/filter rules reference |
 | `email issues.odt` | email issues notes |

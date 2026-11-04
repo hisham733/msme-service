@@ -84,6 +84,13 @@ function badge(outcome){
   return `<span class="badge ${cls}">${esc(o)}</span>`;
 }
 function dateLabel(s){ return String(s||'').slice(0,10); }
+function jevPill(v){
+  if(v==null || !Number.isFinite(Number(v))) return '—';
+  const x=Math.max(0, Math.min(1, Number(v)));
+  const hue=Math.round(x*120);
+  const pct=Math.round(x*100);
+  return `<span style="display:inline-block;padding:2px 8px;border-radius:6px;font-weight:800;color:hsl(${hue},85%,65%);background:hsla(${hue},85%,50%,.16)">${pct}%</span>`;
+}
 
 function loadArticles(){
   fetch('/checklist.json?_='+Date.now()).then(r=>r.json()).then(d=>{
@@ -149,15 +156,30 @@ function renderDefinition(v){
   const gates=b.gates||{}; const scores=b.scores||{};
   const newest=state.versions[0]||{};
   const diff=compare(newest.battery||{}, b);
-  const gateRows=Object.entries(gates).map(([name,g])=>`<tr><td>${esc(g.label||name)}</td><td>${esc(g.threshold)}</td><td class="mono">${esc(g.instructions||'')}</td><td class="mono">${esc(criteriaText(g.criteria))}</td></tr>`).join('');
-  const scoreRows=Object.entries(scores).map(([name,s])=>`<tr><td>${esc(name)}</td><td>${esc(s.weight)}%</td><td class="mono">${esc(s.instructions||'')}</td><td class="mono">${esc(criteriaText(s.criteria))}</td></tr>`).join('');
+  const gateRows=Object.entries(gates).map(([name,g])=>{
+    const gv=(v.gates||{})[name];
+    let jev='—';
+    if(gv!=null){
+      const defect=Number(gv), yes=1-defect;
+      const thr=Number(g.threshold==null?0.85:g.threshold);
+      const fired=defect>=thr;
+      jev=`${jevPill(yes)} ${fired?'<span class="badge REJECT">fired</span>':'<span class="badge ACCEPT">pass</span>'}`;
+    }
+    return `<tr><td>${esc(g.label||name)}</td><td>${jev}</td><td>${esc(g.threshold)}</td><td class="mono">${esc(g.instructions||'')}</td><td class="mono">${esc(criteriaText(g.criteria))}</td></tr>`;
+  }).join('');
+  const scoreRows=Object.entries(scores).map(([name,s])=>{
+    const sv=(v.scores||{})[name];
+    const raw=(sv && typeof sv==='object') ? sv.norm : sv;
+    const jev=(raw!=null && Number.isFinite(Number(raw))) ? jevPill(raw) : '—';
+    return `<tr><td>${esc(name)}</td><td>${jev}</td><td>${esc(s.weight)}%</td><td class="mono">${esc(s.instructions||'')}</td><td class="mono">${esc(criteriaText(s.criteria))}</td></tr>`;
+  }).join('');
   $('definition').innerHTML=`
     <div class="defhead"><div><div class="title">Version ${esc(v.version)} · ${badge(v.outcome)} ${v.weighted==null?'':esc(v.weighted)+'%'}</div>
       <div class="meta">${esc(v.created_at||'')} · ${esc(v.model||'—')} · config ${esc(v.config_hash||'legacy')} · article ${esc(v.article_hash||'—')} · ${esc(v.article_len||0)} chars</div></div>
       <button class="ghost" onclick="rerun()">Re-run</button></div>
     ${diff.length?`<div class="diff">${diff.join(' ')}</div>`:''}
-    ${Object.keys(gates).length?`<div class="sec"><h3>Critical gates</h3><table><thead><tr><th>Gate</th><th>Threshold</th><th>Instruction</th><th>Criteria</th></tr></thead><tbody>${gateRows}</tbody></table></div>`:''}
-    ${Object.keys(scores).length?`<div class="sec"><h3>Weighted criteria</h3><table><thead><tr><th>Score</th><th>Weight</th><th>Instruction</th><th>Criteria</th></tr></thead><tbody>${scoreRows}</tbody></table></div>`:''}
+    ${Object.keys(gates).length?`<div class="sec"><h3>Critical gates</h3><table><thead><tr><th>Gate</th><th>Jev result</th><th>Threshold</th><th>Instruction</th><th>Criteria</th></tr></thead><tbody>${gateRows}</tbody></table></div>`:''}
+    ${Object.keys(scores).length?`<div class="sec"><h3>Weighted criteria</h3><table><thead><tr><th>Score</th><th>Jev result</th><th>Weight</th><th>Instruction</th><th>Criteria</th></tr></thead><tbody>${scoreRows}</tbody></table></div>`:''}
     ${!Object.keys(gates).length&&!Object.keys(scores).length?'<div class="warn">No rubric snapshot saved for this legacy result. Re-run it to save one.</div>':''}`;
 }
 function criteriaText(c){
@@ -192,5 +214,6 @@ function rerun(){
 }
 loadArticles();
 </script>
+<script src="/auth.js"></script>
 </body>
 </html>

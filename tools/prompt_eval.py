@@ -9,7 +9,7 @@
 # calls   : pipeline, normalize, config, db; the configured AI provider
 # called  : developer / operator (python3 tools/prompt_eval.py --limit 6 --yes)
 # amend   : the eval never writes the live DB/archive; fake Gmail only. Report outputs go to docs/.
-#           Test: python3 -m unittest tools.test_prompt_eval
+#           Test: python3 -m unittest tests.test_prompt_eval
 # =============================================================================
 """Prompt A/B on archived emails — dry-run, no live writes.
 
@@ -38,10 +38,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-import config
-import gmail
-import normalize
-import pipeline
+from msme import config
+from msme.receive import pipeline
 
 ARCHIVE_ROOTS = ["all_emails"]
 SKIP_DIRS = {"_duplicates", "_no_article"}
@@ -464,7 +462,7 @@ def main(argv=None):
         return 2
 
     try:
-        from llm import LLMClient
+        from msme.llm import LLMClient
         lc = LLMClient()
         provider, model = lc.provider, lc.model
     except Exception as e:

@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "msme-service"
+version = "0.1.0"
+description = "AI_News intake for MSME: receive press releases, judge them with Jev, repurpose the accepted ones"
+readme = "README.md"
+requires-python = ">=3.12"
+dynamic = ["dependencies"]
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
+
+[tool.setuptools.packages.find]
+include = ["msme*"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+extend-exclude = [
+  "delet",
+  "data",
+  "docs",
+  "creds",
+  "emails",
+  "all_emails",
+  "repurpose_inbox",
+  "repurpose_site",
+  ".venv",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W"]
+# E701/E702: the project uses compact one-line guards in a few places.
+# F841: kept off so the refactor does not change behaviour; review them separately.
+ignore = ["E402", "E501", "E701", "E702", "E741", "F841", "W291", "W293"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["msme"]

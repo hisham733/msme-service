@@ -106,7 +106,7 @@
 <div class="nav">
   <a href="checklist.html" class="active">Checklist</a>
   <a href="editor.html">Editor</a>
-  <a href="http://localhost:8765/" target="_blank" rel="noopener">Repurpose ↗</a>
+  <a href="/repurpose-site/index.html" target="_blank" rel="noopener">Repurpose ↗</a>
   <a href="config.html">Config</a>
 </div>
 
@@ -191,7 +191,7 @@
 let DATA = { articles: [] };
 let statusMap = {};
 let repurposeMap = {};
-let repurposeDash = 'http://localhost:8765/';
+let repurposeDash = '/repurpose-site/index.html';
 let LATEST_IDS = new Set();
 function isOldRow(a){ return !!(a && a.id && LATEST_IDS.size && !LATEST_IDS.has(Number(a.id))); }
 function ok(v){ return v === true || v === 'true' || v === 1 || v === '1'; }
@@ -657,5 +657,6 @@ setInterval(loadStatusMap, 5000);
 // load (from cache) and when the user clicks Refresh (which passes force=1).
 // This avoids hammering the Gmail API all day with the page left open.
 </script>
+<script src="/auth.js"></script>
 </body>
 </html>

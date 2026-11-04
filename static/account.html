@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Account — MSME AI News</title>
+<style>
+  :root{--bg:#0b1020;--card:#141a2e;--card2:#1a2138;--border:#232b45;--text:#e5e9f5;--muted:#8b93ab;--teal:#2dd4bf;--green:#34d399;--red:#f87171;--amber:#fbbf24}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif;font-size:14px;padding:28px;max-width:720px;margin:0 auto}
+  h1{font-size:20px;font-weight:800}
+  .sub{color:var(--muted);font-size:13px;margin-top:4px}
+  .nav{display:flex;gap:8px;margin:18px 0 22px;flex-wrap:wrap}
+  .nav a{color:var(--muted);text-decoration:none;font-size:13px;padding:6px 14px;border:1px solid var(--border);border-radius:8px;background:var(--card)}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:18px}
+  .card h2{font-size:14px;font-weight:700;margin-bottom:14px;color:var(--teal)}
+  label{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.05em;margin:12px 0 6px}
+  input{width:100%;background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:10px 12px;font-size:14px;outline:none}
+  input:focus{border-color:var(--teal)}
+  button{margin-top:18px;background:var(--teal);color:#06231e;border:none;border-radius:10px;padding:10px 18px;font-weight:800;font-size:13px;cursor:pointer}
+  .msg{min-height:18px;margin-top:12px;font-size:12.5px}
+  .notice{background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.35);color:var(--amber);border-radius:10px;padding:12px;font-size:12.5px;margin-bottom:16px}
+</style>
+</head>
+<body>
+  <h1>Account</h1>
+  <div class="sub">Change your own password. Other sessions are signed out.</div>
+  <div class="nav">
+    <a href="/editor.html">Editor</a>
+    <a href="/config.html">Filter config</a>
+    <a href="/users.html" data-role="admin">Users</a>
+  </div>
+  <div class="notice" id="force" style="display:none">
+    Your password was set by an administrator. Please choose a new one to continue.
+  </div>
+  <div class="card">
+    <h2>Change password</h2>
+    <label for="current">Current password</label>
+    <input id="current" type="password" autocomplete="current-password">
+    <label for="new">New password</label>
+    <input id="new" type="password" autocomplete="new-password">
+    <label for="confirm">Confirm new password</label>
+    <input id="confirm" type="password" autocomplete="new-password">
+    <button id="save">Update password</button>
+    <div class="msg" id="msg"></div>
+  </div>
+<script src="/auth.js"></script>
+<script>
+(function(){
+  var msg=document.getElementById('msg'), save=document.getElementById('save');
+  window.addEventListener('msme:user', function(e){
+    if(e.detail && e.detail.must_change_password){
+      document.getElementById('force').style.display='block';
+    }
+  });
+  save.addEventListener('click', async function(){
+    var current=document.getElementById('current').value,
+        next=document.getElementById('new').value,
+        confirm=document.getElementById('confirm').value;
+    msg.textContent=''; msg.style.color='var(--red)';
+    if(next!==confirm){ msg.textContent='The two new passwords do not match.'; return; }
+    save.disabled=true;
+    try{
+      var r=await fetch('/api/auth/password',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({current:current,new:next})});
+      var d=await r.json().catch(function(){return {};});
+      if(!r.ok){ msg.textContent=d.error||('Failed ('+r.status+')'); return; }
+      msg.style.color='var(--green)'; msg.textContent='Password updated.';
+      document.getElementById('current').value='';
+      document.getElementById('new').value='';
+      document.getElementById('confirm').value='';
+      document.getElementById('force').style.display='none';
+      setTimeout(function(){ location.href='/editor.html'; }, 800);
+    }catch(e){ msg.textContent='Network error.'; }
+    finally{ save.disabled=false; }
+  });
+})();
+</script>
+</body>
+</html>

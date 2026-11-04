@@ -1,6 +1,6 @@
 # NOW — msme-service
 
-*One NOW for this project, ≤ 40 lines · edit with Edit, never rewrite whole · updated 2026-10-28 (S07).*
+*One NOW for this project, ≤ 40 lines · edit with Edit, never rewrite whole · updated 2026-10-29 (S08).*
 
 ## Direction
 
@@ -9,9 +9,12 @@
   archive to `all_emails/` (live; legacy `emails/` kept for the test pages); dashboard pages on :8899.
 - **Filter is built**: Jev runs inside receive when `readyToFilter=true`; 3 Critical Gates
   (Royalty/Religion/Race) + 11 weighted scores, editable from the Lab/Config pages; reports in `docs/` (old reports moved to `delet/old-reports/`).
-- **Repurpose is built** on the external `MSME_AI_News` engine at **:8765**; `repurpose_export.py`
+- **Repurpose is built** on the external `MSME_AI_News` engine at **:8765**; `msme/repurpose/repurpose_export.py`
   exports latest ACCEPT articles automatically, `repurpose_worker.py` runs one at a time,
   site to `repurpose_site/` (D35).
+- **D38 (2026-10-31)**: runtime code lives in `msme/` (receive · filtering · repurpose · legacy),
+  paths resolve from the package root (`msme/paths.py`), tests in `tests/`, one root `run.py`;
+  **149 tests pass**, ruff clean, Docker health verified.
 - T2 workflow standard adopted 2026-10-21; website-runtime `.py` carry the FILE HEADER contract.
 - **D6 built and live**: a single Drive file link is fetched; a view-only/refused file ends the run
   `needs_human`, never `success`, and its cover note is not archived.
@@ -68,31 +71,46 @@
 - **D35 (2026-10-27)**: Repurpose uses the external engine unchanged; dashboard :8765; auto-export +
   inbox worker; three accepted articles PASS/validated. `T-001` closed. User still owes `T-045`
   folder-4 link check.
+- **Editor wording (2026-10-28)**: Receive says **no article / no media**; Filter says **fail 3R /
+  not relevant**; Publish says **not started / issue**; the duplicate "Why" box is gone. The
+  WordPress Publish / Send button opens the DLW demo; filter history shows the Jev answer per gate;
+  the rule-editor label/links are removed from `/config.html`.
 - **D36 (2026-10-28)**: `/editor.html` end-user editor — every email, stage/rejection reason,
   local drafts, light desktop-first theme; publish button visible but disabled.
 - **Webhook live (T-046, 2026-10-28)**: `/webhooks/gmail` 401 without a token; OIDC + dedupe +
   history → one queue shared with polling. Push proof: subscription `gmail-push-sub` in
   `sme-ai-510803` → endpoint 200, history 1 id, `source=webhook` processed. Watch on
   `projects/sme-ai-510803/topics/gmail-push` (renews ~6 days); SA
-  `msme-webhook-push@sme-ai-510803`. 105 tests pass. Polling every 5 min is the fallback.
-- **T-047 auth/audit** logged for later: local login, admin/editor roles, filter-config versions.
+  `msme-webhook-push@sme-ai-510803`. Polling every 5 min is the fallback.
+- **T-047 live (2026-10-28)**: local login at `/login`; admin = everything, editor = editor page +
+  filter config only. 7-day HttpOnly/Secure session + CSRF; scrypt; lockout; env bootstrap admin.
+  `/users.html` user management + audit; every filter-config save/restore is a version (full battery,
+  actor, hash); restore is admin-only. Webhook remains public (OIDC). **149 tests pass**.
+  First admin `admin` (temporary weak password set 2026-10-29 for the MSME meeting — change it after the demo).
+  The old `hisham` user was renamed to `admin`; its sessions were revoked.
 
 ## What the user owes (one line each)
 
 - **D3**: rotate (or confirm test-only) the six Google OAuth client secrets moved into `creds/`.
-- **D3**: say whether to make the first git commit (repo is initialised, nothing committed).
+- **D3**: baseline commit done (`87b4cd0`) and pushed to the private `hisham733/msme-service`; the
+  **package reorg + auth layer are unstaged**. The profile denies `git commit`/`git push`.
+- **Meeting (week of 2026-11-09)**: use `docs/meetings/2026-11-09/MEETING-DECISIONS-2026-11.md`; send the `D-024`…`D-029`
+  answers (`AG-01`…`AG-08`, `AG-15`) so those rows stop looking open.
 - **T-011**: send MSIA's dayana.arif@msia.org.my the request to enable download on the Budget 2027 PDF.
-- **T-022**: send the 11 asks in `docs/SENDER-ASKS-2026-10-22.md`; refresh the 149-snapshot list first.
+- **T-022**: send the 11 asks in `docs/operations/SENDER-ASKS-2026-10-22.md`; refresh the 149-snapshot list first.
 - **T-038 resolved**: DeepSeek renewed (AUTH OK, balance $9.51); real v1 dry-runs succeeded.
 - **T-028 done**: OAuth re-authed 2026-10-22; new receives work. Publish the consent screen to Production
   (or re-auth every 7 days) to avoid another expiry.
 - **T-045**: check the 20 links in Drive folder 4 (`docs/DRIVE-FOLDER-4-20261024-0808.md`).
 - **T-046 ops**: `docker update --restart unless-stopped wonderful_murdock`; rotate the tunnel
   token exposed in chat.
+- **T-047 ops**: sign in as `admin` (temporary password in `.env`), change it on `/account.html`,
+  then remove `AUTH_BOOTSTRAP_USERNAME` / `AUTH_BOOTSTRAP_PASSWORD` from `.env`; create editor accounts
+  on `/users.html`. `AUTH_BOOTSTRAP_PASSWORD` is currently below the 12-character policy, so a fresh
+  database bootstrap will refuse it — use a 12+ password or set the user directly.
 
 ## Parked
 
-- `docs/` reorganisation into outputs / gate-definitions / notes (`T-004`) — code paths read `docs/` flat.
 - Duplicate FastAPI route sets in `main.py` and `dashboard.py` (`T-006`).
 - Two archive stores, `emails/` (legacy, not read by the report) and `all_emails/` (live, date-sorted),
   `test-articles/` moved to `delet/unused/` for manual review (`T-007`).

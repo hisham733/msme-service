@@ -328,5 +328,6 @@ function compareAll(mode){
 async function boot(){ const d=await (await fetch('/config.json')).json(); CFG=d.config; BATTERY=d.battery; buildModel(); renderTabs(); renderTab(); }
 boot();
 </script>
+<script src="/auth.js"></script>
 </body>
 </html>

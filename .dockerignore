@@ -14,3 +14,10 @@ decisions/
 todo/
 .claude/
 .git/
+.github/
+tests/
+Makefile
+pyproject.toml
+*.mp4
+*.gif
+usage_data*

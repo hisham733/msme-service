@@ -16,8 +16,18 @@ services:
       - ENABLE_AUTO_REPURPOSE=true
       - SCHEDULE_MINUTES=5
       - DEEPSEEK_MODEL=deepseek-v4-flash
+      # DeepSeek key for receive/filter; also settable on /config (data/settings.json).
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}
       # Jev key comes from the gitignored .env (never hardcode it).
       - TYPESAFE_API_KEY=${TYPESAFE_API_KEY:-}
+      # T-047 local login. COOKIE_SECURE=false only for direct http://localhost.
+      - SESSION_DAYS=${SESSION_DAYS:-7}
+      - COOKIE_SECURE=${COOKIE_SECURE:-true}
+      - LOGIN_MAX_ATTEMPTS=${LOGIN_MAX_ATTEMPTS:-5}
+      - LOGIN_LOCK_MINUTES=${LOGIN_LOCK_MINUTES:-15}
+      - PASSWORD_MIN_LENGTH=${PASSWORD_MIN_LENGTH:-12}
+      - AUTH_BOOTSTRAP_USERNAME=${AUTH_BOOTSTRAP_USERNAME:-}
+      - AUTH_BOOTSTRAP_PASSWORD=${AUTH_BOOTSTRAP_PASSWORD:-}
       - CHECKLIST_SHEET_ID=1T_XURPN4uuC8d7YqWbRFS-0QHLXW7-Y1UQ82rJPrQCo
       - ARCHIVE_PARENT_FOLDER=1XbFjzVLOe8CVhd8YPRVKmKi2e2-JI2Lm
       - GMAIL_QUERY=in:inbox is:unread -category:promotions
@@ -28,7 +38,7 @@ services:
       - SQLITE_PATH=data/msme.sqlite3
       - REPURPOSE_INBOX=/app/repurpose_inbox
       - REPURPOSE_SITE=/app/repurpose_site
-      - REPURPOSE_DASHBOARD=http://localhost:8765/
+      - REPURPOSE_DASHBOARD=/repurpose-site/index.html
       # Rejection replies go to the fixed test address while REPLY_MODE=fixed_email.
       - REPLY_ENABLED=true
       - REPLY_MODE=fixed_email

@@ -9,6 +9,7 @@
 | Path | What it holds |
 |---|---|
 | `README.md` | this map |
+| `INDEX.md` | every `.py` file: purpose, example and what breaks if deleted |
 | `NOW.md` | standing state (≤ 40 lines) |
 | `AGENTS.md` | machine rules for a session opened here |
 | `opencode.json` | always-loaded instruction files + permission profile |
@@ -16,9 +17,14 @@
 | `decisions/` | one OKF file per decision + generated `INDEX.md` |
 | `todo/` | one OKF file per open item + generated `INDEX.md` |
 | `session-analysis/` | one folder per working day; the numbered reply per turn |
-| `tools/` | `build_register_indexes.py` — regenerates both register INDEX files |
+| `msme/` | the service package — receive, filtering (Jev), repurpose, legacy — see `docs/workflow/CODE-MAP.md` (`D38`) |
+| `run.py` | the one entrypoint: scheduler + `msme.combined:app` on :8899 |
+| `tests/` | unittest suite (149 tests) |
+| `tools/` | ops + one-off developer scripts, `build_register_indexes.py` |
+| `msme/repurpose/` | auto-export to `repurpose_inbox/` + host worker (D35) |
+| `pyproject.toml` · `Makefile` · `.github/workflows/ci.yml` | ruff config, dev commands, CI |
 | `static/` | every web page, served by one combined app on :8899 — see `static/INDEX.md` |
-| `docs/` | reports, gate definitions, Jev notes, `WORKFLOW-RECEIVE-TO-PUBLISH.md`, `PRODUCTION-EMAIL-SETUP.md` — see `docs/INDEX.md` |
+| `docs/` | topic folders — `workflow/`, `filter/` (+ `experiments/`), `meetings/`, `operations/`, `receive/`, `reference/` — plus the code-read files at the root; see `docs/INDEX.md` (`D39`) |
 | `docs/reference/` | source guidelines, meeting deck, `FILTER-RULES.pdf`, email issues, future MySQL schema |
 | `delet/` | manual-review deletion candidates (ignored by git) |
 | `data/` | runtime state: SQLite, settings, verdict/error logs (`git`-ignored) |
@@ -28,9 +34,6 @@
 | `emails/` | legacy archive / test articles — **not** read by the Report Manager |
 | `all_emails/` | **live receive archive**, sorted by received date (see `all_emails/INDEX.md`, `D26`) |
 | `delet/old-reports/` | old archived filter reports — manual review |
-| `*.py` (root) | the service — one combined app in `run.py`: receive + filter on :8899 |
-| `repurpose_export.py` | auto-exports latest ACCEPT articles to `repurpose_inbox/` (D35) |
-| `repurpose_worker.py` | host worker: runs the engine for new inbox folders, one at a time |
 | `repurpose_inbox/` · `repurpose_site/` | external engine input / built site — gitignored |
 
 ## 2. Hard rules
@@ -40,23 +43,32 @@
    After editing register items run `python3 tools/build_register_indexes.py`.
 3. **Build and test together** — name the run that proves a change, or say why none.
 4. **Never commit `creds/`, `data/` or the email archives**; no secret in a page, log or reply.
-5. Repurpose is **not built** — do not describe it as working (see `todo/T-001`).
+5. Repurpose runs on the external `MSME_AI_News` engine (:8765) via auto-export + inbox worker (D35) — do not rebuild it here.
 
 ## 3. Commands (run from this folder)
 
 ```bash
 python3 tools/build_register_indexes.py         # regenerate decisions/ + todo/ INDEX.md
-python3 -m compileall -q *.py                   # syntax check after edits
+python3 -m compileall -q msme run.py tools tests   # syntax check after edits
+python3 -m unittest discover -s tests -p 'test_*.py' -v   # 149 tests
 python run.py                                   # start one combined app (or: docker compose up -d --build)
 curl -s localhost:8899/health
-python3 repurpose_export.py --apply          # manual export (auto when ENABLE_AUTO_REPURPOSE)
-python3 repurpose_worker.py                  # host worker: run new inbox folders
+python3 -m msme.repurpose.repurpose_export --apply   # manual export (auto when ENABLE_AUTO_REPURPOSE)
+python3 -m msme.repurpose.repurpose_worker           # host worker: run new inbox folders
 (cd ../MSME_AI_News && python3 -m pipeline.run check)   # engine key check
 (cd ../MSME_AI_News && python3 -m pipeline.dashboard)   # engine dashboard :8765
 curl -s localhost:8899/workflow-lab.html     # interactive receive walkthrough
 ```
 
-## 4. Session rules
+## 4. Login (T-047)
+
+- Local accounts only: `/login`. Roles: **admin** (everything) and **editor** (`/editor.html` + filter config).
+- 7-day session cookie (`HttpOnly`, `Secure`, `SameSite=Lax`) + CSRF on every non-GET; the webhook stays public (Pub/Sub OIDC).
+- First admin comes from `AUTH_BOOTSTRAP_USERNAME` / `AUTH_BOOTSTRAP_PASSWORD` in `.env` **only while the users table is empty**. Sign in, change the password on `/account.html`, then remove those two lines from `.env`.
+- `COOKIE_SECURE=false` only for direct `http://localhost` access; the tunnel is HTTPS.
+- Admin pages: `/users.html` (create/disable/reset roles, audit log) and the filter-config version history/restore.
+
+## 5. Session rules
 
 - Reply per turn: `session-analysis/<YYYY-MM-DD>_S<nn>_<subject>/<n>_<subject>.md`; chat = summary only.
 - `S<nn>` = the project's working-day number — one folder per calendar day; extra sessions the same day
