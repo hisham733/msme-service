@@ -29,7 +29,7 @@ anyone who guesses it. It is below the 12-character policy, so it must be tempor
 - **Fresh-DB caveat:** because `AUTH_BOOTSTRAP_PASSWORD=admin` is below the 12-character policy,
   a **new empty database would refuse to bootstrap** it. Use a 12+ bootstrap password in that
   case, or set the user directly.
-- **Reference:** `todo/T-047.md` (2026-10-29 note), `.env`.
+- **Reference:** `todo/✅ T-047.md` (2026-10-29 note), `.env`.
 
 ## 3. Gmail is still expired
 

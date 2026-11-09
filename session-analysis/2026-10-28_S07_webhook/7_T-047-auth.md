@@ -1,7 +1,7 @@
 # T-047 — login, roles, audit and versioned filter config are live
 
 **Session:** 2026-10-28 · S07 · reply 7
-**Registers:** `todo/T-047.md` (closed), `decisions/D37.md`
+**Registers:** `todo/✅ T-047.md` (closed), `decisions/D37.md`
 **State:** built and verified live; the auth layer is the second git commit.
 
 ## 1. What was built
@@ -84,7 +84,7 @@ The profile still denies `git commit*` / `git push*`, so I could not land it.
 - **Option B:** allow `git commit*` / `git push*` in `opencode.json`, then say “go again”.
 - **Effect of not deciding:** the login runs live but is not versioned on the remote; a
   database loss or rollback would not restore the auth code.
-- **Reference:** `todo/T-047.md`, `decisions/D37.md`.
+- **Reference:** `todo/✅ T-047.md`, `decisions/D37.md`.
 
 ## 5. What I recommend next
 

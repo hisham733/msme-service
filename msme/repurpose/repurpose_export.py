@@ -24,7 +24,7 @@ import json
 import shutil
 import sqlite3
 
-from msme import config, paths
+from msme import config, db, paths
 from msme.receive import archive
 
 ROOT = paths.ROOT
@@ -139,6 +139,15 @@ def export(apply=False):
             shutil.copy2(link, dest / "link.md")
         plan[-1]["images"] = n_images
         plan[-1]["originals"] = n_originals
+        try:
+            db.save_repurpose_export(
+                row["checklist_id"], row["id"], folder=name, dest=str(dest),
+                article_hash=row.get("article_hash") or "",
+                config_hash=row.get("config_hash") or "",
+                weighted=row.get("weighted"), status="exported",
+            )
+        except Exception as e:
+            print(f"[export] DB record failed for cid={row['checklist_id']}: {e}")
         plan[-1]["dest"] = str(dest)
 
     if apply:

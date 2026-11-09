@@ -44,6 +44,9 @@ SELF = {"/api/auth/me", "/api/auth/logout", "/api/auth/password", "/account.html
 EDITOR_GET = {
     "/editor.html", "/filter-config.html", "/filters.json",
     "/config.json", "/config-versions",
+    "/api/senders.json", "/api/sender.json",
+    # The AI Model page is now the Cost page: admin-only (with /api/costs.json,
+    # /api/models.json, the webhook toggle and Google reconnect).
 }
 EDITOR_GET_PREFIXES = ("/api/editor/", "/repurpose-site/", "/config-versions/")
 

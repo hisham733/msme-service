@@ -105,4 +105,4 @@ The **live container was not restarted** — it still runs the previous image. N
 
 **Carry on in this session** with §4 (n8n key → env, rotate) and then the docs reorg + bundle — the context of the reorg is already loaded, so a new session would pay to rebuild it. Thinking effort: **medium** (mostly mechanical moves plus one security change). If you prefer a clean boundary, compact first and start a new session with:
 
-> "Read NOW.md, docs/CODE-MAP.md and decisions/D38.md. Do the docs reorg (D39) and build the partner handover bundle per todo/T-048.md."
+> "Read NOW.md, docs/CODE-MAP.md and decisions/D38.md. Do the docs reorg (D39) and build the partner handover bundle per todo/🟢 T-048.md."

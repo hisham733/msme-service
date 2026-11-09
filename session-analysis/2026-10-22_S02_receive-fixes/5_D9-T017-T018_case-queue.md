@@ -24,8 +24,8 @@
 | Register | Content |
 |---|---|
 | `decisions/D9.md` | body/downloaded logos count as `hasLogo` (never `hasPic`); filename hint beats dimensions; full-res asset replaces the thumbnail |
-| `todo/T-017.md` | the Aventra build — status **`decided-unbuilt`**, waits for the batch |
-| `todo/T-018.md` | **case queue** with every report so far and the protocol |
+| `todo/✅ T-017.md` | the Aventra build — status **`decided-unbuilt`**, waits for the batch |
+| `todo/✅ T-018.md` | **case queue** with every report so far and the protocol |
 
 Current queue:
 

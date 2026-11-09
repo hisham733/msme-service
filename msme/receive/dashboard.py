@@ -5,9 +5,10 @@
 # owner   : Hisham (human owner) · AI coding sessions may amend under his review
 # purpose : serve the receive pages and their API so the browser has no CORS/hostname issues.
 # pages   : checklist.html, flow.html, workflow-lab.html, receive-logs.html, config.html, pipeline-config.html,
-#           login.html, account.html, users.html, editor.html
+#           login.html, account.html, users.html, editor.html, ai-model.html
 # calls   : pipeline (via _process_one), gmail, db, creds, settings_store, connection_test, config,
-#           webhook_gmail (POST /webhooks/gmail), auth (login/users/gate)
+#           cost, google_oauth, receive_queue (webhook toggle/watch), webhook_gmail,
+#           auth (login/users/gate)
 # called  : combined.py (as a sub-app); the static pages
 # amend   : page list must match static/INDEX.md; main.py is legacy and not served.
 #           Test: curl -s localhost:8899/api/health
@@ -40,10 +41,11 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse, Response
 from pydantic import BaseModel
 
-from msme import auth, config, connection_test, creds, db, paths, settings_store
+from msme import auth, config, connection_test, cost, creds, db, google_oauth, paths, settings_store
 from msme.filtering import filter as filter_judge
 from msme.filtering import filter_log
-from msme.receive import editor_data, gmail, pipeline, webhook_gmail, workflow_lab
+from msme.receive import (editor_data, email_link, gmail, pipeline, receive_queue,
+                          webhook_gmail, workflow_lab)
 
 app = FastAPI(title="MSME Newsbot Dashboard")
 app.include_router(workflow_lab.router)
@@ -67,6 +69,22 @@ def index():
 @app.get("/checklist.html")
 def checklist_html():
     return _serve("checklist.html")
+
+
+@app.get("/ai-model.html")
+def ai_model_html():
+    return _serve("ai-model.html")
+
+
+@app.get("/by-email.html")
+def by_email_html():
+    """Old name — kept so existing links/bookmarks keep working."""
+    return _serve("ai-model.html")
+
+
+@app.get("/senders.html")
+def senders_html():
+    return _serve("ai-model.html")
 
 
 @app.get("/flow.html")
@@ -115,6 +133,25 @@ def editor_html():
     return _serve("editor.html")
 
 
+@app.get("/repurpose.html")
+def repurpose_html():
+    """Repurpose queue/status page (in-process engine, T-050)."""
+    return _serve("repurpose.html")
+
+
+@app.get("/api/repurpose/status")
+def api_repurpose_status():
+    from msme.repurpose import runner
+    return runner.status()
+
+
+@app.post("/api/repurpose/run")
+def api_repurpose_run(folder: str = ""):
+    from msme.repurpose import runner
+    started = runner.trigger(folder or None)
+    return {"started": started, **runner.status()}
+
+
 # ---- same-origin API (pages call these instead of :8898) ----
 
 @app.get("/api/health")
@@ -124,7 +161,7 @@ def api_health():
         "status": "ok",
         "auto": settings_store.get("ENABLE_AUTO") or False,
         "schedule_minutes": settings_store.get("SCHEDULE_MINUTES") or config.SCHEDULE_MINUTES,
-        "webhook": config.ENABLE_WEBHOOK,
+        "webhook": receive_queue.webhook_enabled(),
     }
 
 
@@ -136,6 +173,71 @@ async def webhook_gmail_push(request: Request):
         await request.body(),
     )
     return JSONResponse(payload, status_code=status)
+
+
+# ---- Gmail push webhook on/off (admin only) ----
+
+class WebhookPatch(BaseModel):
+    enabled: bool
+
+
+@app.get("/api/webhook")
+def api_webhook_state():
+    """Live webhook state + the stored Gmail watch + whether polling is the fallback."""
+    state = db.get_gmail_watch() or {}
+    return {
+        "enabled": receive_queue.webhook_enabled(),
+        "topic": receive_queue.webhook_topic(),
+        "watch": {
+            "history_id": state.get("history_id", ""),
+            "expiration": int(state.get("expiration") or 0),
+            "updated_at": state.get("updated_at", ""),
+        },
+        "polling": bool(settings_store.get("ENABLE_AUTO")),
+    }
+
+
+@app.post("/api/webhook")
+def api_webhook_toggle(patch: WebhookPatch):
+    """Turn Gmail Push on/off now: save the flag, create/stop the Gmail watch."""
+    return receive_queue.apply_webhook(patch.enabled)
+
+
+# ---- Google reconnect from the Config page (admin only) ----
+
+class ReauthIn(BaseModel):
+    redirect_url: str = ""
+
+
+@app.get("/api/google/reauth")
+def api_google_reauth_url():
+    """Return the Google consent URL (the browser cannot reach the container's :8080)."""
+    try:
+        return {"url": google_oauth.consent_url(), "redirect_uri": google_oauth.redirect_uri()}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e)[:300])
+
+
+@app.post("/api/google/reauth")
+def api_google_reauth_exchange(body: ReauthIn):
+    """Exchange the pasted redirect URL, rewrite creds and renew the watch."""
+    try:
+        result = google_oauth.exchange(body.redirect_url)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e)[:300])
+    watch = None
+    if receive_queue.webhook_enabled():
+        try:
+            watch = receive_queue.ensure_watch(force=True)
+        except Exception as e:  # noqa: BLE001 — the token is saved even if the watch fails
+            watch = {"error": str(e)[:300]}
+    email = ""
+    try:
+        email = creds.gmail().users().getProfile(userId="me").execute().get("emailAddress", "")
+    except Exception:  # noqa: BLE001
+        pass
+    return {"ok": True, "scope": result.get("scope", ""),
+            "wrote": result.get("wrote", []), "email": email, "watch": watch}
 
 
 # ---- local login + users (T-047) ----
@@ -547,12 +649,17 @@ def api_run_all():
 @app.get("/api/repurpose")
 def api_repurpose():
     """Map checklist id -> Repurpose engine status from the exported inbox."""
-    manifest = os.path.join(os.path.dirname(config.SQLITE_PATH) or ".", "repurpose_export.json")
     try:
-        with open(manifest, encoding="utf-8") as f:
-            records = (json.load(f) or {}).get("exported") or []
+        records = db.list_repurpose_exports()
     except Exception:
         records = []
+    if not records:
+        manifest = os.path.join(os.path.dirname(config.SQLITE_PATH) or ".", "repurpose_export.json")
+        try:
+            with open(manifest, encoding="utf-8") as f:
+                records = (json.load(f) or {}).get("exported") or []
+        except Exception:
+            records = []
     out = {}
     for rec in records:
         if not rec.get("dest"):
@@ -789,6 +896,23 @@ class ConfigPatch(BaseModel):
     ENABLE_AUTO_REPURPOSE: Optional[bool] = None
     WEB_FETCH_MODE: Optional[str] = None
     WEB_KNOWN_SITES: Optional[str] = None
+    # Repurpose engine (runtime; read fresh per article).
+    REPURPOSE_MODEL: Optional[str] = None
+    REPURPOSE_TEMPERATURE: Optional[float] = None
+    REPURPOSE_RETRY_LIMIT: Optional[int] = None
+    REPURPOSE_POLL_SECONDS: Optional[int] = None
+    # Cost rates, USD (0 = not priced).
+    COST_DEEPSEEK_PER_M: Optional[float] = None
+    COST_JEV_INPUT_PER_M: Optional[float] = None
+    COST_GEMINI_PER_M: Optional[float] = None
+    COST_BUDGET_USD: Optional[float] = None
+
+
+def _clamp_float(value, low, high):
+    try:
+        return max(low, min(high, float(value)))
+    except (TypeError, ValueError):
+        return None
 
 
 @app.put("/api/config")
@@ -809,6 +933,34 @@ def api_put_config(patch: ConfigPatch):
         elif k == "SCHEDULE_MINUTES":
             if not data[k]:
                 data.pop(k)
+        elif k == "REPURPOSE_MODEL":
+            if data[k] is None or str(data[k]).strip() == "":
+                data.pop(k)
+            else:
+                data[k] = str(data[k]).strip()
+        elif k == "REPURPOSE_TEMPERATURE":
+            value = _clamp_float(data[k], 0.0, 1.0)
+            if value is None:
+                data.pop(k)
+            else:
+                data[k] = value
+        elif k == "REPURPOSE_RETRY_LIMIT":
+            try:
+                data[k] = max(0, min(5, int(data[k])))
+            except (TypeError, ValueError):
+                data.pop(k)
+        elif k == "REPURPOSE_POLL_SECONDS":
+            try:
+                data[k] = max(1, min(300, int(data[k])))
+            except (TypeError, ValueError):
+                data.pop(k)
+        elif k in ("COST_DEEPSEEK_PER_M", "COST_JEV_INPUT_PER_M",
+                   "COST_GEMINI_PER_M", "COST_BUDGET_USD"):
+            value = _clamp_float(data[k], 0.0, 1_000_000.0)
+            if value is None:
+                data.pop(k)
+            else:
+                data[k] = value
         elif k == "WEB_FETCH_MODE":
             if data[k] is None:
                 data.pop(k)
@@ -855,7 +1007,65 @@ def checklist_json():
         rows = db.list_checklist()
     except Exception:
         rows = []
+    for row in rows:
+        email_link.enrich_row(row)
     return {"generated": "", "articles": rows}
+
+
+@app.get("/api/models.json")
+def api_models(stage: str = "receive"):
+    """AI Model page: receive rows (latest run per email) or Jev rows (latest verdict)."""
+    if str(stage).lower() == "jev":
+        rows = db.jev_rows()
+        for row in rows:
+            row.update(email_link.gmail_urls(row.get("messageId"), ""))
+        return {"stage": "jev", "summary": db.jev_summary(), "rows": rows}
+    rows = db.model_rows()
+    for row in rows:
+        row.update(email_link.gmail_urls(row.get("email_id"), ""))
+    return {"stage": "receive", "summary": db.model_summary(), "rows": rows}
+
+
+@app.get("/api/costs.json")
+def api_costs(page: int = 1, page_size: int = 20, q: str = ""):
+    """Cost page: 20-row pages + the all-runs summary (admin only by the auth matrix)."""
+    receive_rows = db.cost_receive_rows()
+    filter_rows = db.cost_filter_rows()
+    repurpose_rows = db.cost_repurpose_rows()
+    for row in receive_rows:
+        row.update(email_link.gmail_urls(row.get("email_id"), ""))
+    for row in filter_rows:
+        row.update(email_link.gmail_urls(row.get("messageId"), ""))
+    for row in repurpose_rows:
+        row.update(email_link.gmail_urls(row.get("messageId"), ""))
+    summary = cost.build_summary(receive_rows, filter_rows, repurpose_rows)
+    all_rows = cost.build_rows(receive_rows, filter_rows, repurpose_rows)
+    rows, total, page, pages, page_size = cost.paginate(all_rows, page, page_size, q)
+    return {"summary": summary, "rows": rows, "pricing": cost.prices(),
+            "total": total, "page": page, "pages": pages, "page_size": page_size, "q": q}
+
+
+@app.get("/api/senders.json")
+def api_senders():
+    """One row per sender for the (legacy) by-sender view."""
+    try:
+        return {"senders": db.sender_summary()}
+    except Exception as e:
+        return {"senders": [], "error": str(e)}
+
+
+@app.get("/api/sender.json")
+def api_sender(email: str = ""):
+    """One sender's emails, with the Gmail link and the latest checklist status."""
+    if not email:
+        return {"email": "", "emails": [], "error": "email is required"}
+    try:
+        rows = db.sender_emails(email)
+    except Exception as e:
+        return {"email": email, "emails": [], "error": str(e)}
+    for row in rows:
+        row.update(email_link.gmail_urls(row.get("message_id"), ""))
+    return {"email": email, "emails": rows}
 
 
 @app.post("/api/reply")

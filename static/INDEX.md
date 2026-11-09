@@ -10,6 +10,8 @@ _Hand-maintained. All pages are served from this flat folder by one combined app
 | `account.html` | `/account.html` on :8899 | `dashboard.py` | change own password; forced after an admin reset |
 | `users.html` | `/users.html` on :8899 | `dashboard.py` | admin user management + audit log |
 | `editor.html` | `/editor.html` on :8899 | `dashboard.py` | end-user editor: every received email, stage/rejection reason, local draft; light theme |
+| `ai-model.html` | `/ai-model.html` on :8899 (`/by-email.html` + `/senders.html` aliases) | `dashboard.py` | **Cost** page (admin only): spend cards, budget bar, 14-day sparkline and a per-email chain-cost table paginated **20 rows** at a time from `/api/costs.json` |
+| `repurpose.html` | `/repurpose.html` on :8899 | `dashboard.py` | in-process repurpose queue/status: pending, runs, exports (`/api/repurpose/status`) |
 | `checklist.html` | `/` and `/checklist.html` on :8899 | `dashboard.py` | operations: 14-col flags, KPIs, email dropdown, Run/Refresh/CSV/Clear |
 | `flow.html` | `/flow.html` on :8899 | `dashboard.py` | animated receive pipeline + per-stage detail, tokens, model |
 | `workflow-lab.html` | `/workflow-lab.html` on :8899 | `dashboard.py` + `workflow_lab.py` | interactive 9-stage walkthrough (code, input/output, per-stage details, runnable examples) + animated workflow diagram (`#chart`) + .py purpose map |

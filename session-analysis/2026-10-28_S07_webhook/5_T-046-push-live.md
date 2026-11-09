@@ -1,7 +1,7 @@
 # T-046 — push is live and proven end to end
 
 **Session:** 2026-10-28 · S07 · reply 5
-**Register:** `todo/T-046.md` (closed) · **Previous:** `4_T-046_push-vs-pull.md`
+**Register:** `todo/✅ T-046.md` (closed) · **Previous:** `4_T-046_push-vs-pull.md`
 **State:** closed; only two operational chores remain.
 
 ## 1. What the new subscription exposed

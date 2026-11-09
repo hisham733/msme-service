@@ -14,13 +14,33 @@ _2026-11-04 (S12) · doc-only change · no code touched._
 
 **Correction recorded in the issue:** the earlier brief said the AI reported “no article”. The archive row is `hasArticle=true`; the call’s red flag was **“no media” + an AI-credit (402) error**, not a no-article verdict. The issue now states the real gap — the link is lost at publish.
 
+### Web-link emails found (added to the issue)
+
+No email says “the article is on this link”; the literal wording is “full release and photos” or “press release **HERE**”.
+
+| Email | Literal quote | Row | Link |
+|---|---|---|---|
+| Three lessons from Hangzhou (Sanct Social) | “Please click on the link below to access full release and photos” | 242 | `vritimes.com` |
+| BigSeller 11.11 | same | 400 | `vritimes.com` |
+| Labuan IBFC | same | 372 | `vritimes.com` |
+| Indonesian delegation (16 companies) | same | 247 | `vritimes.com` |
+| IMAGO PaperSmart | same | 257 | `vritimes.com` |
+| Sanct Social now available | same | 245 | `vritimes.com` |
+| Momcozy 11.11 | same | 408 | `vritimes.com` |
+| ConverXion KL 2026 | same | 320 | `vritimes.com` |
+| Fast Retailing | “Kindly find the press release **HERE**” | 240 | Google Drive |
+| Aventra / Media OutReach | “Click to download” | — | `release.media-outreach.com` |
+| Finnfund / Cision | link to the original release page | — | `news.cision.com` |
+
+Source: `docs/negative-dataset.json` body text; the system already fetches this kind of link in **23 runs**.
+
 ✅ nothing to decide — measurement only.
 
 ## 2. What changed
 
 `docs/meetings/2026-10-30/NEXT_MEETING.md` (the staging file for the next call):
 
-- **§2 Issues to raise** — new bullet `[HS 2026-11-04]` with the email example, the rule, the 0-link gap, and the ask.
+- **§2 Issues to raise** — new bullet `[HS 2026-11-04]` with the email example, the rule, the 0-link gap, the web-link examples, and the ask.
 - **§3 MSME design decisions** — new row `N-3`: *long reports: publish the link to the report* · **verified gap** · ruling + owner + placement.
 
 No other file touched. No register id changed, so no index rebuild; no `.py` changed, so no compile/tests needed.
@@ -57,16 +77,36 @@ flowchart LR
 
 ⭐ Decision — §3: **A / B / C** for the report link, and who inserts it.
 
-## 4. What I recommend next
+## 4. To-do list and delivery date
 
-**Carry on in this session** (low effort): after the meeting answer, write `decisions/D-0xx.md` for N-3 and a `todo/T-0xx.md` for the `reportUrl` build, then implement it with a regression test.
+Created `todo/🟢 T-049.md` — **Deliver the N-rules from the 30-Oct MSME call**.
 
-Reason: the rule is small and the evidence is fresh; no compaction needed.
+**Delivery date: 2026-11-09 (Monday).** Basis: the next call is planned for the week of
+2026-11-09 (`T-037`) and the 30-Oct call said “~1.5 weeks” from 30 Oct. The exact call date
+is not fixed; if MSME moves it, the date moves with it.
+
+- **2026-11-09:** N-2 library update, N-3 report link, N-4 government summary, N-5
+  contribute, N-6 Gmail link, N-9 cost test.
+- **2026-11-16:** N-1 gallery (needs MSME's images) and N-7 chunk rules (engine repo).
+- **At the call:** N-8 agent name, N-3 link placement.
+
+`todo/INDEX.md` regenerated (49 items, 2 open).
+
+⭐ Decision — §4: confirm **2026-11-09** as the delivery date, or give the real call date.
+
+## 5. What I recommend next
+
+**Carry on in this session** (low effort): start with N-3 (`reportUrl`) and N-6 (Gmail link),
+the two smallest items, then N-2/N-4/N-5.
+
+Reason: the evidence is fresh and the meeting date is close; no compaction needed.
 
 | # | Item | State |
 |---|---|---|
 | 1 | Live page has no report link | verified (0 URLs) |
 | 2 | Release DOCX has both links | verified |
-| 3 | `NEXT_MEETING.md` §2 issue added | done |
+| 3 | `NEXT_MEETING.md` §2 issue + web-link examples | done |
 | 4 | `NEXT_MEETING.md` §3 row added | done |
-| 5 | MSME ruling A/B/C | open — next call |
+| 5 | `todo/🟢 T-049.md` + `todo/INDEX.md` | done |
+| 6 | Delivery date 2026-11-09 | proposed — confirm |
+| 7 | MSME ruling A/B/C | open — next call |

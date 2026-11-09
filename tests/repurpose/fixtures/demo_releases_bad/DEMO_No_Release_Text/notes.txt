@@ -1,0 +1,3 @@
+This folder is a deliberate FAIL case: it has no release text (only this note, which is not a
+`.md` candidate because it is named `notes.txt`). `preflight` must report it as FAIL — the repurpose
+stage has nothing to read.

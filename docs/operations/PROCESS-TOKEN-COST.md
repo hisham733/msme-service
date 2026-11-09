@@ -3,6 +3,12 @@
 _Measured 2026-10-30 from the live SQLite data. No guessed prices; the DeepSeek rate is the
 measured D27 A/B cost and the Jev rate is from `docs/filter/2_JEV_LLM-vs-JEV.md`._
 
+> **Live dashboard (2026-11-07, `T-055`/`D42`):** `/ai-model.html` → **Cost** tab (admin only)
+> shows total spend, chain spend, avg/email, avg/published, stage split, a budget bar, a 14-day
+> sparkline and a per-email table; `/api/costs.json` powers it. The repurpose engine now records
+> usage in `run.json` and `repurpose_runs.usage_json`, so the publish stage is priced from the
+> next run. Rates are editable on **Config → Cost**. The figures below stay the measurement record.
+
 ## 1. Short answer
 
 | Part | Average per email | Cost at the measured rates |
@@ -55,7 +61,7 @@ Jev is input-token priced: **$0.042 per 1M input**, output free. 2,251 input →
 
 ## 4. Repurpose engine — the gap
 
-The external `MSME_AI_News` engine's `run.json` has **no token or usage field** (16 local
+The vendored engine's `run.json` (in-process since `D40`) has **no token or usage field** (16 local
 drafts checked). Its DeepSeek calls are therefore **not measured**. The same key/balance is used;
 the engine is the only unmeasured part of the full receive → publish cost.
 

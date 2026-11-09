@@ -1,0 +1,28 @@
+{
+  "_notes": {
+    "llm.model": "deepseek-flash — served by DeepSeek-V4.1-Flash-1017 (API docs 2026-10-22); model id + version set by MG, verified against api-docs.deepseek.com",
+    "llm.api_key_env": "the key value lives in .env (gitignored); dashboard Settings writes it, never code",
+    "export": "after export the partner edits email_articles_root / dlw_root here — the single edit point (reply 3 §2 = A)",
+    "publish_remote": "https://github.com/EmpiFlow/MSME_AI_News — push happens when built + tested (MG's action)"
+  },
+  "email_articles_root": "Files_from_MSME/Email_Articles",
+  "dlw_root": "DLW",
+  "queue_mode": "one",
+  "skills": {
+    "repurpose": ".claude/skills/msme-repurpose/SKILL.md",
+    "image_select": ".claude/skills/msme-image-select/SKILL.md"
+  },
+  "llm": {
+    "provider": "deepseek",
+    "model": "deepseek-flash",
+    "base_url": "https://api.deepseek.com/chat/completions",
+    "api_key_env": "DEEPSEEK_API_KEY",
+    "temperature": 0.2,
+    "retry_limit": 2,
+    "model_version": "DeepSeek-V4.1-Flash-1017"
+  },
+  "dashboard": {
+    "host": "127.0.0.1",
+    "port": 8765
+  }
+}

@@ -5,7 +5,7 @@
 
 ## 1. What changed
 
-- `todo/T-044.md`: status **closed**, title **“Published Drive links stay in Drive — no
+- `todo/✅ T-044.md`: status **closed**, title **“Published Drive links stay in Drive — no
   checklist links”**.
 - `folderId` / `folderUrl` stay empty by design; the dashboard “open” column stays blank.
 - `decisions/D29.md`: rule 5 now says published links stay in Drive (no checklist link column).

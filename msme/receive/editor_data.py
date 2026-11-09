@@ -18,6 +18,7 @@ import os
 from pathlib import Path
 
 from msme import config, db, settings_store
+from msme.receive import email_link
 
 STAGE_LABEL = {
     "processing": "Processing",
@@ -43,12 +44,17 @@ def _latest(rows, key):
 
 def _repurpose_meta():
     """checklist_id -> run.json status, failing rules, page/image URLs."""
-    data_dir = os.path.dirname(config.SQLITE_PATH) or "."
-    manifest = os.path.join(data_dir, "repurpose_export.json")
     try:
-        records = (json.load(open(manifest, encoding="utf-8")) or {}).get("exported") or []
+        records = db.list_repurpose_exports()
     except Exception:
         records = []
+    if not records:
+        data_dir = os.path.dirname(config.SQLITE_PATH) or "."
+        manifest = os.path.join(data_dir, "repurpose_export.json")
+        try:
+            records = (json.load(open(manifest, encoding="utf-8")) or {}).get("exported") or []
+        except Exception:
+            records = []
     articles = {}
     try:
         raw = Path(config.REPURPOSE_SITE, "data", "articles.js").read_text(encoding="utf-8")
@@ -108,6 +114,8 @@ def _accept_threshold():
 
 
 def _reason_for_readiness(row, pr):
+    if row.get("emailType") == "library_update":
+        return "Library update — logo/building assets stored in the gallery."
     try:
         reason = ((pr or {}).get("stages") or {}).get("verify", {}).get("detail", {}).get("reason", "")
     except Exception:
@@ -205,8 +213,10 @@ def _item_for(row, run, pr, rep, version_count, accept=None):
     edited = max([str(row.get("created_at") or ""), str(row.get("filteredAt") or ""),
                   str((run or {}).get("created_at") or ""), str((pr or {}).get("created_at") or ""),
                   str((rep or {}).get("updated") or "")])
-    return {
+    return email_link.enrich_row({
         "id": row.get("id"), "threadId": row.get("threadId", ""),
+        "messageId": row.get("messageId", ""),
+        "rfc822MessageId": row.get("rfc822MessageId", ""),
         "editedAt": edited,
         "subject": row.get("subject", ""), "date": row.get("date", ""),
         "stage": stage, "stageLabel": STAGE_LABEL.get(stage, stage),
@@ -228,7 +238,8 @@ def _item_for(row, run, pr, rep, version_count, accept=None):
         "repurposeFails": (rep or {}).get("fails") or [],
         "runStatus": run_status, "runError": (run or {}).get("error", ""),
         "runModel": (run or {}).get("model", ""),
-    }
+        "emailType": row.get("emailType", ""),
+    })
 
 
 def build_items():
@@ -268,6 +279,7 @@ def build_items():
             "repurposeFolder": "", "pageUrl": "", "imageUrl": "", "repurposeFails": [],
             "runStatus": run.get("status"), "runError": run.get("error") or "",
             "runModel": run.get("model") or "", "runOnly": True,
+            "emailType": "",
             "editedAt": run.get("created_at") or "",
         })
     out.sort(key=lambda x: (x.get("editedAt") or "", x.get("id") or 0), reverse=True)

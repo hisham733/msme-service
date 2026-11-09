@@ -9,6 +9,7 @@
 # calls   : config, db, creds, gmail, receive_queue, google.oauth2.id_token
 # called  : dashboard.py route
 # amend   : auth is mandatory — never process a push before the audience + service account match.
+#           A disabled webhook answers 200 {"status":"disabled"} before any Gmail call (D41).
 #           Failures: 401 bad token, 400 malformed body, 500 retryable (history/watch error).
 #           Test: python3 -m unittest tests.test_webhook -v
 # =============================================================================
@@ -149,6 +150,9 @@ def _resolve_new_ids(service, start_history_id, push_history_id):
 
 def handle_push_request(authorization, body, service=None):
     """Verify + process one push. Returns (http_status, response_body)."""
+    # A disabled webhook answers 200 so Pub/Sub does not retry; no Gmail call is made.
+    if not receive_queue.webhook_enabled():
+        return 200, {"status": "disabled"}
     try:
         verify_push_token(bearer_token(authorization))
     except WebhookAuthError as e:

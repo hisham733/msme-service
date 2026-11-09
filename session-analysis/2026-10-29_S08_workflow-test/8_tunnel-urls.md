@@ -52,7 +52,7 @@ fetched**: webhook history replay, polling and watch renewal all call Gmail and 
   workflow; re-auth immediately after the meeting.
 - **Effect of not deciding:** the meeting can show the existing data, but a live “send a new
   email” demo will not arrive.
-- **Reference:** `todo/T-028.md`, `docs/PRODUCTION-EMAIL-SETUP.md`.
+- **Reference:** `todo/✅ T-028.md`, `docs/PRODUCTION-EMAIL-SETUP.md`.
 
 ## 4. Meeting demo through the tunnel
 

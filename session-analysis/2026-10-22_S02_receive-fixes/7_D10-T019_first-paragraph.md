@@ -35,10 +35,10 @@ An unrelated subject/article pair scores ~0, so the 0.60 bar does not open the d
 ## 2. Logged — no code changed
 
 - `decisions/D10.md` — the refined rule (headline + first paragraph + filename; exact or ≥60 % coverage).
-- `todo/T-019.md` — build item, **`decided-unbuilt`**: deterministic override **and** a
+- `todo/✅ T-019.md` — build item, **`decided-unbuilt`**: deterministic override **and** a
   `verify_prompt.txt` change so the AI itself compares subject vs headline + first paragraph and accepts
   label subjects.
-- `todo/T-018.md` — ACCCIM row updated; OCBC/PIKOM/redBus/Mimecast noted as extra rows covered by the same fix.
+- `todo/✅ T-018.md` — ACCCIM row updated; OCBC/PIKOM/redBus/Mimecast noted as extra rows covered by the same fix.
 
 No code change, no deploy.
 

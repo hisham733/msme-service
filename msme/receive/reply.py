@@ -50,6 +50,10 @@ def build_reasons(row):
     has_article = _ok(row.get("hasArticle"))
     has_pic = _ok(row.get("hasPic"))
     has_logo = _ok(row.get("hasLogo"))
+    # N-1 option B: a tiny logo is not a usable image. New rows carry the flag;
+    # old rows (dashboard replies) fall back to hasLogo.
+    _usable_raw = row.get("hasUsableLogo")
+    has_usable_logo = _ok(_usable_raw) if _usable_raw not in (None, "") else has_logo
     has_logo_in = _ok(row.get("hasLogoInArticle"))
     has_img_in = _ok(row.get("hasImageInArticle"))
     subject_match = _ok(row.get("subjectMatch"))
@@ -81,7 +85,7 @@ def build_reasons(row):
             ],
         })
 
-    if not (has_pic or has_logo or has_logo_in or has_img_in):
+    if not (has_pic or has_usable_logo or has_logo_in or has_img_in):
         reasons.append({
             "reason": "No usable image or media was attached or linked.",
             "missing": ["At least one photo/image (preferably 1MB or larger), or a media-kit link."],

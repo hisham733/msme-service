@@ -30,8 +30,8 @@ the email subject verbatim.
 | Register | Content |
 |---|---|
 | `decisions/D12.md` | pick the **release-named** doc (siaran akhbar / press release / kenyataan media / nota kepada editor …), deprioritise speeches (`ucapan`, `speech`, `remarks`, `perasmian`); English then length only as tie-breaks |
-| `todo/T-021.md` | build item (`decided-unbuilt`): multilingual picker used by both `attachment_text` and the extract prompt |
-| `todo/T-018.md` | HARI EKSPORT PERAK row added to the batch queue |
+| `todo/✅ T-021.md` | build item (`decided-unbuilt`): multilingual picker used by both `attachment_text` and the extract prompt |
+| `todo/✅ T-018.md` | HARI EKSPORT PERAK row added to the batch queue |
 
 Current queue:
 

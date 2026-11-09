@@ -29,10 +29,13 @@ msme/
     filter.py                # judge core (battery, routing)
     filter_service.py        # FastAPI sub-app: /filter, /lab, /report, /config
     filter_llm.py prefilter.py filter_log.py
-  repurpose/                 # bridge to the external MSME_AI_News engine (D35)
-    repurpose_export.py repurpose_worker.py
+  repurpose/                 # engine + bridge (D40)
+    repurpose_export.py      # ACCEPT -> repurpose_inbox + repurpose_exports
+    runner.py                # in-process worker (one article at a time)
+    repurpose_worker.py      # manual CLI wrapper
+    engine/                  # vendored pipeline + skills/ + dlw_shell/fonts/
   legacy/main.py             # old :8898 API, kept for reference and tests
-tests/                       # unittest suite (149 tests)
+tests/                       # unittest suite (191 tests)
 tools/                       # ops + one-off developer scripts
 static/ prompts/ docs/ data/ creds/ emails/ all_emails/   # runtime folders, resolved by paths.py
 ```

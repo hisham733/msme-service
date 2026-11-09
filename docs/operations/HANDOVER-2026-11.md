@@ -36,7 +36,7 @@ _Measured 2026-11-03. The repo push is ~10 MB; the live archive is 2.7 GB and ne
 3. 3–5 folders from `all_emails/` for sample articles (or the full 2.7 GB for the full report).
 4. `.env` values — **password manager, not USB** (`TYPESAFE_API_KEY`, `DEEPSEEK_API_KEY`,
    bootstrap user/password).
-5. Repurpose only: access to `EmpiFlow/MSME_AI_News` (separate repo, :8765).
+5. Repurpose: nothing extra — the engine ships in the image (`D40`); `/repurpose.html` shows the queue.
 
 ## 3. Never hand over
 
@@ -100,11 +100,12 @@ Then GitHub → Settings → Collaborators → add the partner with **Write**.
 git clone https://github.com/hisham733/msme-service.git
 cd msme-service
 mkdir -p creds data emails all_emails repurpose_inbox repurpose_site
-cp .env.example .env             # fill keys; COOKIE_SECURE=false; ENABLE_AUTO=false; REPLY_ENABLED=false
+cp .env.example .env             # fill keys; COOKIE_SECURE=false; ENABLE_AUTO=false;
+                                 # REPURPOSE_INPROCESS=false; REPLY_ENABLED=false
 # copy the USB data/ + creds/ + (optional) all_emails/ into place
 docker compose up -d --build
 curl -s localhost:8899/health
-python3 -m unittest discover -s tests -p 'test_*.py'   # 149 pass
+python3 -m unittest discover -s tests -p 'test_*.py'   # 191 pass
 ```
 
 Keep `ENABLE_AUTO=false` while your instance polls the same mailbox — the first poller consumes the

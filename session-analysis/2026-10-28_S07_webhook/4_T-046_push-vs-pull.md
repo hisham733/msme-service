@@ -1,7 +1,7 @@
 # T-046 — pull vs push: your subscription must be Push
 
 **Session:** 2026-10-28 · S07 · reply 4
-**Register:** `todo/T-046.md` · **Previous:** `3_T-046_push-test.md`
+**Register:** `todo/✅ T-046.md` · **Previous:** `3_T-046_push-test.md`
 
 ## 1. Short answer
 

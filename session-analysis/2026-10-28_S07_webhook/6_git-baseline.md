@@ -46,7 +46,7 @@ the harness enforces it. I did not route around it (`gh --push`, shell wrappers)
   “go again” and I run the same two commands plus the verification.
 - **Effect of not deciding:** the work stays uncommitted (the original risk) and the
   repo stays empty.
-- **For reference:** this reply and `todo/T-047.md`.
+- **For reference:** this reply and `todo/✅ T-047.md`.
 
 ## 4. Two things still on you
 

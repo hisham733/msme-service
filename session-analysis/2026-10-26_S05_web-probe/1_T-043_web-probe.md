@@ -89,7 +89,7 @@ dashboard reads SQLite and works.
 Example: the Event Me Now row would carry the Drive folder id and its MSME link; A gives
 that row a working open link now, B leaves it blank.
 **Blocks:** T-044 only, not the receive build. **Needed by:** whenever the open column is
-next used. Register: `todo/T-044.md`.
+next used. Register: `todo/✅ T-044.md`.
 
 ⭐ Decision — §5: `T-044 = A` (SQLite first) or `B` (wait). One line is enough.
 
@@ -102,7 +102,7 @@ next used. Register: `todo/T-044.md`.
 | Modes | off / known / probe | live dry-runs; default probe |
 | Publisher logos | never `hasLogo` | four brand images in `publisherLogos` |
 | Tests | 59 pass | 7 new in `tools/test_web_probe.py` |
-| T-044 | needs choice | `todo/T-044.md` |
+| T-044 | needs choice | `todo/✅ T-044.md` |
 
 ## What I recommend next
 

@@ -7,11 +7,13 @@ moving them would break the Report Manager, the Lab or verdict logging (`D4`, `D
 
 | Folder | What it holds |
 |---|---|
-| `workflow/` | how the service works: architecture, end-to-end workflow, the seven email examples, the stage-by-stage comparison, source routing, code map |
+| `workflow/` | how the service works: architecture, end-to-end workflow, the seven email examples, the stage-by-stage comparison, source routing, database flow, code map |
 | `filter/` | Jev rules, gate definitions and comparisons; `filter/experiments/` keeps the superseded variant runs |
 | `meetings/` | `2026-09-21/`, `2026-10-29/`, `2026-10-30/` (call + sources), `2026-11-09/` (next-call brief and decision list) |
 | `operations/` | runbooks and reports: production email setup, token cost, not-ready list, sender asks, weekly reports, repurpose integration |
 | `receive/` | receive-stage feedback and measurements |
+| `new-rules/` | specs for the N-rules from the 30-Oct call (N-1 gallery, N-2 library update, N-3 report link, N-4 government summary, N-5 contribute, N-6 email link, N-7 chunk rules, N-8 agent name, N-10 fact trace) |
+| `repurpose/` | vendored upstream engine docs (`GUIDE`, `IMAGE_GUIDE`, `VISION_MODEL`, `INTEGRATION_CONTRACT`, `KNOWN_ISSUES`, `FILTER_KIT`), the referenced decisions and `UPSTREAM.md`; the engine runs in-process (`D40`, `T-050`) |
 | `reference/` | client source material (guideline, deck, `FILTER-RULES.pdf`, email issues) + `future-mysql/` |
 
 ### `workflow/`
@@ -23,6 +25,7 @@ moving them would break the Report Manager, the Lab or verdict logging (`D4`, `D
 | `RECEIVE-WORKFLOW-7-EMAIL-EXAMPLES.md` | seven real emails, full stage-by-stage walkthroughs |
 | `RECEIVE-STAGES-EXPLAINED.md` | the eleven receive stages, compared across the seven emails |
 | `MEDIA-SOURCE-DECISION.md` | who picks the source/fetcher: link guard, URL routing, decide-suggestion detail |
+| `DATABASE-FLOW.md` | `data/msme.sqlite3`: end-to-end flow, every table, the checklist contract, the N-6 link ids, plus the `database-schema.svg` / `.png` table graph |
 | `CODE-MAP.md` | the `msme/` package layout and import rules (`D38`) |
 
 ### `filter/`
@@ -57,6 +60,20 @@ moving them would break the Report Manager, the Lab or verdict logging (`D4`, `D
 
 `receive_feedback.md` — the 20-folder receive/image feedback batch.
 
+### `new-rules/`
+
+| File | What it is |
+|---|---|
+| `N-1-logo-gallery.md` | N-1 spec: trigger, match criteria (weighted vs priority vs hybrid), gallery index, MSME questions |
+| `N-2-library-update.md` | N-2 spec: library-update classifier, storage, promotion policy C, `emailType`, MSME questions |
+| `N-3-report-link.md` | N-3 spec: report hyperlink capture, `meta.json`, link-vs-summarise, engine handoff, MSME questions |
+| `N-4-government-summary.md` | N-4 spec: government-summary detection, summary-vs-speech, speech fetch, commentary branch, MSME questions |
+| `N-5-contribute-byline.md` | N-5 spec: contribute detection, author/byline, insights category, no repurpose, author-visual ask, MSME questions |
+| `N-6-email-link.md` | N-6 spec (built): Gmail `Open email` + `Find in Gmail` links, stored ids, backfill, no MSME question |
+| `N-7-chunk-image-rules.md` | N-7 spec: live-pattern chunks/H2/paragraphs/images, engine handoff, MSME questions (engine task, 2026-11-16) |
+| `N-8-agent-name.md` | N-8 decision (built): the agent is **AIN**; applied to `editor.html` title + header |
+| `N-10-fact-trace.md` | N-10 (built): no invented facts — numbers, quotes, dates/names and low-support sentences traced to the release |
+
 ## Flat files at `docs/` root — code reads or writes these by name
 
 **Do not move or rename them** (`D4`, `D39`).
@@ -85,4 +102,4 @@ moving them would break the Report Manager, the Lab or verdict logging (`D4`, `D
 - The Report Manager reads `all_emails/` (date buckets), one version per subject — `decisions/D26.md`.
 - Keep `FILTER-LOGIC.md`, `FILTER-REVIEW.md`, `gates-def-*` and `original-gates.xlsx` as variants —
   never reconcile them to the live battery (`decisions/D5.md`).
-- This grouping is recorded in `decisions/D39.md`; `todo/T-004.md` is closed.
+- This grouping is recorded in `decisions/D39.md`; `todo/✅ T-004.md` is closed.

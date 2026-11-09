@@ -1,7 +1,7 @@
 # Not-ready list — 26 emails, verified reasons, 25 not re-run
 
 **Session:** 2026-10-22_S02 · **Turn:** 10 · **Report:** `docs/NOT-READY-TO-FILTER-2026-10-22.md`
-**Register:** `todo/T-022.md`
+**Register:** `todo/⏳ T-022.md`
 
 ---
 

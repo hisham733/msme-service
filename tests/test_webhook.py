@@ -63,8 +63,13 @@ class _Base(unittest.TestCase):
         ]
         for p in self.cfg:
             p.start()
+        # The webhook is ON by default in these tests (the toggle has its own class below).
+        self.patch_enabled = patch.object(
+            webhook_gmail.receive_queue, "webhook_enabled", return_value=True)
+        self.patch_enabled.start()
 
     def tearDown(self):
+        self.patch_enabled.stop()
         for p in reversed(self.cfg):
             p.stop()
         self.patch_db.stop()
@@ -306,6 +311,54 @@ class QueueTests(_Base):
         self.assertEqual(self._status("q5"), "error")
         self.assertEqual(db.enqueue_webhook_messages(["q5"]), 1)
         self.assertEqual(self._status("q5"), "queued")
+
+
+class ToggleTests(_Base):
+    """The Config-page on/off switch (T-055)."""
+
+    def _settings(self, path):
+        self.patch_settings = patch.object(receive_queue.settings_store, "SETTINGS_PATH", path)
+        self.patch_settings.start()
+        self.addCleanup(self.patch_settings.stop)
+
+    def test_disabled_webhook_is_acknowledged_without_processing(self):
+        with patch.object(webhook_gmail.receive_queue, "webhook_enabled", return_value=False), \
+                self._valid_token():
+            status, body = webhook_gmail.handle_push_request(AUTH, _push())
+        self.assertEqual(status, 200)
+        self.assertEqual(body["status"], "disabled")
+        self.assertEqual(self._count("select count(*) from webhook_events"), 0)
+
+    def test_apply_webhook_on_creates_and_stores_watch(self):
+        self._settings(os.path.join(self.tmp.name, "settings.json"))
+        with patch.object(receive_queue, "webhook_topic",
+                          return_value="projects/x/topics/gmail-push"), \
+                patch.object(receive_queue, "webhook_enabled", return_value=True), \
+                patch.object(receive_queue.creds, "gmail", return_value=object()), \
+                patch.object(receive_queue.gmail, "watch",
+                             return_value={"historyId": "777", "expiration": 999}):
+            result = receive_queue.apply_webhook(True)
+        self.assertTrue(result["enabled"])
+        self.assertEqual(result["watch"]["history_id"], "777")
+        self.assertEqual(result["error"], "")
+        self.assertEqual(db.get_gmail_watch()["history_id"], "777")
+
+    def test_apply_webhook_off_stops_and_clears(self):
+        self._settings(os.path.join(self.tmp.name, "settings.json"))
+        db.save_gmail_watch("100", 999, "projects/x/topics/gmail-push")
+        with patch.object(receive_queue.creds, "gmail", return_value=object()), \
+                patch.object(receive_queue.gmail, "stop_watch") as stop:
+            result = receive_queue.apply_webhook(False)
+        self.assertFalse(result["enabled"])
+        stop.assert_called_once()
+        self.assertIsNone(db.get_gmail_watch())
+
+    def test_apply_webhook_on_without_topic_reports_error(self):
+        self._settings(os.path.join(self.tmp.name, "settings.json"))
+        with patch.object(receive_queue, "webhook_topic", return_value=""):
+            result = receive_queue.apply_webhook(True)
+        self.assertTrue(result["enabled"])
+        self.assertIn("GMAIL_PUBSUB_TOPIC", result["error"])
 
 
 if __name__ == "__main__":

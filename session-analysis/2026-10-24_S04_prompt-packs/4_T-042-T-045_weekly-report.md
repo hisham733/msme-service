@@ -1,7 +1,7 @@
 # Weekly report — done, issues, next
 
 **Session:** 2026-10-24_S04 · **Turn:** 4 · **IDs:** T-038 · T-042 · T-043 · T-044 · T-045
-**Report:** [`docs/WEEKLY-REPORT-2026-10-24.md`](../../docs/WEEKLY-REPORT-2026-10-24.md)
+**Report:** [`docs/WEEKLY-REPORT-2026-10-24.md`](../../docs/operations/WEEKLY-REPORT-2026-10-24.md)
 
 ---
 

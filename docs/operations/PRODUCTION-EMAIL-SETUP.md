@@ -126,6 +126,11 @@ Only unread production mail should appear.
 
 ## 6. Reset the Gmail Push watch
 
+> **From 2026-11-07 the Config page owns this:** `/config.html` → **Config Receive** has
+> *Gmail push webhook* (Enable/Disable, watch expiry, polling warning) and *Google account —
+> reconnect* (consent URL + paste the redirected URL). The manual command below remains the
+> fallback (`D41`).
+
 Do this **after** `/webhooks/gmail` is deployed. If the webhook is not live, skip this step.
 
 ```bash

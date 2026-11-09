@@ -28,7 +28,7 @@ Until they arrive, the image/caption/naming items below are marked "answered —
 | Links/media kits are valid article sources | Drive, OneDrive, Box, Google Doc, public web (`D6`, `D15`, `D20`, `D23`, `D24`) |
 | Extract media embedded in PDF/DOCX | header logos/photos, up to 10 images (`D8`, `D24`) |
 | One pipeline on one port | `run.py` → `msme.combined:app` (`D32`) |
-| Repurpose on the external engine | `MSME_AI_News` on :8765 (`D35`) |
+| Repurpose in-process | `msme/repurpose/engine/` on :8899 (`D40`) |
 | "Start simple, upscale the employee" | the link-fetching stage **is** the upscale; needs Wayne's confirmation (`M-1`) |
 
 ## 2. Open decisions — MSME (Wayne / Ailee)
@@ -75,10 +75,10 @@ Until they arrive, the image/caption/naming items below are marked "answered —
 | `B-4` | msme-service | regression test in `tests/` |
 | `M-2` | msme-service | `REPLY_MODE=sender`, reply wording |
 | `M-3` | msme-service | scheduler + digest job |
-| `M-4` | msme-service + `MSME_AI_News` | WordPress uploader / approval gate |
+| `M-4` | msme-service (vendored engine) | WordPress uploader / approval gate |
 | `AG-14`, `B-5` | msme-service | dedupe vs `docs/published-index.json` |
 | `B-6` | msme-service + engine | image rename at draft/upload |
-| `AG-01`…`AG-08`, `AG-15` | `MSME_AI_News` | image skill, captions, naming (answers `D-024`…`D-029`) |
+| `AG-01`…`AG-08`, `AG-15` | `msme/repurpose/engine/skills/` | image skill, captions, naming (answers `D-024`…`D-029`) |
 | `AG-16`, `M-1`, `M-3`, `M-5`, `M-6` | MSME ruling | no code until answered |
 
 ## 6. Answer sheet (copy-paste for the call)

@@ -12,7 +12,7 @@
   when you change its role, imports or callers (`decisions/D2.md`).
 - **Secrets and live data stay out of git and out of replies**: `creds/`, `data/`, `emails/`, `all_emails/`,
   and never print a key or token.
-- **Repurpose is external** — the `MSME_AI_News` engine on :8765 (D35); never rebuild it here.
+- **Repurpose is in-process** — the vendored engine under `msme/repurpose/engine/` runs in the app (`D40`); one worker, one article at a time; no separate engine or :8765.
 - **Auth boundary (T-047)**: `combined.py` wraps the app in `auth.AuthGate`. Public paths are
   `/health`, `/login`, `/api/auth/login`, `/webhooks/gmail`, `/auth.js`. Admin/editor rules live in
   `auth.evaluate` — never add a public path without a reason; test with `tests/test_auth.py`.

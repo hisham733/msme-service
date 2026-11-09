@@ -50,5 +50,5 @@ No code changed, so no test run was needed; the reorg baseline remains 149 tests
 ## 4. What I recommend next
 
 Read `docs/MEDIA-SOURCE-DECISION.md` and tell me if any example needs more detail. Otherwise the next
-step is the delete decision (`INDEX.md` §8) or the handover bundle (`todo/T-048.md`). Thinking effort:
+step is the delete decision (`INDEX.md` §8) or the handover bundle (`todo/🟢 T-048.md`). Thinking effort:
 **low**.

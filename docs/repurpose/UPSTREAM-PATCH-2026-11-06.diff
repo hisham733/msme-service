@@ -1,0 +1,19 @@
+diff --git a/pipeline/build_site.py b/pipeline/build_site.py
+index cbb63e1..144e95e 100644
+--- a/pipeline/build_site.py
++++ b/pipeline/build_site.py
+@@ -246,11 +246,13 @@ def build_all(cfg):
+             "url": "articles/" + quote(page.name, safe=""),
+             "image": ("images/" + quote(assets["cover"].split("/")[-1], safe="")) if assets.get("cover") else "",
+             "date": date, "cats": draft["categories"][:4],
++            # Last publish = the last engine run for this release (run.json updated).
++            "published": run.get("updated") or "",
+         })
+         built += 1
+     for stale in (dlw / "articles").glob("*.html"):
+         if stale.name not in pages:
+             stale.unlink()
+-    entries.sort(key=lambda e: e["date"], reverse=True)
++    entries.sort(key=lambda e: (e.get("published") or "", e.get("date") or ""), reverse=True)
+     index_path = DlwWriter().write(cfg, entries)
+     return {"built": built, "index": str(index_path)}

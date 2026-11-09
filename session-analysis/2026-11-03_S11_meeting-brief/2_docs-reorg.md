@@ -1,7 +1,7 @@
 # 2 — docs/ grouped by topic (D39)
 
 **Deliverable:** `docs/` is now six topic folders plus the code-read files at the root.
-Recorded in `decisions/D39.md`; `todo/T-004.md` is closed.
+Recorded in `decisions/D39.md`; `todo/✅ T-004.md` is closed.
 
 ## 1. New layout
 

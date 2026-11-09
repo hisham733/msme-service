@@ -64,6 +64,8 @@
 <div class="cfg-tabs">
   <button class="cfg-tab active" id="tab-receive" onclick="showCfg('receive')">Config Receive</button>
   <button class="cfg-tab" id="tab-filter" onclick="showCfg('filter')">Config Filter</button>
+  <button class="cfg-tab" id="tab-repurpose" onclick="showCfg('repurpose')">Config Repurpose</button>
+  <button class="cfg-tab" id="tab-cost" onclick="showCfg('cost')">Config Cost</button>
 </div>
 
 <div class="cfg-panel" id="cfg-receive">
@@ -94,7 +96,7 @@
 
 <div class="card">
   <h2>Gmail</h2>
-  <div class="hint">Only fetched when you click Refresh on the Checklist page (never polled).</div>
+  <div class="hint">The picker lists unread emails matching this query; Push/polling feeds the same queue.</div>
   <div class="f">
     <label>Gmail search query<span class="k">GMAIL_QUERY</span></label>
     <input id="GMAIL_QUERY" placeholder="in:inbox -category:promotions">
@@ -102,6 +104,44 @@
   <div class="f">
     <label>Unread only<span class="k">read-only</span></label>
     <input class="ro" value="Yes — the picker lists unread emails only" readonly>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Gmail push webhook</h2>
+  <div class="hint">Pub/Sub push → <b>/webhooks/gmail</b>. Off = pushes are ignored and the Gmail watch is stopped; keep polling on as the fallback.</div>
+  <div class="f">
+    <label>Status<span class="k">ENABLE_WEBHOOK</span></label>
+    <input class="ro" id="webhook-state" value="loading…" readonly>
+  </div>
+  <div class="f">
+    <label>Pub/Sub topic<span class="k">GMAIL_PUBSUB_TOPIC</span></label>
+    <input class="ro" id="webhook-topic" readonly>
+  </div>
+  <div class="f">
+    <label>Watch expires<span class="k">Gmail users.watch</span></label>
+    <input class="ro" id="webhook-exp" readonly>
+  </div>
+  <div class="bar">
+    <button id="btnWebhook" onclick="toggleWebhook()">…</button>
+    <span class="ro-list" id="webhook-msg"></span>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Google account — reconnect</h2>
+  <div class="hint">Use when Gmail/Drive/Sheets returns <b>invalid_grant</b>. The consent page is Google's; this app never sees your password.</div>
+  <div class="f">
+    <label>1. Start<span class="k">opens the Google consent page</span></label>
+    <div><button id="btnReauth" onclick="startReauth()">Open Google consent</button></div>
+  </div>
+  <div class="f">
+    <label>2. Paste the redirected URL<span class="k">127.0.0.1:8080/?code=… — the page fails to load, that is normal</span></label>
+    <input id="reauth-url" placeholder="http://127.0.0.1:8080/?code=...">
+  </div>
+  <div class="bar">
+    <button id="btnReauthDone" onclick="finishReauth()">Finish reconnect</button>
+    <span class="ro-list" id="reauth-msg"></span>
   </div>
 </div>
 
@@ -170,6 +210,14 @@
       <option value="false">Off — receive only</option>
     </select>
   </div>
+  <iframe src="filter-config.html?embed=1" title="Filter rule editor" style="width:100%;height:720px;border:1px solid var(--line);border-radius:10px;background:#0b1020"></iframe>
+</div>
+</div>
+
+<div class="cfg-panel" id="cfg-repurpose" style="display:none">
+<div class="card">
+  <h2>Repurpose engine</h2>
+  <div class="hint">In-process engine (D40) · one article at a time · these apply to the next article, no restart.</div>
   <div class="f">
     <label>Auto-repurpose ACCEPT articles<span class="k">ENABLE_AUTO_REPURPOSE</span></label>
     <select id="ENABLE_AUTO_REPURPOSE">
@@ -177,11 +225,61 @@
       <option value="false">Off — export manually only</option>
     </select>
   </div>
-  <iframe src="filter-config.html?embed=1" title="Filter rule editor" style="width:100%;height:720px;border:1px solid var(--line);border-radius:10px;background:#0b1020"></iframe>
+  <div class="f">
+    <label>Engine model<span class="k">REPURPOSE_MODEL</span></label>
+    <input id="REPURPOSE_MODEL" placeholder="deepseek-flash">
+  </div>
+  <div class="f">
+    <label>Temperature<span class="k">REPURPOSE_TEMPERATURE (0–1)</span></label>
+    <input id="REPURPOSE_TEMPERATURE" type="number" min="0" max="1" step="0.05">
+  </div>
+  <div class="f">
+    <label>Validator retry limit<span class="k">REPURPOSE_RETRY_LIMIT (0–5)</span></label>
+    <input id="REPURPOSE_RETRY_LIMIT" type="number" min="0" max="5">
+  </div>
+  <div class="f">
+    <label>Poll seconds<span class="k">REPURPOSE_POLL_SECONDS (1–300)</span></label>
+    <input id="REPURPOSE_POLL_SECONDS" type="number" min="1" max="300">
+  </div>
+  <div class="f">
+    <label>In-process worker<span class="k">REPURPOSE_INPROCESS — read-only</span></label>
+    <input class="ro" value="On — change the Docker env and restart" readonly>
+  </div>
+  <div class="f">
+    <label>Inbox → site<span class="k">paths — read-only</span></label>
+    <input class="ro" value="/app/repurpose_inbox → /app/repurpose_site" readonly>
+  </div>
+  <div class="bar">
+    <a class="cfg-tab" href="repurpose.html" style="text-decoration:none">Open the Repurpose queue →</a>
+  </div>
 </div>
 </div>
 
-
+<div class="cfg-panel" id="cfg-cost" style="display:none">
+<div class="card">
+  <h2>Cost rates</h2>
+  <div class="hint">Estimated from stored token usage. Defaults are the measured rates in <b>docs/operations/PROCESS-TOKEN-COST.md</b>.</div>
+  <div class="f">
+    <label>DeepSeek<span class="k">COST_DEEPSEEK_PER_M — USD / 1M total tokens</span></label>
+    <input id="COST_DEEPSEEK_PER_M" type="number" min="0" step="0.01">
+  </div>
+  <div class="f">
+    <label>Jev<span class="k">COST_JEV_INPUT_PER_M — USD / 1M input tokens (output free)</span></label>
+    <input id="COST_JEV_INPUT_PER_M" type="number" min="0" step="0.001">
+  </div>
+  <div class="f">
+    <label>Gemini<span class="k">COST_GEMINI_PER_M — USD / 1M total tokens</span></label>
+    <input id="COST_GEMINI_PER_M" type="number" min="0" step="0.01">
+  </div>
+  <div class="f">
+    <label>Budget / credit<span class="k">COST_BUDGET_USD — 0 hides the bar</span></label>
+    <input id="COST_BUDGET_USD" type="number" min="0" step="0.01">
+  </div>
+  <div class="bar">
+    <a class="cfg-tab" href="ai-model.html" style="text-decoration:none">Open the Cost dashboard →</a>
+  </div>
+</div>
+</div>
 
 <div class="card">
   <div class="bar">
@@ -193,18 +291,22 @@
 <script>
 const EDITABLE = ['LLM_PROVIDER','DEEPSEEK_MODEL','DEEPSEEK_API_KEY','GEMINI_MODEL','GEMINI_API_KEY',
                   'GMAIL_QUERY','CHECKLIST_SHEET_ID','CHECKLIST_TAB','ARCHIVE_PARENT_FOLDER','SCHEDULE_MINUTES',
-                  'WEB_FETCH_MODE','WEB_KNOWN_SITES','ENABLE_AUTO_FILTER','ENABLE_AUTO_REPURPOSE'];
+                  'WEB_FETCH_MODE','WEB_KNOWN_SITES','ENABLE_AUTO_FILTER','ENABLE_AUTO_REPURPOSE',
+                  'REPURPOSE_MODEL','REPURPOSE_TEMPERATURE','REPURPOSE_RETRY_LIMIT','REPURPOSE_POLL_SECONDS',
+                  'COST_DEEPSEEK_PER_M','COST_JEV_INPUT_PER_M','COST_GEMINI_PER_M','COST_BUDGET_USD'];
 const esc = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 const $ = id => document.getElementById(id);
 
 function msg(text, color){ $('msg').textContent = text; $('msg').style.color = color || 'var(--mut)'; }
 
 function showCfg(which){
-  const rec = which !== 'filter';
-  document.getElementById('cfg-receive').style.display = rec ? 'block' : 'none';
-  document.getElementById('cfg-filter').style.display = rec ? 'none' : 'block';
-  document.getElementById('tab-receive').classList.toggle('active', rec);
-  document.getElementById('tab-filter').classList.toggle('active', !rec);
+  ['receive','filter','repurpose','cost'].forEach(k=>{
+    const panel = document.getElementById('cfg-'+k);
+    if (panel) panel.style.display = (k === which) ? 'block' : 'none';
+    const tab = document.getElementById('tab-'+k);
+    if (tab) tab.classList.toggle('active', k === which);
+  });
+  if (which === 'receive') loadWebhook();
 }
 
 function load(){
@@ -213,11 +315,81 @@ function load(){
     EDITABLE.forEach(k=>{ const el=$(k); if(el && c[k]!==undefined && c[k]!==null) el.value = String(c[k]); });
     $('ENABLE_AUTO_RO').value = c.ENABLE_AUTO ? 'Enabled' : 'Disabled (recommended)';
   }).catch(e=>msg('load failed: '+e.message,'var(--bad)'));
+  loadWebhook();
 }
+
+function loadWebhook(){
+  fetch('/api/webhook').then(r=>r.json()).then(d=>{
+    $('webhook-state').value = d.enabled ? 'On — Gmail Push active' : 'Off — pushes ignored';
+    $('webhook-topic').value = d.topic || '(not set)';
+    const exp = d.watch && d.watch.expiration
+      ? new Date(Number(d.watch.expiration)).toLocaleString() : '—';
+    $('webhook-exp').value = exp;
+    const btn = $('btnWebhook');
+    if (btn) {
+      btn.textContent = d.enabled ? 'Disable webhook' : 'Enable webhook';
+      btn.style.background = d.enabled ? 'var(--badsoft)' : 'var(--accent)';
+      btn.style.color = d.enabled ? 'var(--bad)' : '#062a26';
+      btn.disabled = false;
+    }
+    $('webhook-msg').textContent = d.polling
+      ? 'Polling fallback: on.'
+      : 'Polling fallback: OFF — turning the webhook off stops all intake.';
+  }).catch(e=>{ const el=$('webhook-msg'); if(el) el.textContent='load error: '+e.message; });
+}
+
+function toggleWebhook(){
+  const btn = $('btnWebhook');
+  const enable = btn.textContent.indexOf('Enable') === 0;
+  btn.disabled = true; $('webhook-msg').textContent = (enable ? 'enabling' : 'disabling') + '…';
+  fetch('/api/webhook', {method:'POST', headers:{'Content-Type':'application/json'},
+                         body:JSON.stringify({enabled:enable})})
+    .then(r=>r.json())
+    .then(d=>{
+      btn.disabled = false;
+      $('webhook-msg').textContent = d.error
+        ? ('error: ' + d.error)
+        : (enable ? 'enabled ✓ — watch created' : 'disabled ✓ — watch stopped');
+      loadWebhook();
+    })
+    .catch(e=>{ btn.disabled=false; $('webhook-msg').textContent='error: '+e.message; });
+}
+
+function startReauth(){
+  $('reauth-msg').textContent = 'opening…';
+  fetch('/api/google/reauth').then(r=>r.json()).then(d=>{
+    if (!d.url) { $('reauth-msg').textContent = 'error: ' + (d.detail || 'no consent URL'); return; }
+    window.open(d.url, '_blank', 'noopener');
+    $('reauth-msg').textContent = 'Sign in, approve, then copy the failed 127.0.0.1:8080 URL and paste it below.';
+  }).catch(e=>$('reauth-msg').textContent='error: '+e.message);
+}
+
+function finishReauth(){
+  const url = $('reauth-url').value.trim();
+  if (!url) { $('reauth-msg').textContent = 'paste the redirected URL first'; return; }
+  const btn = $('btnReauthDone');
+  btn.disabled = true; $('reauth-msg').textContent = 'exchanging…';
+  fetch('/api/google/reauth', {method:'POST', headers:{'Content-Type':'application/json'},
+                               body:JSON.stringify({redirect_url:url})})
+    .then(async r=>{
+      const d = await r.json().catch(()=>({}));
+      btn.disabled = false;
+      if (!r.ok) { $('reauth-msg').textContent = 'error: ' + (d.detail || r.status); return; }
+      $('reauth-msg').textContent = 'connected' + (d.email ? ' as ' + d.email : '') + ' ✓';
+      $('reauth-url').value = '';
+      loadWebhook();
+    })
+    .catch(e=>{ btn.disabled=false; $('reauth-msg').textContent='error: '+e.message; });
+}
+
+const OPTIONAL_NUMERIC = new Set(['REPURPOSE_TEMPERATURE','REPURPOSE_RETRY_LIMIT',
+  'REPURPOSE_POLL_SECONDS','COST_DEEPSEEK_PER_M','COST_JEV_INPUT_PER_M',
+  'COST_GEMINI_PER_M','COST_BUDGET_USD']);
 
 function save(){
   const body = {};
-  EDITABLE.forEach(k=>{ const el=$(k); if(el) body[k] = el.value; });
+  // Empty optional numerics become null (dropped by the server); strings stay strings.
+  EDITABLE.forEach(k=>{ const el=$(k); if(el) body[k] = (OPTIONAL_NUMERIC.has(k) && el.value === '') ? null : el.value; });
   msg('saving…');
   fetch('/api/config', {method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)})
     .then(r=>r.json())

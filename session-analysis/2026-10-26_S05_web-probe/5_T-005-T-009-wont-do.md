@@ -17,7 +17,7 @@ on its own.
 
 - Report figures remain **not independently verified** by this project.
 - Filter definition files remain undocumented; do not delete one as a “duplicate” without checking.
-- Both files are closed, not deleted: `todo/T-005.md`, `todo/T-009.md`.
+- Both files are closed, not deleted: `todo/✅ T-005.md`, `todo/✅ T-009.md`.
 
 ✅ nothing to decide — §2
 

@@ -66,6 +66,7 @@
   .qst.old { background:#020617; color:#64748b; border:1px solid #1f2937; }
   .qst.warning { background:rgba(251,191,36,.15); color:#fbbf24; }
   .qst.error { background:rgba(248,113,113,.15); color:#f87171; }
+  .qst.lib { background:rgba(96,165,250,.15); color:#60a5fa; }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.45} }
   .spin { width:13px; height:13px; border:2px solid rgba(45,212,191,.3); border-top-color:#2dd4bf; border-radius:50%; animation:rotate 1s linear infinite; }
   @keyframes rotate { to { transform:rotate(360deg); } }
@@ -106,6 +107,7 @@
 <div class="nav">
   <a href="checklist.html" class="active">Checklist</a>
   <a href="editor.html">Editor</a>
+  <a href="ai-model.html">AI Model</a>
   <a href="/repurpose-site/index.html" target="_blank" rel="noopener">Repurpose ↗</a>
   <a href="config.html">Config</a>
 </div>
@@ -294,11 +296,14 @@ function render(){
     const tag = (v, t)=>`<span class="tag ${ok(v)?'ok':'bad'}">${ok(v)?'yes':'no'}</span>`;
     const rst = receiveState(a);
     const old = isOldRow(a);
-    const stLabel = old ? 'old'
+    const isLib = String(a.emailType)==='library_update';
+    const stLabel = isLib ? 'library update'
+      : old ? 'old'
       : rst==='running' ? 'processing…'
       : rst==='needs_human' ? 'receive issue'
       : rst==='error' ? 'error' : 'received';
-    const stCls = old ? 'old'
+    const stCls = isLib ? 'lib'
+      : old ? 'old'
       : rst==='running' ? 'processing'
       : rst==='needs_human' ? 'warning'
       : rst==='error' ? 'error' : 'received';
@@ -347,7 +352,7 @@ function openReceive(id){
        : a.replySent==='error' ? '<span style="color:var(--bad)">failed</span>' : 'not sent');
   document.getElementById('receiveModalBody').innerHTML=`
     <h3>${esc(a.subject||'(no subject)')}</h3>
-    <div class="m-sub"><span class="qst ${isOldRow(a)?'old':stCls}">${isOldRow(a)?'old version':stLabel}</span> · ${esc(a.date||'')} · thread ${esc(a.threadId||'—')}${log.model?' · '+esc(log.model):''}</div>
+    <div class="m-sub"><span class="qst ${isOldRow(a)?'old':stCls}">${isOldRow(a)?'old version':stLabel}</span> · ${esc(a.date||'')} · thread ${esc(a.threadId||'—')}${log.model?' · '+esc(log.model):''}${a.emailUrl?` · <a href="${esc(a.emailUrl)}" target="_blank" rel="noopener noreferrer">Open email ↗</a>`:''}${a.emailSearchUrl?` · <a href="${esc(a.emailSearchUrl)}" target="_blank" rel="noopener noreferrer">Find in Gmail</a>`:''}</div>
 
     <div class="rc-file"><div class="k">Article file</div><div class="v">${esc(a.articleFile||'—')}</div></div>
 

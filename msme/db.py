@@ -86,9 +86,28 @@ def init_db():
     # add reply_sent to checklist (migration) — tracks rejection replies to avoid re-sending
     try:
         ccols = [r[1] for r in c.execute("PRAGMA table_info(checklist)")]
-        for col in ("replySent", "replyTo", "replyAt"):
+        for col in ("replySent", "replyTo", "replyAt", "messageId", "rfc822MessageId",
+                    "emailType"):
             if col not in ccols:
                 c.execute(f"ALTER TABLE checklist ADD COLUMN {col} TEXT")
+    except Exception:
+        pass
+    # N-9 follow-up: one compact row per received email (no body, no attachment bytes).
+    c.execute(
+        """
+        CREATE TABLE IF NOT EXISTS emails (
+            message_id TEXT PRIMARY KEY,
+            from_name TEXT,
+            from_email TEXT,
+            subject TEXT,
+            received_at TEXT,
+            links_json TEXT,
+            attachment_count INTEGER DEFAULT 0
+        )
+        """
+    )
+    try:
+        c.execute("CREATE INDEX IF NOT EXISTS idx_checklist_message_id ON checklist(messageId)")
     except Exception:
         pass
     c.execute(
@@ -195,6 +214,57 @@ def init_db():
             created_at TEXT
         )"""
     )
+    # T-050 / D40: the repurpose engine's state lives in the same DB.
+    c.execute(
+        """CREATE TABLE IF NOT EXISTS repurpose_exports (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            checklist_id INTEGER UNIQUE,
+            filter_result_id INTEGER,
+            folder TEXT,
+            dest TEXT,
+            article_hash TEXT,
+            config_hash TEXT,
+            weighted INTEGER,
+            status TEXT,
+            exported_at TEXT
+        )"""
+    )
+    c.execute(
+        """CREATE TABLE IF NOT EXISTS repurpose_runs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            folder TEXT UNIQUE,
+            checklist_id INTEGER,
+            filter_result_id INTEGER,
+            status TEXT,
+            model TEXT,
+            started_at TEXT,
+            finished_at TEXT,
+            error TEXT,
+            usage_json TEXT,
+            run_json TEXT,
+            draft_path TEXT,
+            site_path TEXT,
+            updated_at TEXT
+        )"""
+    )
+    # D40/T-055: usage was added after the first in-process runs — migrate old DBs.
+    try:
+        rpos = [r[1] for r in c.execute("PRAGMA table_info(repurpose_runs)")]
+        if "usage_json" not in rpos:
+            c.execute("ALTER TABLE repurpose_runs ADD COLUMN usage_json TEXT")
+    except Exception:
+        pass
+    c.execute(
+        """CREATE TABLE IF NOT EXISTS repurpose_events (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            folder TEXT,
+            stage TEXT,
+            status TEXT,
+            detail TEXT,
+            created_at TEXT
+        )"""
+    )
+    c.execute("CREATE INDEX IF NOT EXISTS idx_repurpose_events_folder ON repurpose_events(folder)")
     c.commit()
     c.close()
 
@@ -229,6 +299,301 @@ def set_run_subject(run_id, subject):
     c.close()
 
 
+def save_email(model, received_at=None):
+    """Record one received email in the compact `emails` table.
+
+    Stores the envelope + link/attachment summary only — no body and no attachment
+    bytes. A re-run updates the fields but keeps the first `received_at`.
+    `received_at` can be overridden for a backfill (use the email's Date header).
+    Returns True when a row was written, False when the message id is missing.
+    """
+    model = model or {}
+    message_id = str(model.get("messageId") or "").strip()
+    if not message_id:
+        return False
+    links = model.get("linksFound") or []
+    attachments = model.get("attachments") or []
+    when = received_at or datetime.now(timezone.utc).isoformat()
+    c = _connect()
+    c.execute(
+        """insert into emails
+           (message_id, from_name, from_email, subject, received_at, links_json, attachment_count)
+           values (?,?,?,?,?,?,?)
+           on conflict(message_id) do update set
+             from_name=excluded.from_name,
+             from_email=excluded.from_email,
+             subject=excluded.subject,
+             links_json=excluded.links_json,
+             attachment_count=excluded.attachment_count""",
+        (
+            message_id,
+            model.get("fromName", ""),
+            model.get("fromEmail", ""),
+            model.get("subject", ""),
+            when,
+            json.dumps(list(links), ensure_ascii=False),
+            len(attachments),
+        ),
+    )
+    c.commit()
+    c.close()
+    return True
+
+
+def get_email(message_id):
+    """Return one `emails` row (with parsed links) or None."""
+    c = _connect()
+    try:
+        r = c.execute("select * from emails where message_id=?", (str(message_id or ""),)).fetchone()
+    except Exception:
+        r = None
+    c.close()
+    if not r:
+        return None
+    d = dict(r)
+    try:
+        d["links"] = json.loads(d.get("links_json") or "[]")
+    except Exception:
+        d["links"] = []
+    return d
+
+
+def list_emails(limit=100):
+    """Newest received emails (compact rows, parsed links)."""
+    c = _connect()
+    try:
+        rows = c.execute(
+            "select * from emails order by received_at desc limit ?", (int(limit),)
+        ).fetchall()
+    except Exception:
+        rows = []
+    c.close()
+    out = []
+    for r in rows:
+        d = dict(r)
+        try:
+            d["links"] = json.loads(d.get("links_json") or "[]")
+        except Exception:
+            d["links"] = []
+        out.append(d)
+    return out
+
+
+def sender_summary():
+    """One row per sender: from_email, from_name, email count, last received.
+
+    The count comes from `emails` (one row per message), never from `checklist` —
+    a re-run creates extra checklist rows and would double-count.
+    """
+    c = _connect()
+    try:
+        rows = c.execute(
+            """select case when trim(from_email)='' then '(unknown sender)' else from_email end
+                      as from_email,
+                      max(from_name) as from_name,
+                      count(*) as emails,
+                      max(received_at) as last_received
+               from emails
+               group by from_email
+               order by emails desc, last_received desc"""
+        ).fetchall()
+    except Exception:
+        rows = []
+    c.close()
+    return [dict(r) for r in rows]
+
+
+def sender_emails(email):
+    """One sender's emails, each with its latest checklist row (ready flag)."""
+    target = str(email or "")
+    c = _connect()
+    try:
+        rows = c.execute(
+            """select e.message_id, e.from_name, e.from_email, e.subject,
+                      e.received_at, e.links_json, e.attachment_count,
+                      c.id as checklistId, c.readyToFilter, c.hasArticle,
+                      c.date as emailDate
+               from emails e
+               left join checklist c on c.id = (
+                   select id from checklist where messageId = e.message_id order by id desc limit 1
+               )
+               where case when trim(e.from_email)='' then '(unknown sender)' else e.from_email end = ?
+               order by e.received_at desc""",
+            (target,),
+        ).fetchall()
+    except Exception:
+        rows = []
+    c.close()
+    out = []
+    for r in rows:
+        d = dict(r)
+        try:
+            d["links"] = json.loads(d.get("links_json") or "[]")
+        except Exception:
+            d["links"] = []
+        out.append(d)
+    return out
+
+
+def model_rows():
+    """One row per email: the latest receive run, its model and the latest checklist status.
+
+    The page is built from `runs` (not `emails`) so it works before the Gmail backfill;
+    `from_email`/`from_name` fill in automatically once `emails` has the message.
+    """
+    c = _connect()
+    try:
+        rows = c.execute(
+            """select r.email_id, r.subject, r.model, r.status,
+                      r.created_at, r.created_at as run_at,
+                      e.from_email, e.from_name, c.readyToFilter,
+                      (select count(*) from runs r2 where r2.email_id=r.email_id) as run_count
+               from runs r
+               join (select email_id, max(rowid) rid from runs group by email_id) x on x.rid=r.rowid
+               left join emails e on e.message_id=r.email_id
+               left join checklist c on c.id = (
+                   select id from checklist where messageId=r.email_id order by id desc limit 1)
+               order by r.rowid desc"""
+        ).fetchall()
+    except Exception:
+        rows = []
+    c.close()
+    return [dict(r) for r in rows]
+
+
+def model_summary():
+    """Models seen in `runs`, with email/run counts and the last run time."""
+    out = {}
+    for r in model_rows():
+        model = r.get("model") or "(unknown)"
+        item = out.setdefault(model, {"model": model, "emails": 0, "runs": 0, "last_run": ""})
+        item["emails"] += 1
+        item["runs"] += int(r.get("run_count") or 0)
+        if (r.get("created_at") or "") > item["last_run"]:
+            item["last_run"] = r.get("created_at") or ""
+    return sorted(out.values(), key=lambda x: (-x["emails"], x["model"]))
+
+
+def jev_rows():
+    """One row per checklist item: the latest Jev filter verdict."""
+    c = _connect()
+    try:
+        rows = c.execute(
+            """select f.id, f.checklist_id, f.outcome, f.weighted, f.gate, f.confidence,
+                      f.model, f.created_at, f.verdict,
+                      c.messageId, c.subject, c.date, c.readyToFilter
+               from filter_results f
+               join (select checklist_id, max(id) fid from filter_results group by checklist_id) y
+                 on y.fid=f.id
+               left join checklist c on c.id=f.checklist_id
+               order by f.id desc"""
+        ).fetchall()
+    except Exception:
+        rows = []
+    c.close()
+    out = []
+    for r in rows:
+        d = dict(r)
+        try:
+            verdict = json.loads(d.pop("verdict") or "{}")
+        except Exception:
+            verdict = {}
+        d["usage"] = verdict.get("usage") or {}
+        out.append(d)
+    return out
+
+
+def jev_summary():
+    """Count the latest Jev verdicts by outcome."""
+    counts = {}
+    for r in jev_rows():
+        outcome = r.get("outcome") or "(unknown)"
+        counts[outcome] = counts.get(outcome, 0) + 1
+    return [{"outcome": k, "n": v} for k, v in sorted(counts.items(), key=lambda kv: -kv[1])]
+
+
+def cost_receive_rows(limit=5000):
+    """Every successful receive run with token usage (the Cost tab picks the latest)."""
+    c = _connect()
+    try:
+        rows = c.execute(
+            "select run_id, email_id, subject, status, stages, created_at "
+            "from pipeline_results order by rowid desc limit ?", (int(limit),)
+        ).fetchall()
+    except Exception:
+        rows = []
+    c.close()
+    out = []
+    for r in rows:
+        d = dict(r)
+        try:
+            stages = json.loads(d.pop("stages") or "{}")
+        except Exception:
+            stages = {}
+        tokens = (stages.get("tokens") or {}).get("detail") or {}
+        if not tokens.get("total"):
+            continue
+        d["tokens"] = {
+            "prompt": int(tokens.get("prompt") or 0),
+            "completion": int(tokens.get("completion") or 0),
+            "total": int(tokens.get("total") or 0),
+        }
+        d["model"] = tokens.get("model") or ""
+        out.append(d)
+    return out
+
+
+def cost_filter_rows(limit=5000):
+    """Every filter result with its Jev usage (the Cost tab picks the latest)."""
+    c = _connect()
+    try:
+        rows = c.execute(
+            """select f.id, f.checklist_id, f.outcome, f.model, f.created_at, f.verdict,
+                      c.messageId, c.subject
+               from filter_results f left join checklist c on c.id=f.checklist_id
+               order by f.id desc limit ?""", (int(limit),)
+        ).fetchall()
+    except Exception:
+        rows = []
+    c.close()
+    out = []
+    for r in rows:
+        d = dict(r)
+        try:
+            verdict = json.loads(d.pop("verdict") or "{}")
+        except Exception:
+            verdict = {}
+        d["usage"] = verdict.get("usage") or {}
+        out.append(d)
+    return out
+
+
+def cost_repurpose_rows(limit=5000):
+    """Every repurpose run with the engine usage captured at run time (may be empty on old runs)."""
+    c = _connect()
+    try:
+        rows = c.execute(
+            """select pr.folder, pr.checklist_id, pr.status, pr.model, pr.started_at,
+                      pr.finished_at, pr.updated_at, pr.usage_json,
+                      c.messageId, c.subject
+               from repurpose_runs pr left join checklist c on c.id=pr.checklist_id
+               order by pr.updated_at desc limit ?""", (int(limit),)
+        ).fetchall()
+    except Exception:
+        rows = []
+    c.close()
+    out = []
+    for r in rows:
+        d = dict(r)
+        try:
+            d["usage"] = json.loads(d.pop("usage_json") or "{}")
+        except Exception:
+            d["usage"] = {}
+        d["created_at"] = d.get("finished_at") or d.get("updated_at") or ""
+        out.append(d)
+    return out
+
+
 def save_checklist(row):
     """Insert one checklist row and return its new checklist id."""
     c = _connect()
@@ -241,6 +606,15 @@ def save_checklist(row):
         vals,
     )
     rid = cur.lastrowid
+    # N-6: Gmail identity columns live outside the 14-column contract.
+    try:
+        c.execute(
+            "update checklist set messageId=?, rfc822MessageId=?, emailType=? where id=?",
+            (row.get("messageId", ""), row.get("rfc822MessageId", ""),
+             row.get("emailType") or "press_release", rid),
+        )
+    except Exception:
+        pass
     c.commit()
     c.close()
     return rid
@@ -315,15 +689,18 @@ def save_filter_result(checklist_id, run_id, thread_id, result, status="ok", err
 def list_checklist():
     """Return checklist rows with the latest linked filter result (if any)."""
     c = _connect()
-    cols = "c.id, " + ", ".join("c." + col for col in _COLUMNS) + ", c.replySent, c.replyTo, c.replyAt, c.created_at"
+    cols = "c.id, " + ", ".join("c." + col for col in _COLUMNS) + ", c.replySent, c.replyTo, c.replyAt, c.messageId, c.rfc822MessageId, c.emailType, c.created_at"
     try:
         rows = c.execute(
             f"""select {cols},
+                       e.from_name as emailFromName, e.from_email as emailFrom,
+                       e.links_json as emailLinks, e.attachment_count as emailAttachments,
                        f.status as filterStatus, f.outcome as filterOutcome,
                        f.weighted as filterWeighted, f.gate as filterGate,
                        f.confidence as filterConfidence, f.error as filterError,
                        f.verdict as filterVerdict, f.created_at as filteredAt
                 from checklist c
+                left join emails e on e.message_id = c.messageId
                 left join filter_results f on f.id = (
                     select id from filter_results where checklist_id = c.id order by id desc limit 1
                 )
@@ -445,6 +822,14 @@ def get_gmail_watch():
     r = c.execute("select history_id, expiration, topic, updated_at from gmail_watch where id=1").fetchone()
     c.close()
     return dict(r) if r else None
+
+
+def clear_gmail_watch():
+    """Forget the stored watch cursor (used when the webhook is switched off)."""
+    c = _connect()
+    c.execute("delete from gmail_watch where id=1")
+    c.commit()
+    c.close()
 
 
 def begin_webhook_event(event_id, email_address, history_id):
@@ -879,3 +1264,99 @@ def get_filter_version(version_id):
     except Exception:
         d["snapshot"] = {}
     return d
+
+
+# --- Repurpose engine state (T-050 / D40) ------------------------------------
+
+_REPURPOSE_RUN_FIELDS = ("checklist_id", "filter_result_id", "status", "model", "started_at",
+                         "finished_at", "error", "usage_json", "run_json", "draft_path", "site_path")
+
+
+def save_repurpose_export(checklist_id, filter_result_id=None, folder="", dest="",
+                          article_hash="", config_hash="", weighted=None,
+                          status="exported"):
+    """Record one ACCEPT -> inbox export, keyed by the checklist row."""
+    c = _connect()
+    c.execute(
+        """insert into repurpose_exports
+           (checklist_id, filter_result_id, folder, dest, article_hash, config_hash,
+            weighted, status, exported_at)
+           values (?,?,?,?,?,?,?,?,?)
+           on conflict(checklist_id) do update set
+             filter_result_id=excluded.filter_result_id, folder=excluded.folder,
+             dest=excluded.dest, article_hash=excluded.article_hash,
+             config_hash=excluded.config_hash, weighted=excluded.weighted,
+             status=excluded.status, exported_at=excluded.exported_at""",
+        (int(checklist_id), filter_result_id, folder, dest, article_hash or "",
+         config_hash or "", weighted, status, _now_iso()),
+    )
+    c.commit()
+    c.close()
+
+
+def list_repurpose_exports(limit=500):
+    c = _connect()
+    rows = c.execute("select * from repurpose_exports order by id desc limit ?",
+                     (int(limit),)).fetchall()
+    c.close()
+    return [dict(r) for r in rows]
+
+
+def get_repurpose_export(checklist_id):
+    c = _connect()
+    r = c.execute("select * from repurpose_exports where checklist_id=?",
+                  (int(checklist_id),)).fetchone()
+    c.close()
+    return dict(r) if r else None
+
+
+def upsert_repurpose_run(folder, **fields):
+    """Mirror one folder's `run.json` into the DB (the file stays the contract)."""
+    data = {k: v for k, v in fields.items() if k in _REPURPOSE_RUN_FIELDS}
+    data["folder"] = folder
+    data["updated_at"] = _now_iso()
+    cols = ", ".join(data)
+    marks = ", ".join("?" for _ in data)
+    updates = ", ".join(f"{k}=excluded.{k}" for k in data if k != "folder")
+    c = _connect()
+    c.execute(f"insert into repurpose_runs ({cols}) values ({marks}) "
+              f"on conflict(folder) do update set {updates}", tuple(data.values()))
+    c.commit()
+    c.close()
+    return get_repurpose_run(folder)
+
+
+def get_repurpose_run(folder):
+    c = _connect()
+    r = c.execute("select * from repurpose_runs where folder=?", (folder,)).fetchone()
+    c.close()
+    return dict(r) if r else None
+
+
+def list_repurpose_runs(limit=200):
+    c = _connect()
+    rows = c.execute("select * from repurpose_runs order by updated_at desc limit ?",
+                     (int(limit),)).fetchall()
+    c.close()
+    return [dict(r) for r in rows]
+
+
+def add_repurpose_event(folder, stage, status, detail=""):
+    c = _connect()
+    c.execute("insert into repurpose_events (folder,stage,status,detail,created_at) "
+              "values (?,?,?,?,?)", (folder or "", stage or "", status or "",
+                                     detail or "", _now_iso()))
+    c.commit()
+    c.close()
+
+
+def list_repurpose_events(folder=None, limit=100):
+    c = _connect()
+    if folder:
+        rows = c.execute("select * from repurpose_events where folder=? order by id desc limit ?",
+                         (folder, int(limit))).fetchall()
+    else:
+        rows = c.execute("select * from repurpose_events order by id desc limit ?",
+                         (int(limit),)).fetchall()
+    c.close()
+    return [dict(r) for r in rows]

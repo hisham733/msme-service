@@ -5,7 +5,7 @@
 **Time:** 10:42 AM – 12:04 PM (recording length 1 h 21 min 20 s)
 **Platform:** Microsoft Teams
 **Source recording:** `meeting_notes/Meeting Oct 30.mp4`
-**Brief this call worked through:** [`2026-10-30_MSME_guideline-review.md`](2026-10-30_MSME_guideline-review.md)
+**Brief this call worked through:** [`guideline-review.md`](guideline-review.md)
 
 ## Attendees
 

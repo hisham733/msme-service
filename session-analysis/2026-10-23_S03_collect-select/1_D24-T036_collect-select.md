@@ -97,7 +97,7 @@ Stages: body logo `bodylogo-1.png`; web fetch 1 URL → 4,372 chars + `webphoto-
 
 ## 4. Records updated
 
-- `decisions/D24.md` + `todo/T-036.md`; indexes regenerated (24 decisions, 36 todo items).
+- `decisions/D24.md` + `todo/✅ T-036.md`; indexes regenerated (24 decisions, 36 todo items).
 - `docs/NOT-READY-TO-FILTER-2026-10-22.md` → **17 remaining** (Finnfund removed; 132/17).
 - `docs/SENDER-ASKS-2026-10-22.md` → **11 asks** (Finnfund removed).
 - `NOW.md` → D24 + new totals.
@@ -144,7 +144,7 @@ send the **11 asks** + the MSIA re-share (`T-011`).
 Start a **new session** for T-001 Repurpose (medium effort) — it is a separate stage and should not
 ride on the receive session. Paste:
 
-> Read `README.md`, `NOW.md`, `todo/T-001.md`, `decisions/D1.md`, `decisions/D2.md`. Plan the Repurpose
+> Read `README.md`, `NOW.md`, `todo/✅ T-001.md`, `decisions/D1.md`, `decisions/D2.md`. Plan the Repurpose
 > stage (accepted-article source, output format, editorial rule, page + route + test) and stop for my OK
 > before building.
 

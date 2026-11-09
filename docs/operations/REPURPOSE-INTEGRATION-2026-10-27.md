@@ -1,3 +1,7 @@
+> **Superseded 2026-11-06 by `D40` / `T-050`:** the engine is now vendored under
+> `msme/repurpose/engine/` and runs in-process on :8899; `:8765` and the host worker are retired.
+> This file is kept as the D35 record.
+
 # Repurpose integration — 2026-10-27
 
 **Decision:** `D35` · **Engine:** `/home/hisham/Desktop/new_div/MSME_AI_News` · **Dashboard:** http://localhost:8765/

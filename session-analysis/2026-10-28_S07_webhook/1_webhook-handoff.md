@@ -1,7 +1,7 @@
 # Email webhook — handoff to a new session
 
 **Session:** 2026-10-28 · S07 · reply 1
-**State:** in progress; continue from `todo/T-046.md`.
+**State:** in progress; continue from `todo/✅ T-046.md`.
 
 ## Done
 
@@ -29,7 +29,7 @@ Open the same folder:
 
 `/home/hisham/Desktop/new_div/msme-service`
 
-Then read `AGENTS.md` → `README.md` → `NOW.md` → `todo/T-046.md` → this reply. Start with `webhook_gmail.py`.
+Then read `AGENTS.md` → `README.md` → `NOW.md` → `todo/✅ T-046.md` → this reply. Start with `webhook_gmail.py`.
 
 Do not repeat the Cloudflare/GCP setup. The endpoint is still **404** until step 1–2 are deployed.
 

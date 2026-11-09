@@ -19,9 +19,9 @@
 | `session-analysis/` | one folder per working day; the numbered reply per turn |
 | `msme/` | the service package — receive, filtering (Jev), repurpose, legacy — see `docs/workflow/CODE-MAP.md` (`D38`) |
 | `run.py` | the one entrypoint: scheduler + `msme.combined:app` on :8899 |
-| `tests/` | unittest suite (149 tests) |
+| `tests/` | unittest suite (191 tests) |
 | `tools/` | ops + one-off developer scripts, `build_register_indexes.py` |
-| `msme/repurpose/` | auto-export to `repurpose_inbox/` + host worker (D35) |
+| `msme/repurpose/` | ACCEPT → inbox export, the in-process engine runner and the vendored engine (D40) |
 | `pyproject.toml` · `Makefile` · `.github/workflows/ci.yml` | ruff config, dev commands, CI |
 | `static/` | every web page, served by one combined app on :8899 — see `static/INDEX.md` |
 | `docs/` | topic folders — `workflow/`, `filter/` (+ `experiments/`), `meetings/`, `operations/`, `receive/`, `reference/` — plus the code-read files at the root; see `docs/INDEX.md` (`D39`) |
@@ -34,7 +34,7 @@
 | `emails/` | legacy archive / test articles — **not** read by the Report Manager |
 | `all_emails/` | **live receive archive**, sorted by received date (see `all_emails/INDEX.md`, `D26`) |
 | `delet/old-reports/` | old archived filter reports — manual review |
-| `repurpose_inbox/` · `repurpose_site/` | external engine input / built site — gitignored |
+| `repurpose_inbox/` · `repurpose_site/` | engine input / built site — gitignored |
 
 ## 2. Hard rules
 
@@ -43,20 +43,19 @@
    After editing register items run `python3 tools/build_register_indexes.py`.
 3. **Build and test together** — name the run that proves a change, or say why none.
 4. **Never commit `creds/`, `data/` or the email archives**; no secret in a page, log or reply.
-5. Repurpose runs on the external `MSME_AI_News` engine (:8765) via auto-export + inbox worker (D35) — do not rebuild it here.
+5. Repurpose runs **in-process** (`msme/repurpose/engine/`, `D40`): one worker thread, one article at a time; no separate engine or :8765.
 
 ## 3. Commands (run from this folder)
 
 ```bash
 python3 tools/build_register_indexes.py         # regenerate decisions/ + todo/ INDEX.md
 python3 -m compileall -q msme run.py tools tests   # syntax check after edits
-python3 -m unittest discover -s tests -p 'test_*.py' -v   # 149 tests
+python3 -m unittest discover -s tests -p 'test_*.py' -v   # 191 tests
 python run.py                                   # start one combined app (or: docker compose up -d --build)
 curl -s localhost:8899/health
 python3 -m msme.repurpose.repurpose_export --apply   # manual export (auto when ENABLE_AUTO_REPURPOSE)
-python3 -m msme.repurpose.repurpose_worker           # host worker: run new inbox folders
-(cd ../MSME_AI_News && python3 -m pipeline.run check)   # engine key check
-(cd ../MSME_AI_News && python3 -m pipeline.dashboard)   # engine dashboard :8765
+python3 -m msme.repurpose.repurpose_worker --once    # manual run (the app starts the worker itself)
+curl -s localhost:8899/repurpose.html                # repurpose queue/status
 curl -s localhost:8899/workflow-lab.html     # interactive receive walkthrough
 ```
 

@@ -14,8 +14,11 @@ services:
       - ENABLE_AUTO=true
       - ENABLE_AUTO_FILTER=true
       - ENABLE_AUTO_REPURPOSE=true
+      # T-050/D40: the engine runs in this process (one worker, one article at a time).
+      - REPURPOSE_INPROCESS=true
+      - REPURPOSE_POLL_SECONDS=5
       - SCHEDULE_MINUTES=5
-      - DEEPSEEK_MODEL=deepseek-v4-flash
+      - DEEPSEEK_MODEL=deepseek-flash
       # DeepSeek key for receive/filter; also settable on /config (data/settings.json).
       - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}
       # Jev key comes from the gitignored .env (never hardcode it).
@@ -53,14 +56,16 @@ services:
       - WEBHOOK_AUDIENCE=https://hook.empi.site/webhooks/gmail
       - WEBHOOK_SERVICE_ACCOUNT=msme-webhook-push@sme-ai-510803.iam.gserviceaccount.com
     volumes:
-      - ./creds:/app/creds:ro
+      # Writable so the Config → Google reconnect button can refresh the tokens.
+      - ./creds:/app/creds
       - ./prompts:/app/prompts:ro
       - ./data:/app/data
       - ./docs:/app/docs
       - ./emails:/app/emails
       - ./all_emails:/app/all_emails
       - ./repurpose_inbox:/app/repurpose_inbox
-      - ./repurpose_site:/app/repurpose_site:ro
+      # Writable: the engine writes articles/, assets/fonts/, images/ and index.html here.
+      - ./repurpose_site:/app/repurpose_site
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8899/api/health')"]
       interval: 30s

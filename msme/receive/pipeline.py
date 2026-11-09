@@ -4,12 +4,12 @@
 # role    : Receive — per-email orchestrator
 # owner   : Hisham (human owner) · AI coding sessions may amend under his review
 # purpose : one email -> normalize -> decide -> collect every source (attachments, Drive, OneDrive, Box,
-#           web, body images) -> select the article from the candidate pool -> verify -> 14-column checklist
-#           row -> local archive; records each stage for the Workflow page. Media is classified by
-#           dimensions, never by file size (D24).
+#           web, body images) -> select the article from the candidate pool -> N-2 library-update check
+#           -> verify -> 14-column checklist row -> local archive; records each stage for the Workflow
+#           page. Media is classified by dimensions, never by file size (D24).
 # pages   : n/a (the row feeds checklist.html)
 # calls   : config, creds, db, decide, drive_fetch, onedrive_fetch, box_fetch, extract, gmail, normalize,
-#           verify; archive (lazy)
+#           verify, library_update, gallery; archive (lazy)
 # called  : main.py / dashboard.py `_process_one`, scheduler.py
 # amend   : stage order and row keys are the contract read by the checklist, reports and archive lookups.
 #           A new stage must also call db.save_pipeline_result. Test: run one email end-to-end.
@@ -18,6 +18,7 @@
 
 Flow:
     Decide -> load attachments / drive media kit -> extract -> logo scan
+        -> library-update check (N-2, skips verify/filter/reply on a hit)
         -> verify -> build 14-col checklist row -> archive to PC.
 
 Example of what this returns (the checklist row):
@@ -46,6 +47,7 @@ from msme.receive import (
     decide,
     drive_fetch,
     extract,
+    gallery,
     gmail,
     normalize,
     onedrive_fetch,
@@ -221,6 +223,58 @@ def _trusted_links(model, decision_link=""):
             continue
         if u not in out:
             out.append(u)
+    return out
+
+
+def _usable_doc_logo(doc_images_detail):
+    """True when a document contains a logo that is actually usable (N-1 option B).
+
+    A 40x20 letterhead icon is a ``logo`` in the classifier but is not usable;
+    a vector header logo or a raster logo with max side >= BODY_LOGO_MIN_DIM is.
+    """
+    for doc in doc_images_detail or []:
+        for image in doc.get("images") or []:
+            if image.get("kind") != "logo":
+                continue
+            if image.get("vector"):
+                return True
+            try:
+                if max(int(image.get("width") or 0),
+                       int(image.get("height") or 0)) >= config.BODY_LOGO_MIN_DIM:
+                    return True
+            except (TypeError, ValueError):
+                continue
+    return False
+
+
+def _usable_logo_files(model, files):
+    """True when a logo-named attachment is usable (raster >= 200 px or SVG)."""
+    for att in model.get("attachments", []):
+        name = str(att.get("filename") or "")
+        if "logo" not in name.lower():
+            continue
+        data = files.get(name) or b""
+        if not data:
+            continue
+        if name.lower().endswith(".svg"):
+            return True                      # vector: scalable, no pixel floor
+        w, h = extract._image_dims(data)
+        if max(w, h) >= config.BODY_LOGO_MIN_DIM:
+            return True
+    return False
+
+
+def _gallery_filenames(model, files, media_kit):
+    """Attachment + Drive media-kit filenames passed to the gallery matcher."""
+    names = [a.get("filename") or "" for a in model.get("attachments", [])]
+    names += list(files.keys())
+    if media_kit:
+        names += [i.get("name") or "" for i in media_kit.get("images", [])]
+        names += [i.get("name") or "" for i in media_kit.get("originals", [])]
+    out = []
+    for name in names:
+        if name and name not in out:
+            out.append(name)
     return out
 
 
@@ -420,6 +474,12 @@ def _run_pipeline(service, email_id, model, run_id, dry_run=False, trace=None, c
     reset_token_tally()
     stages = {}
     subject = model.get("subject", "")
+    # Record the received email's envelope early; a later AI/archive failure must not lose it.
+    if not dry_run:
+        try:
+            db.save_email(model)
+        except Exception as e:
+            print(f"[pipeline] save_email failed: {e}")
     try:
         web_mode = str(settings_store.get("WEB_FETCH_MODE") or config.WEB_FETCH_MODE or "probe").strip().lower()
     except Exception:
@@ -1154,15 +1214,138 @@ def _run_pipeline(service, email_id, model, run_id, dry_run=False, trace=None, c
     has_logo = (bool(has_logo_file) or bool(attachment_logo_names)
                 or bool(body_logo_names) or bool(asset_logo_names)
                 or bool(drive_file_logo_names))
+    # N-1 option B: a logo only counts as USABLE when it is vector or its max
+    # side is >= BODY_LOGO_MIN_DIM. A 40x20 icon or a tiny logo-named file is
+    # still a factual hasLogo, but it must not suppress the gallery.
+    doc_logo_usable = _usable_doc_logo(doc_images_detail)
+    has_logo_file_usable = _usable_logo_files(model, files)
+    has_usable_logo = (bool(attachment_logo_names) or bool(body_logo_names)
+                       or bool(asset_logo_names) or bool(drive_file_logo_names)
+                       or doc_logo_usable or has_logo_file_usable)
+    ai_logo = doc_logo_usable or bool(ai_logo)
+
+    # N-2 library update — an email that only distributes a logo/building photo
+    # is a gallery update, not "no article". Detect before the N-1 gallery and
+    # Verify so the wrong paths (gallery match, verify, filter, reply, archive)
+    # never run for it.
+    _lu = None
+    try:
+        from msme.receive import library_update
+        _lu = library_update.classify({
+            "subject": model.get("subject", ""),
+            "raw_body": model.get("bodyText") or model.get("cleanBody") or "",
+            "body_text": body_text,
+            "candidates": ranked_candidates,
+            "decision": decision,
+            "attachments": model.get("attachments", []),
+            "files": files,
+            "needs_human": needs_human,
+            "media": {"hasPic": has_pic, "hasLogo": has_logo,
+                      "docLogo": doc_logo, "docPhoto": doc_photo},
+            "from_email": model.get("fromEmail", ""),
+            "from_name": model.get("fromName", ""),
+            "message_id": model.get("messageId", ""),
+            "date": model.get("date", ""),
+        })
+    except Exception as e:  # noqa: BLE001 — a detector error must not fail the run
+        stages["library_update"] = {"status": "error", "detail": {"error": str(e)[:300]}}
+        _emit(trace, "library_update", "error", stages["library_update"]["detail"])
+        print(f"[pipeline] library_update detect error: {e}")
+
+    if _lu:
+        _stored = {}
+        if not dry_run:
+            try:
+                _stored = library_update.store_update(_lu, dry_run=False)
+            except Exception as e:  # noqa: BLE001 — a store error must not fail the run
+                print(f"[pipeline] library_update store failed: {e}")
+                _stored = {"error": str(e)[:300]}
+        stages["library_update"] = {"status": "done", "detail": {
+            "brand": _lu.get("brand", ""),
+            "confidence": _lu.get("confidence", ""),
+            "files": len(_lu.get("files") or {}),
+            "store": _stored,
+        }}
+        _emit(trace, "library_update", "done", stages["library_update"]["detail"])
+        print(f"[pipeline] library_update brand={_lu.get('brand') or '(unknown)'} "
+              f"files={len(_lu.get('files') or {})} promoted={_stored.get('promoted', 0)}")
+        # Skip verify/filter/archive/reply: build the row inline and return.
+        lu_row = {
+            "subject": model["subject"],
+            "threadId": model.get("threadId", ""),
+            "messageId": model.get("messageId", ""),
+            "rfc822MessageId": model.get("rfc822MessageId", ""),
+            "date": model.get("date", "")[:10],
+            "folderId": "", "folderUrl": "",
+            "articleFile": "",
+            "hasArticle": "false",
+            "hasPic": "true" if has_pic else "false",
+            "hasLogo": "true" if has_logo else "false",
+            "hasUsableLogo": "true" if has_usable_logo else "false",
+            "hasLogoInArticle": "false",
+            "hasImageInArticle": "false",
+            "subjectMatch": "false",
+            "subjectScore": "0",
+            "readyToFilter": "false",
+            "emailType": "library_update",
+        }
+        lu_row["_runId"] = run_id
+        if not dry_run:
+            db.save_pipeline_result(run_id, email_id, model["subject"], stages, lu_row)
+            db.log_run_end(run_id, "success")
+        return lu_row
+
+    # N-1 gallery — only with an article and no usable image. The stage never
+    # fails the run: a miss continues to the normal ask email.
+    gallery_logos = {}
+    if not config.GALLERY_ENABLED:
+        stages["gallery"] = {"status": "skipped",
+                             "detail": {"reason": "GALLERY_ENABLED=false"}}
+    elif not body_text:
+        stages["gallery"] = {"status": "skipped", "detail": {"reason": "no article"}}
+    elif has_pic or has_usable_logo or doc_photo:
+        stages["gallery"] = {"status": "skipped", "detail": {
+            "reason": "usable image present",
+            "hasPic": has_pic, "hasUsableLogo": has_usable_logo,
+            "docPhoto": doc_photo}}
+    else:
+        try:
+            index = gallery.load_index()
+            result = gallery.match({
+                "subject": model.get("subject", ""),
+                "from_name": model.get("fromName", ""),
+                "from_email": model.get("fromEmail", ""),
+                "filenames": _gallery_filenames(model, files, media_kit),
+                "body": body_text,
+            }, index)
+            if result.get("status") == "hit":
+                picked = gallery.pick(result["detail"])
+                gallery_logos[picked["name"]] = picked["bytes"]
+                has_usable_logo = True
+                has_logo = True
+                stages["gallery"] = {"status": "hit", "detail": result["detail"]}
+                print(f"[gallery] hit {result['detail'].get('brand')} "
+                      f"tier={result['detail'].get('tier')} file={picked['name']}")
+            else:
+                stages["gallery"] = {"status": "miss",
+                                     "detail": result.get("detail", {})}
+        except Exception as e:  # noqa: BLE001 — a gallery error must not fail the run
+            stages["gallery"] = {"status": "error", "detail": {"error": str(e)[:300]}}
+            print(f"[gallery] error: {e}")
+    _emit(trace, "gallery", stages["gallery"]["status"], stages["gallery"]["detail"])
+    stages["logo_scan"]["detail"]["hasUsableLogo"] = has_usable_logo
+    stages["logo_scan"]["detail"]["docLogoUsable"] = doc_logo_usable
+
     flags = {
         "hasPic": has_pic,
-        "hasLogo": has_logo,
-        "docLogo": doc_logo,
+        "hasLogo": has_usable_logo,
+        "docLogo": doc_logo_usable,
         "docPhoto": doc_photo,
         "visionLogo": vision_logo,
         "aiLogo": ai_logo,
         "aiImage": ai_image,
-        "hasLogoFile": has_logo_file,
+        "hasLogoFile": has_logo_file_usable,
+        "hasUsableLogo": has_usable_logo,
     }
     # Body/asset LOGOS are not "images in the article" (they are standalone
     # assets); flags.hasLogo carries them. Only photos/doc images go to verify.
@@ -1200,13 +1383,13 @@ def _run_pipeline(service, email_id, model, run_id, dry_run=False, trace=None, c
     # vector logo inside the document. If classify_doc_images found one, the
     # checklist must say so (verify._finalize only downgrades today).
     if verdict.get("hasArticle"):
-        if doc_logo:
+        if doc_logo_usable:
             verdict["hasLogoInArticle"] = True
         if doc_photo:
             verdict["hasImageInArticle"] = True
     # Recompute readyToFilter after the deterministic overrides above; the AI
     # computed it from the original (possibly wrong) subject score / flags.
-    _media_asset = (has_pic or has_logo or bool(doc_logo) or bool(doc_photo)
+    _media_asset = (has_pic or has_usable_logo or bool(doc_photo)
                     or bool(verdict.get("hasLogoInArticle"))
                     or bool(verdict.get("hasImageInArticle")))
     try:
@@ -1310,7 +1493,7 @@ def _run_pipeline(service, email_id, model, run_id, dry_run=False, trace=None, c
         _all_media = {**files, **embed_images, **box_images, **body_pics, **body_logos,
                       **asset_pics, **asset_logos, **drive_file_pics,
                       **drive_file_logos, **onedrive_images,
-                      **web_images, **web_logos, **attachment_logos}
+                      **web_images, **web_logos, **attachment_logos, **gallery_logos}
         _img_ext = (".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp", ".svg", ".heic", ".tiff")
         _doc_ext = (".pdf", ".docx", ".doc", ".txt", ".md")
         try:
@@ -1340,7 +1523,7 @@ def _run_pipeline(service, email_id, model, run_id, dry_run=False, trace=None, c
                 email_images={**files, **embed_images, **box_images, **body_pics, **body_logos,
                              **asset_pics, **asset_logos, **drive_file_pics,
                              **drive_file_logos, **onedrive_images,
-                             **web_images, **web_logos, **attachment_logos},
+                             **web_images, **web_logos, **attachment_logos, **gallery_logos},
                 email_originals={**box_originals, **onedrive_originals},
                 drive_images=(media_kit.get("images", []) if (media_kit and media_source == "drive") else []),
                 drive_originals=(media_kit.get("originals", []) if (media_kit and media_source == "drive") else []),
@@ -1369,6 +1552,8 @@ def _run_pipeline(service, email_id, model, run_id, dry_run=False, trace=None, c
     row = {
         "subject": model["subject"],
         "threadId": model.get("threadId", ""),
+        "messageId": model.get("messageId", ""),
+        "rfc822MessageId": model.get("rfc822MessageId", ""),
         "date": model.get("date", "")[:10],
         "folderId": folder_id,
         "folderUrl": folder_url,
@@ -1380,7 +1565,10 @@ def _run_pipeline(service, email_id, model, run_id, dry_run=False, trace=None, c
         "hasPic": "true" if has_pic else "false",
         # hasLogo = a standalone logo asset was provided: an attachment filename
         # contains "logo", OR an inline body logo, OR a direct asset-link logo.
+        # hasUsableLogo is the N-1 option-B flag (>= 200 px or vector) and is
+        # used by the ready/reply decision; it is not a 14-column checklist field.
         "hasLogo": "true" if has_logo else "false",
+        "hasUsableLogo": "true" if has_usable_logo else "false",
         "hasLogoInArticle": "true" if verdict.get("hasLogoInArticle") else "false",
         "hasImageInArticle": "true" if verdict.get("hasImageInArticle") else "false",
         "subjectMatch": "true" if verdict.get("subjectMatch") else "false",

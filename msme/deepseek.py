@@ -3,7 +3,8 @@
 # file    : msme/deepseek.py
 # role    : Shared — DeepSeek client
 # owner   : Hisham (human owner) · AI coding sessions may amend under his review
-# purpose : Chat Completions with json_object + effort:low, the token-saving retry policy, and usage tallying.
+# purpose : Chat Completions with effort:low, JSON-tolerant parsing (no response_format), the
+#           token-saving retry policy, and usage tallying.
 # pages   : n/a
 # calls   : openai client, config, creds, settings_store
 # called  : llm.LLMClient
@@ -12,9 +13,10 @@
 # =============================================================================
 """Shared DeepSeek client (paid).
 
-Supports Chat Completions with `response_format={"type": "json_object"}` and the
-reasoning model via `extra_body={"effort": "low"}` (DeepSeek V4.1-Flash is a
-reasoning model — without effort:low it often returns empty JSON).
+Chat Completions for structured output. `response_format={"type": "json_object"}`
+is deliberately NOT sent: `deepseek-flash` returns HTTP 500 on it, while it already
+emits clean JSON in plain mode (the prompts ask for JSON and `_parse_json` tolerates
+fences/prose). The reasoning model gets `extra_body={"effort": "low"}`.
 
 Retry policy (token-saver):
   - Transport/rate/5xx errors  -> retry up to `retries` times.
@@ -102,7 +104,6 @@ class DeepSeekClient:
                         {"role": "system", "content": system},
                         {"role": "user", "content": user},
                     ],
-                    response_format={"type": "json_object"},
                     max_tokens=max_tokens,
                     temperature=temperature,
                     extra_body={"effort": "low"},  # required for reasoning models

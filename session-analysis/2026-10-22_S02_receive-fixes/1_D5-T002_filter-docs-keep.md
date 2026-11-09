@@ -8,11 +8,11 @@
 
 | Change | Why |
 |---|---|
-| `todo/T-002.md` → **closed** | the reconciliation is withdrawn; the item now records your instruction and quotes it |
+| `todo/✅ T-002.md` → **closed** | the reconciliation is withdrawn; the item now records your instruction and quotes it |
 | `decisions/D5.md` **new** | the standing rule: filter definition docs and gate variants are kept as test material, never "corrected" to the live battery |
 | `docs/INDEX.md` rows | `FILTER-LOGIC.md` / `FILTER-REVIEW.md` now read "kept as test variants — do not reconcile"; `ARCHITECTURE.md` marked "keep as written" |
 | `filter.py` FILE HEADER | the one-line pointer now says the 96-vs-100 and 6-vs-3 mismatch is intentional (`D5`), live truth = `/filters.json` |
-| `todo/T-009.md` **new** | map each gate-definition variant to the test it serves (so nobody deletes a "duplicate") |
+| `todo/✅ T-009.md` **new** | map each gate-definition variant to the test it serves (so nobody deletes a "duplicate") |
 
 Indexes regenerated: `OK: decisions=5 {'decided': 5}; todo=9 {'open': 4, 'closed': 1, 'parked': 4}`.
 `python3 -m compileall -q filter.py` → OK.

@@ -15,7 +15,7 @@
 import threading
 import time
 
-from msme import config, creds, db
+from msme import config, creds, db, settings_store
 from msme.receive import gmail, pipeline
 from msme.receive.checklist import save_checklist
 
@@ -34,20 +34,78 @@ def enqueue_unread(source="poll", query=None):
     return enqueue_ids([m["id"] for m in msgs], source=source), msgs
 
 
-def ensure_watch():
-    """Create/renew Gmail push watch when a Pub/Sub topic is configured."""
-    topic = (config.GMAIL_PUBSUB_TOPIC or "").strip()
-    if not topic:
+def webhook_enabled():
+    """The live on/off flag (runtime setting first, env default second)."""
+    try:
+        value = settings_store.get("ENABLE_WEBHOOK")
+    except Exception:
+        value = None
+    return bool(config.ENABLE_WEBHOOK if value is None else value)
+
+
+def webhook_topic():
+    """The live Pub/Sub topic (runtime setting first, env default second)."""
+    try:
+        value = settings_store.get("GMAIL_PUBSUB_TOPIC")
+    except Exception:
+        value = None
+    return str(value or config.GMAIL_PUBSUB_TOPIC or "").strip()
+
+
+def ensure_watch(force=False):
+    """Create/renew the Gmail push watch when the webhook is ON and a topic is set."""
+    topic = webhook_topic()
+    if not webhook_enabled() or not topic:
         return None
     state = db.get_gmail_watch()
     now_ms = int(time.time() * 1000)
-    if state and int(state.get("expiration") or 0) > now_ms + 24 * 3600 * 1000:
+    if not force and state and int(state.get("expiration") or 0) > now_ms + 24 * 3600 * 1000:
         return state
     service = creds.gmail()
     r = gmail.watch(service, topic)
     db.save_gmail_watch(r.get("historyId", ""), r.get("expiration", 0), topic)
     print(f"[webhook] watch renewed history={r.get('historyId')} expires={r.get('expiration')}")
     return r
+
+
+def stop_watch():
+    """Stop Gmail push notifications and forget the stored cursor."""
+    service = creds.gmail()
+    try:
+        gmail.stop_watch(service)
+    finally:
+        db.clear_gmail_watch()
+
+
+def apply_webhook(enabled):
+    """Persist the flag and create/stop the Gmail watch immediately.
+
+    The flag is saved even when the Gmail call fails, so the app-side gate and the
+    UI stay truthful; the returned `error` tells the operator what is still wrong.
+    """
+    settings_store.save({"ENABLE_WEBHOOK": bool(enabled)})
+    if not enabled:
+        error = ""
+        try:
+            stop_watch()
+        except Exception as e:  # noqa: BLE001 — the flag is already off
+            error = str(e)[:300]
+        return {"enabled": False, "topic": webhook_topic(), "watch": None, "error": error}
+    topic = webhook_topic()
+    if not topic:
+        return {"enabled": True, "topic": "", "watch": None,
+                "error": "GMAIL_PUBSUB_TOPIC is empty"}
+    try:
+        r = ensure_watch(force=True) or {}
+        return {
+            "enabled": True,
+            "topic": topic,
+            "watch": {"history_id": r.get("historyId", ""),
+                      "expiration": r.get("expiration", 0)},
+            "error": "",
+        }
+    except Exception as e:  # noqa: BLE001
+        return {"enabled": True, "topic": topic, "watch": None, "error": str(e)[:300]}
 
 
 def process_one():
@@ -87,7 +145,9 @@ def _renew_loop():
     while True:
         delay = 6 * 3600
         try:
-            if ensure_watch() is None:
+            if not webhook_enabled():
+                delay = 3600
+            elif ensure_watch() is None:
                 delay = 3600
         except Exception as e:
             print(f"[webhook] watch renewal failed: {e}")
@@ -104,5 +164,4 @@ def start():
         _started = True
     db.recover_webhook_queue()
     threading.Thread(target=_worker, name="receive-queue", daemon=True).start()
-    if config.ENABLE_WEBHOOK or config.GMAIL_PUBSUB_TOPIC:
-        threading.Thread(target=_renew_loop, name="gmail-watch", daemon=True).start()
+    threading.Thread(target=_renew_loop, name="gmail-watch", daemon=True).start()

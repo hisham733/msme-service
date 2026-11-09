@@ -1,0 +1,257 @@
+digraph database_schema {
+  graph [
+    fontname="Helvetica",
+    fontsize=11,
+    rankdir=LR,
+    nodesep=0.45,
+    ranksep=1.0,
+    pad=0.25,
+    bgcolor="white"
+  ];
+  node [shape=plain, fontname="Helvetica", fontsize=10];
+  edge [
+    fontname="Helvetica",
+    fontsize=9,
+    color="#57606a",
+    fontcolor="#57606a"
+  ];
+
+  // ---------------------------------------------------------------- runs
+  runs [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="3">
+      <tr><td bgcolor="#1f6feb" colspan="2"><font color="white"><b>runs</b></font></td></tr>
+      <tr><td align="left" bgcolor="#fff8c5"><b>id</b></td><td align="left">TEXT PK</td></tr>
+      <tr><td align="left">email_id</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">subject</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">status</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">created_at</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">error</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">model</td><td align="left">TEXT</td></tr>
+    </table>
+  >];
+
+  // ----------------------------------------------------------- checklist
+  checklist [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="3">
+      <tr><td bgcolor="#1f6feb" colspan="2"><font color="white"><b>checklist</b></font></td></tr>
+      <tr><td align="left" bgcolor="#fff8c5"><b>id</b></td><td align="left">INTEGER PK</td></tr>
+      <tr><td align="left">subject</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">threadId</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">date</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">folderId</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">folderUrl</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">articleFile</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">hasArticle</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">hasPic</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">hasLogo</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">hasLogoInArticle</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">hasImageInArticle</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">subjectMatch</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">subjectScore</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">readyToFilter</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">created_at</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">replySent</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">replyTo</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">replyAt</td><td align="left">TEXT</td></tr>
+      <tr><td align="left" bgcolor="#ddf4ff">messageId</td><td align="left">TEXT (Gmail id)</td></tr>
+      <tr><td align="left" bgcolor="#ddf4ff">rfc822MessageId</td><td align="left">TEXT</td></tr>
+    </table>
+  >];
+
+  // --------------------------------------------------------------- emails
+  emails [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="3">
+      <tr><td bgcolor="#1f6feb" colspan="2"><font color="white"><b>emails</b></font></td></tr>
+      <tr><td align="left" bgcolor="#fff8c5"><b>message_id</b></td><td align="left">TEXT PK</td></tr>
+      <tr><td align="left">from_name</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">from_email</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">subject</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">received_at</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">links_json</td><td align="left">JSON</td></tr>
+      <tr><td align="left">attachment_count</td><td align="left">INTEGER</td></tr>
+    </table>
+  >];
+
+  // ----------------------------------------------------- pipeline_results
+  pipeline_results [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="3">
+      <tr><td bgcolor="#1f6feb" colspan="2"><font color="white"><b>pipeline_results</b></font></td></tr>
+      <tr><td align="left" bgcolor="#fff8c5"><b>run_id</b></td><td align="left">TEXT PK</td></tr>
+      <tr><td align="left">email_id</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">subject</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">status</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">stages</td><td align="left">JSON</td></tr>
+      <tr><td align="left">row</td><td align="left">JSON</td></tr>
+      <tr><td align="left">created_at</td><td align="left">TEXT</td></tr>
+    </table>
+  >];
+
+  // -------------------------------------------------------- filter_results
+  filter_results [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="3">
+      <tr><td bgcolor="#1f6feb" colspan="2"><font color="white"><b>filter_results</b></font></td></tr>
+      <tr><td align="left" bgcolor="#fff8c5"><b>id</b></td><td align="left">INTEGER PK</td></tr>
+      <tr><td align="left" bgcolor="#ddf4ff">checklist_id</td><td align="left">INTEGER FK</td></tr>
+      <tr><td align="left" bgcolor="#ddf4ff">run_id</td><td align="left">TEXT FK</td></tr>
+      <tr><td align="left">threadId</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">status</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">outcome</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">weighted</td><td align="left">INTEGER</td></tr>
+      <tr><td align="left">gate</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">confidence</td><td align="left">REAL</td></tr>
+      <tr><td align="left">gates</td><td align="left">JSON</td></tr>
+      <tr><td align="left">scores</td><td align="left">JSON</td></tr>
+      <tr><td align="left">verdict</td><td align="left">JSON</td></tr>
+      <tr><td align="left">model</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">error</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">created_at</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">battery</td><td align="left">JSON</td></tr>
+      <tr><td align="left" bgcolor="#ddf4ff">config_hash</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">article_hash</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">article_text</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">article_len</td><td align="left">INTEGER</td></tr>
+    </table>
+  >];
+
+  // ------------------------------------------------ filter_config_versions
+  filter_config_versions [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="3">
+      <tr><td bgcolor="#1f6feb" colspan="2"><font color="white"><b>filter_config_versions</b></font></td></tr>
+      <tr><td align="left" bgcolor="#fff8c5"><b>id</b></td><td align="left">INTEGER PK</td></tr>
+      <tr><td align="left" bgcolor="#ddf4ff">config_hash</td><td align="left">TEXT unique</td></tr>
+      <tr><td align="left">snapshot_json</td><td align="left">JSON</td></tr>
+      <tr><td align="left" bgcolor="#ddf4ff">actor_id</td><td align="left">INTEGER FK</td></tr>
+      <tr><td align="left">actor_username</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">action</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">restored_from</td><td align="left">INTEGER self-FK</td></tr>
+      <tr><td align="left">created_at</td><td align="left">TEXT</td></tr>
+    </table>
+  >];
+
+  // ----------------------------------------------------------- gmail_watch
+  gmail_watch [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="3">
+      <tr><td bgcolor="#1f6feb" colspan="2"><font color="white"><b>gmail_watch</b></font></td></tr>
+      <tr><td align="left" bgcolor="#fff8c5"><b>id</b></td><td align="left">INTEGER PK = 1</td></tr>
+      <tr><td align="left">history_id</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">expiration</td><td align="left">INTEGER</td></tr>
+      <tr><td align="left">topic</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">updated_at</td><td align="left">TEXT</td></tr>
+    </table>
+  >];
+
+  // -------------------------------------------------------- webhook_events
+  webhook_events [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="3">
+      <tr><td bgcolor="#1f6feb" colspan="2"><font color="white"><b>webhook_events</b></font></td></tr>
+      <tr><td align="left" bgcolor="#fff8c5"><b>id</b></td><td align="left">INTEGER PK</td></tr>
+      <tr><td align="left" bgcolor="#ddf4ff">event_id</td><td align="left">TEXT unique</td></tr>
+      <tr><td align="left">email_address</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">history_id</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">status</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">error</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">created_at</td><td align="left">TEXT</td></tr>
+    </table>
+  >];
+
+  // ------------------------------------------------------ webhook_messages
+  webhook_messages [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="3">
+      <tr><td bgcolor="#1f6feb" colspan="2"><font color="white"><b>webhook_messages</b></font></td></tr>
+      <tr><td align="left" bgcolor="#fff8c5"><b>message_id</b></td><td align="left">TEXT PK</td></tr>
+      <tr><td align="left" bgcolor="#ddf4ff">event_id</td><td align="left">TEXT FK</td></tr>
+      <tr><td align="left">source</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">status</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">attempts</td><td align="left">INTEGER</td></tr>
+      <tr><td align="left">error</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">created_at</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">updated_at</td><td align="left">TEXT</td></tr>
+    </table>
+  >];
+
+  // ---------------------------------------------------------------- users
+  users [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="3">
+      <tr><td bgcolor="#1f6feb" colspan="2"><font color="white"><b>users</b></font></td></tr>
+      <tr><td align="left" bgcolor="#fff8c5"><b>id</b></td><td align="left">INTEGER PK</td></tr>
+      <tr><td align="left">username</td><td align="left">TEXT unique</td></tr>
+      <tr><td align="left">password_hash</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">role</td><td align="left">admin | editor</td></tr>
+      <tr><td align="left">active</td><td align="left">INTEGER</td></tr>
+      <tr><td align="left">must_change_password</td><td align="left">INTEGER</td></tr>
+      <tr><td align="left">created_at</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">updated_at</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">last_login_at</td><td align="left">TEXT</td></tr>
+    </table>
+  >];
+
+  // ------------------------------------------------------------- sessions
+  sessions [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="3">
+      <tr><td bgcolor="#1f6feb" colspan="2"><font color="white"><b>sessions</b></font></td></tr>
+      <tr><td align="left" bgcolor="#fff8c5"><b>token_hash</b></td><td align="left">TEXT PK</td></tr>
+      <tr><td align="left" bgcolor="#ddf4ff">user_id</td><td align="left">INTEGER FK</td></tr>
+      <tr><td align="left">csrf_token</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">created_at</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">expires_at</td><td align="left">INTEGER</td></tr>
+      <tr><td align="left">ip</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">user_agent</td><td align="left">TEXT</td></tr>
+    </table>
+  >];
+
+  // -------------------------------------------------------- login_attempts
+  login_attempts [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="3">
+      <tr><td bgcolor="#1f6feb" colspan="2"><font color="white"><b>login_attempts</b></font></td></tr>
+      <tr><td align="left" bgcolor="#fff8c5"><b>id</b></td><td align="left">INTEGER PK</td></tr>
+      <tr><td align="left">username</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">ip</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">ok</td><td align="left">INTEGER</td></tr>
+      <tr><td align="left">attempted_at</td><td align="left">INTEGER</td></tr>
+    </table>
+  >];
+
+  // ------------------------------------------------------------ audit_log
+  audit_log [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="3">
+      <tr><td bgcolor="#1f6feb" colspan="2"><font color="white"><b>audit_log</b></font></td></tr>
+      <tr><td align="left" bgcolor="#fff8c5"><b>id</b></td><td align="left">INTEGER PK</td></tr>
+      <tr><td align="left" bgcolor="#ddf4ff">actor_id</td><td align="left">INTEGER FK</td></tr>
+      <tr><td align="left">actor_username</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">action</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">target_type</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">target_id</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">before_json</td><td align="left">JSON</td></tr>
+      <tr><td align="left">after_json</td><td align="left">JSON</td></tr>
+      <tr><td align="left">ip</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">user_agent</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">created_at</td><td align="left">TEXT</td></tr>
+    </table>
+  >];
+
+  // ------------------------------------------------------------ relations
+  runs -> pipeline_results [label="1 : 1   run_id"];
+  runs -> filter_results [label="1 : N   run_id"];
+  checklist -> filter_results [label="1 : N   checklist_id"];
+  emails -> checklist [label="1 : 1   message_id = messageId", style=dashed];
+  emails -> runs [label="1 : 1   message_id = email_id", style=dashed];
+  webhook_events -> webhook_messages [label="1 : N   event_id"];
+  webhook_messages -> runs [label="1 : 1   message_id = email_id", style=dashed];
+  runs -> checklist [label="email_id = messageId / threadId", style=dashed, dir=both];
+  users -> sessions [label="1 : N   user_id"];
+  users -> audit_log [label="1 : N   actor_id"];
+  users -> filter_config_versions [label="1 : N   actor_id"];
+  filter_config_versions -> filter_config_versions [label="restored_from", constraint=false];
+  filter_config_versions -> filter_results [label="config_hash", style=dashed];
+
+  // -------------------------------------------------------------- legend
+  legend [shape=plaintext, label=<
+    <table border="0" cellborder="0" cellspacing="0" cellpadding="4">
+      <tr><td colspan="2" align="left"><b>Legend</b></td></tr>
+      <tr><td bgcolor="#fff8c5">PK</td><td align="left">primary key</td></tr>
+      <tr><td bgcolor="#ddf4ff">FK</td><td align="left">logical link (no declared FK)</td></tr>
+      <tr><td align="left">solid</td><td align="left">direct id</td></tr>
+      <tr><td align="left">dashed</td><td align="left">logical join</td></tr>
+    </table>
+  >];
+}

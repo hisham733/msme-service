@@ -49,6 +49,9 @@ CHECKLIST_SHEET_ID = os.environ.get("CHECKLIST_SHEET_ID", "1T_XURPN4uuC8d7YqWbRF
 CHECKLIST_TAB = os.environ.get("CHECKLIST_TAB", "Checklist")
 ARCHIVE_PARENT_FOLDER = os.environ.get("ARCHIVE_PARENT_FOLDER", "1XbFjzVLOe8CVhd8YPRVKmKi2e2-JI2Lm")
 GMAIL_QUERY = os.environ.get("GMAIL_QUERY", "in:inbox is:unread -category:promotions")
+# Which Gmail web account the "Open email" link targets. "0" = the first signed-in
+# account; set it to the connected mailbox address when several accounts are open.
+GMAIL_WEB_USER = os.environ.get("GMAIL_WEB_USER", "0").strip() or "0"
 
 # --- Storage ---
 # SQLite now; MySQL schema prepared (docs/reference/future-mysql/schema_mysql.sql) for a later switch.
@@ -68,7 +71,18 @@ REPORT_ARCHIVE_DIR = str(paths.resolve(os.environ.get("REPORT_ARCHIVE_DIR"), pat
 REPURPOSE_INBOX = str(paths.REPURPOSE_INBOX)
 REPURPOSE_SITE = str(paths.REPURPOSE_SITE)
 REPURPOSE_DASHBOARD = os.environ.get("REPURPOSE_DASHBOARD", "/repurpose-site/index.html")
+# T-050/D40: run the vendored engine in a daemon thread in this process.
+REPURPOSE_INPROCESS = os.environ.get("REPURPOSE_INPROCESS", "true").lower() == "true"
+REPURPOSE_POLL_SECONDS = int(os.environ.get("REPURPOSE_POLL_SECONDS", "5"))
 ENABLE_AUTO_REPURPOSE = os.environ.get("ENABLE_AUTO_REPURPOSE", "true").lower() == "true"
+# Engine knobs editable on Config → Repurpose (read fresh per article).
+REPURPOSE_MODEL = os.environ.get("REPURPOSE_MODEL", DEEPSEEK_MODEL)
+REPURPOSE_TEMPERATURE = float(os.environ.get("REPURPOSE_TEMPERATURE", "0.2"))
+REPURPOSE_RETRY_LIMIT = int(os.environ.get("REPURPOSE_RETRY_LIMIT", "2"))
+
+# --- Google OAuth reconnect (Config page) ---
+# Must match a redirect URI registered on the OAuth client in Google Cloud.
+OAUTH_REDIRECT = os.environ.get("OAUTH_REDIRECT", "http://127.0.0.1:8080/")
 
 # --- Image size threshold ---
 # Images smaller than this (bytes) are considered social-media logos / email
@@ -131,6 +145,44 @@ BODY_IMAGE_MIN_BYTES = int(os.environ.get("BODY_IMAGE_MIN_BYTES", "512"))
 BODY_IMAGE_TIMEOUT = int(os.environ.get("BODY_IMAGE_TIMEOUT", "20"))
 # A body logo smaller than this is an icon/signature, not a usable asset.
 BODY_LOGO_MIN_DIM = int(os.environ.get("BODY_LOGO_MIN_DIM", "200"))
+
+# --- N-1 local logo gallery (docs/new-rules/N-1-logo-gallery.md) ---
+# A local, curated logo store used only when an article has no usable image.
+GALLERY_ENABLED = os.environ.get("GALLERY_ENABLED", "true").lower() == "true"
+GALLERY_DIR = os.environ.get("GALLERY_DIR", str(paths.GALLERY))
+GALLERY_INDEX = os.environ.get("GALLERY_INDEX", str(paths.GALLERY / "index.json"))
+GALLERY_MAX_FILE_BYTES = int(os.environ.get("GALLERY_MAX_FILE_BYTES", str(10 * 1024 * 1024)))
+GALLERY_FUZZY_MIN = float(os.environ.get("GALLERY_FUZZY_MIN", "0.88"))
+# Tier 5: the leading body window (headline + first paragraph) where an exact
+# alias corroborates the 2x body repetition. Default 600 chars (N-1 §4.2/§6).
+GALLERY_BODY_LEAD_CHARS = int(os.environ.get("GALLERY_BODY_LEAD_CHARS", "600"))
+# PR agencies send on behalf of brands; their domains are never mapped in the index.
+GALLERY_AGENCY_DOMAINS = tuple(
+    d.strip().lower() for d in os.environ.get(
+        "GALLERY_AGENCY_DOMAINS",
+        "cision.com,mediaoutreach.com,vritimes.com",
+    ).split(",") if d.strip()
+)
+
+# --- N-2 "library update" intake (docs/new-rules/N-2-library-update.md) ---
+# An email that only distributes a logo/building photo is a gallery update, not
+# a press release: store the assets, skip verify/filter/reply, never "no article".
+GALLERY_UPDATES_DIR = os.environ.get("GALLERY_UPDATES_DIR", str(paths.GALLERY / "updates"))
+LIBRARY_UPDATE_MIN_CHARS = int(os.environ.get("LIBRARY_UPDATE_MIN_CHARS", "400"))
+LIBRARY_UPDATE_PHRASES = tuple(
+    p.strip().lower() for p in os.environ.get(
+        "LIBRARY_UPDATE_PHRASES",
+        "new logo,updated logo,logo update,building photograph,building photo,facade,"
+        "update our records,for your records,update our library",
+    ).split(",") if p.strip()
+)
+LIBRARY_UPDATE_NEGATIVE = tuple(
+    p.strip().lower() for p in os.environ.get(
+        "LIBRARY_UPDATE_NEGATIVE",
+        "for immediate release,press release,media release,siaran akhbar,byline,"
+        "contributed article,op-ed,opinion piece",
+    ).split(",") if p.strip()
+)
 
 # --- Direct asset links (e.g. a "Click to download" image/logo) ---
 ASSET_LINK_MAX_BYTES = int(os.environ.get("ASSET_LINK_MAX_BYTES", str(15 * 1024 * 1024)))

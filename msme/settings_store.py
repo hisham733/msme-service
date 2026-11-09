@@ -55,6 +55,7 @@ FIELDS = [
     ("GEMINI_API_KEY", "", True),
     ("GEMINI_MODEL", "gemini-2.5-flash", False),
     ("GMAIL_QUERY", config.GMAIL_QUERY, False),
+    ("GMAIL_WEB_USER", config.GMAIL_WEB_USER, False),
     ("CHECKLIST_SHEET_ID", config.CHECKLIST_SHEET_ID, False),
     ("CHECKLIST_TAB", config.CHECKLIST_TAB, False),
     ("ARCHIVE_PARENT_FOLDER", config.ARCHIVE_PARENT_FOLDER, False),
@@ -66,6 +67,19 @@ FIELDS = [
     ("ENABLE_AUTO_FILTER", config.ENABLE_AUTO_FILTER, False),
     ("WEB_FETCH_MODE", config.WEB_FETCH_MODE, False),
     ("WEB_KNOWN_SITES", config.WEB_KNOWN_SITES, False),
+    # Gmail Push webhook (runtime toggle; the watch is created/stopped by the app).
+    ("ENABLE_WEBHOOK", config.ENABLE_WEBHOOK, False),
+    ("GMAIL_PUBSUB_TOPIC", config.GMAIL_PUBSUB_TOPIC, False),
+    # Repurpose engine knobs (read fresh per article).
+    ("REPURPOSE_MODEL", config.REPURPOSE_MODEL, False),
+    ("REPURPOSE_TEMPERATURE", config.REPURPOSE_TEMPERATURE, False),
+    ("REPURPOSE_RETRY_LIMIT", config.REPURPOSE_RETRY_LIMIT, False),
+    ("REPURPOSE_POLL_SECONDS", config.REPURPOSE_POLL_SECONDS, False),
+    # Cost rates (USD). 0 = not priced; the UI flags it instead of showing a confident $0.
+    ("COST_DEEPSEEK_PER_M", 0.65, False),
+    ("COST_JEV_INPUT_PER_M", 0.042, False),
+    ("COST_GEMINI_PER_M", 0.65, False),
+    ("COST_BUDGET_USD", 0.0, False),
 ]
 
 

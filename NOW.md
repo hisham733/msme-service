@@ -1,20 +1,44 @@
 # NOW — msme-service
 
-*One NOW for this project, ≤ 40 lines · edit with Edit, never rewrite whole · updated 2026-10-29 (S08).*
+*One NOW for this project, ≤ 40 lines · edit with Edit, never rewrite whole · updated 2026-11-07 (S15).*
 
 ## Direction
 
 - Three-stage AI_News web service: **receive → filter → repurpose** (`run.py` starts one combined app on :8899).
+- **Cost page + Config (2026-11-07)**: `/ai-model.html` is the admin **Cost** page (cards + a
+  per-email chain table paginated **20 rows** from `/api/costs.json`); `/config.html` has
+  **Receive · Filter · Repurpose · Cost** tabs, the Gmail webhook on/off switch, the Google
+  reconnect card and cost rates (`D41`/`D42`); **241 tests pass**.
+  Cost today ≈ **$2.13** all runs / **$1.47** chain (170 emails, 2 published).
+- **E2E publish test (2026-11-07)**: AFFIN + MATRADE received → Jev **ACCEPT 86/91** → engine
+  validated and published to `repurpose_site` (2 articles); repurpose cost **$0.030/$0.029**;
+  unread 33→31. `repurpose_site` must stay **writable** (the `:ro` mount made publish fail).
+- **N-1 gallery built (2026-11-07)**: local logo matcher (`msme/receive/gallery.py`, hybrid ladder,
+  active-only, ambiguity guard) + **option B** (a logo counts only if vector or ≥200 px); pipeline
+  stage between logo scan and verify; logos seeded (BPMB, MATRADE, **Xendit**); **tier 5 amended**
+  to "alias in first 600 chars + ≥2× body, any sender" (the agency gate missed forwarded editor
+  emails); **260 tests pass** (`D43`).
+- **N-2 library update built (2026-11-07)**: an email that only distributes a logo/building photo is
+  a `library_update`, not "no article" — `msme/receive/library_update.py` detects (after extract,
+  before verify), stores to `data/gallery/updates/`, auto-promotes a logo only under decision C,
+  skips verify/filter/reply, and shows a "Library update" badge (`emailType` column, `D44`);
+  `gallery_admin promote/discard`; **271 tests pass**. Verified live: the BPMB logo+building email
+  → `emailType=library_update`, 2 logos auto-promoted, 4 photos pending, no reply.
+- **DeepSeek model fixed (2026-11-07)**: the account's only valid models are `deepseek-flash` and
+  `deepseek-v4-pro` (`deepseek-v4-flash` does not exist). `deepseek-flash` returns **HTTP 500 on
+  `response_format={"type":"json_object"}`**, so `msme/deepseek.py` no longer sends it (the prompts
+  ask for JSON and `_parse_json` tolerates prose/fences). All three places now use `deepseek-flash`.
 - **Receive is built**: Gmail → normalize → decide/extract/verify → 14-col checklist (SQLite) →
   archive to `all_emails/` (live; legacy `emails/` kept for the test pages); dashboard pages on :8899.
 - **Filter is built**: Jev runs inside receive when `readyToFilter=true`; 3 Critical Gates
   (Royalty/Religion/Race) + 11 weighted scores, editable from the Lab/Config pages; reports in `docs/` (old reports moved to `delet/old-reports/`).
-- **Repurpose is built** on the external `MSME_AI_News` engine at **:8765**; `msme/repurpose/repurpose_export.py`
-  exports latest ACCEPT articles automatically, `repurpose_worker.py` runs one at a time,
-  site to `repurpose_site/` (D35).
+- **Repurpose is built in-process (D40)**: the vendored engine under `msme/repurpose/engine/`
+  runs in the app; `repurpose_export.py` writes ACCEPT articles to `repurpose_inbox/`, `runner.py`
+  runs one at a time to `repurpose_site/`, and `/repurpose.html` shows the queue (T-050).
 - **D38 (2026-10-31)**: runtime code lives in `msme/` (receive · filtering · repurpose · legacy),
   paths resolve from the package root (`msme/paths.py`), tests in `tests/`, one root `run.py`;
   **149 tests pass**, ruff clean, Docker health verified.
+- **D40/T-050 (2026-11-06)**: the repurpose engine is vendored and runs in-process; **191 tests pass**; Docker image built and `/repurpose.html` verified; deleting `MSME_AI_News` waits for MG’s OK.
 - T2 workflow standard adopted 2026-10-21; website-runtime `.py` carry the FILE HEADER contract.
 - **D6 built and live**: a single Drive file link is fetched; a view-only/refused file ends the run
   `needs_human`, never `success`, and its cover note is not archived.
@@ -68,8 +92,8 @@
   both are won't-do. The report figures remain unverified by this project.
 - **T-008 closed (2026-10-26, D31)**: no receive-accuracy audit/fix; the old 52/55 figures stay
   the last measure and are unverified.
-- **D35 (2026-10-27)**: Repurpose uses the external engine unchanged; dashboard :8765; auto-export +
-  inbox worker; three accepted articles PASS/validated. `T-001` closed. User still owes `T-045`
+- **D35 → D40 (2026-11-06)**: Repurpose used the external engine; **superseded by D40** — the
+  vendored engine runs in-process on :8899 (`/repurpose.html`, `T-050`). User still owes `T-045`
   folder-4 link check.
 - **Editor wording (2026-10-28)**: Receive says **no article / no media**; Filter says **fail 3R /
   not relevant**; Publish says **not started / issue**; the duplicate "Why" box is gone. The
@@ -86,8 +110,8 @@
   filter config only. 7-day HttpOnly/Secure session + CSRF; scrypt; lockout; env bootstrap admin.
   `/users.html` user management + audit; every filter-config save/restore is a version (full battery,
   actor, hash); restore is admin-only. Webhook remains public (OIDC). **149 tests pass**.
-  First admin `admin` (temporary weak password set 2026-10-29 for the MSME meeting — change it after the demo).
-  The old `hisham` user was renamed to `admin`; its sessions were revoked.
+  First admin `admin`; its weak bootstrap password was replaced on 2026-11-04 and the bootstrap
+  variables were removed from `.env`. The old `hisham` user was renamed to `admin`; its sessions were revoked.
 
 ## What the user owes (one line each)
 
@@ -104,10 +128,10 @@
 - **T-045**: check the 20 links in Drive folder 4 (`docs/DRIVE-FOLDER-4-20261024-0808.md`).
 - **T-046 ops**: `docker update --restart unless-stopped wonderful_murdock`; rotate the tunnel
   token exposed in chat.
-- **T-047 ops**: sign in as `admin` (temporary password in `.env`), change it on `/account.html`,
-  then remove `AUTH_BOOTSTRAP_USERNAME` / `AUTH_BOOTSTRAP_PASSWORD` from `.env`; create editor accounts
-  on `/users.html`. `AUTH_BOOTSTRAP_PASSWORD` is currently below the 12-character policy, so a fresh
-  database bootstrap will refuse it — use a 12+ password or set the user directly.
+- **T-047 ops (done 2026-11-04)**: the `admin` password was changed, 4 sessions were revoked, and
+  `AUTH_BOOTSTRAP_USERNAME` / `AUTH_BOOTSTRAP_PASSWORD` were removed from `.env`. The new password is in
+  `/tmp/opencode/msme-admin-pw.txt` (mode 600) — move it to a password manager and delete the file.
+  Still owed: create editor accounts on `/users.html`.
 
 ## Parked
 

@@ -1,7 +1,7 @@
 # T-046 — push still not arriving; subscription is the break
 
 **Session:** 2026-10-28 · S07 · reply 3
-**Register:** `todo/T-046.md` · **Previous:** `2_T-046_webhook-built.md`
+**Register:** `todo/✅ T-046.md` · **Previous:** `2_T-046_webhook-built.md`
 **State:** topic + watch + endpoint all proven separately; the Pub/Sub → endpoint hop is not firing.
 
 ## 1. What I measured after your message

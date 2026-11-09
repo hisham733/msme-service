@@ -163,9 +163,11 @@ class AccessTests(_Base):
         self.assertEqual(auth.evaluate("/config.json", "PUT", "editor"), "allow")
         self.assertEqual(auth.evaluate("/api/auth/me", "GET", "editor"), "allow")
         for path in ("/", "/checklist.html", "/api/run", "/api/users",
-                     "/config-versions/1/restore", "/api/audit", "/docs"):
-            self.assertEqual(auth.evaluate(path, "POST" if path.endswith("restore") else "GET", "editor"),
-                             "forbidden", path)
+                     "/config-versions/1/restore", "/api/audit", "/docs",
+                     "/ai-model.html", "/api/models.json", "/api/costs.json",
+                     "/api/webhook", "/api/google/reauth"):
+            method = "POST" if path.endswith("restore") or path in ("/api/webhook", "/api/google/reauth") else "GET"
+            self.assertEqual(auth.evaluate(path, method, "editor"), "forbidden", path)
 
     def test_admin_matrix(self):
         for path in ("/", "/api/run", "/api/users", "/config-versions/1/restore", "/docs"):

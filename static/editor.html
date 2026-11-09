@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="Cache-Control" content="no-store">
-<title>MSME Editor — Articles</title>
+<title>AIN — Articles</title>
 <style>
   :root{
     --bg:#f8fafc; --card:#ffffff; --line:#e2e8f0; --txt:#1f2937; --mut:#64748b;
@@ -81,7 +81,7 @@
 </head>
 <body>
 <div class="top">
-  <div><h1>MSME Editor</h1><div class="sub">Every received email · editorial check · local draft</div></div>
+  <div><h1>AIN</h1><div class="sub">Every received email · editorial check · local draft</div></div>
   <div class="search"><input id="q" placeholder="Search title, subject or date…"></div>
   <a class="link" href="config.html" data-role="admin">Config</a>
 </div>
@@ -144,6 +144,7 @@ function receiveInfo(i){
   if(rs==='running') return ['Receiving','info','…'];
   if(i.readyToFilter==='true') return ['Received','ok','✓'];
   if(i.readyToFilter==='false'){
+    if(String(i.emailType)==='library_update') return ['library update','info','▣'];
     if(String(i.hasArticle)!=='true') return ['no article','warn','!'];
     const media=['hasPic','hasLogo','hasImageInArticle'].some(k=>String(i[k])==='true');
     if(!media) return ['no media','warn','!'];
@@ -267,6 +268,8 @@ function renderDetail(i){
   ].map(([k,v])=>`<div class="kv"><span class="k">${esc(k)}</span><span class="v">${esc(v==='true'?'yes':v==='false'?'no':v||'—')}</span></div>`).join('');
   const versions=(i.history||[]).map((v,idx)=>`<div class="ver ${idx?'old':''}"><span>${idx?'Previous version':'Current version'} · ${esc(v.date||'')}</span><span>${esc(v.filterOutcome||'—')} ${v.filterWeighted!=null?esc(v.filterWeighted)+'%':''} ${v.readyToFilter==='true'?'· ready':''}</span></div>`).join('');
   const filterLink=i.id?`<a class="btn ghost" data-role="admin" href="/filter-history.html?checklist_id=${esc(i.id)}" target="_blank" rel="noopener">Filter history</a>`:'';
+  const emailLink=i.emailUrl?`<a class="btn ghost" href="${esc(i.emailUrl)}" target="_blank" rel="noopener noreferrer">Open email ↗</a>`:'';
+  const emailSearch=i.emailSearchUrl?`<a class="btn ghost" href="${esc(i.emailSearchUrl)}" target="_blank" rel="noopener noreferrer">Find in Gmail</a>`:'';
   const draftLink=i.pageUrl?`<a class="btn primary" href="${esc(i.pageUrl)}" target="_blank" rel="noopener">Open local draft</a>`:'';
   const publish=`<a class="btn primary" href="/repurpose-site/index.html" target="_blank" rel="noopener">Publish Index</a>`;
   $('detail').innerHTML=`
@@ -301,6 +304,8 @@ function renderDetail(i){
     <div class="section"><h3>Article flags</h3><div class="grid">${flags}</div></div>
     <div class="section"><h3>Versions for this email</h3><div class="versions">${versions||'<div class="muted">No history.</div>'}</div></div>
     <div class="actions">
+      ${emailLink}
+      ${emailSearch}
       ${draftLink}
       ${filterLink}
       ${publish}

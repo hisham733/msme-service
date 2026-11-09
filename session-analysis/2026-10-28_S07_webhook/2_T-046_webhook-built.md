@@ -1,7 +1,7 @@
 # T-046 — webhook built; one GCP project mismatch left
 
 **Session:** 2026-10-28 · S07 · reply 2
-**Register:** `todo/T-046.md` · **Previous:** `1_webhook-handoff.md`
+**Register:** `todo/✅ T-046.md` · **Previous:** `1_webhook-handoff.md`
 **State:** code complete and deployed; live push blocked by a Pub/Sub project mismatch.
 
 ## 1. What is live now
@@ -62,7 +62,7 @@ The two synthetic test messages are now in Trash. Polling still sees new mail wi
     the webhook code stays dormant.
 - **Effect of not deciding:** no push ever arrives; the service still works on the 5-minute
   poll. The watch renews every ~6 days and costs nothing.
-- **For reference only:** `todo/T-046.md`, `docs/PRODUCTION-EMAIL-SETUP.md`.
+- **For reference only:** `todo/✅ T-046.md`, `docs/PRODUCTION-EMAIL-SETUP.md`.
 
 ⭐ **Decision — §2: where to create the push subscription.** (A recommended.)
 
@@ -76,7 +76,7 @@ The two synthetic test messages are now in Trash. Polling still sees new mail wi
 - `docker-compose.yml` — webhook env, `ENABLE_AUTO=true`, fixed-address replies.
 - `requirements.txt` — `PyJWT`, `cryptography` (Google's JWK verification).
 - `docs/PRODUCTION-EMAIL-SETUP.md` — records the same-project rule.
-- `todo/T-046.md`, `NOW.md` — state and the remaining external step.
+- `todo/✅ T-046.md`, `NOW.md` — state and the remaining external step.
 
 ✅ nothing to decide.
 

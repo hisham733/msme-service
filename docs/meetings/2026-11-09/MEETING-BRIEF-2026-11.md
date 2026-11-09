@@ -56,7 +56,7 @@ Also settled in the call (no AG row in these files):
 
 ## 3. New rules from the call (not yet in `NEXT_MEETING.md`)
 
-### N-1 — Logo gallery fallback
+### N-1 — Logo gallery fallback · 01:04–06:27; 56:07
 
 **Rule:** before asking the sender, search MSME's internal image gallery for a matching logo and reuse
 it. The prototype gets a **small gallery (10–20 images)**; **no WordPress/server access now**; **do not
@@ -68,7 +68,7 @@ BPMB's earlier logo, a later release from BPMB can reuse it instead of asking th
 **Change:** a gallery store + a matcher (brand/name + image similarity); run it before the ask-email;
 config for the gallery path. No internet search.
 
-### N-2 — "Library update" emails are not "no article"
+### N-2 — "Library update" emails are not "no article" · 26:45–28:12
 
 **Rule:** an email whose purpose is to update a logo or a building photo is a **gallery update**, not a
 press release. File it as such; do not mark it "no article" and do not send the "send us the article"
@@ -79,7 +79,7 @@ reply.
 
 **Change:** a new intake category `library_update`; skip the article/reply path; store the assets.
 
-### N-3 — Report emails are valid articles, and the report link is published
+### N-3 — Report emails are valid articles, and the report link is published · 15:42–18:42
 
 **Rule:** when the email offers a press release **and a full report**, the report can be the article
 source; publish it and include a link to the report for the reader.
@@ -90,7 +90,7 @@ the published piece.
 
 **Change:** a `report` article type + a `reportUrl` field carried through receive → draft → publish.
 
-### N-4 — Government budget/speech emails: use the summary, link the speech
+### N-4 — Government budget/speech emails: use the summary, link the speech · 31:19–38:35
 
 **Rule:** for budget/government emails, the email summary is enough; publish it as written (do not
 paraphrase or risk misquoting) and keep a link to the minister's speech. If the email text is too
@@ -101,7 +101,7 @@ skeletal, open the linked speech and process from it.
 **Change:** a `government_summary` article type + `speechUrl`; a rule to fetch the linked speech when
 the body is below a minimum length.
 
-### N-5 — Contributed / byline pieces
+### N-5 — Contributed / byline pieces · 39:16–46:12
 
 **Rule:** a contributed article ("contribute", "byline", "please find the article") is published
 **as-is**, with the author's byline and category **insights**; it is **not repurposed**. If the author's
@@ -113,7 +113,7 @@ Studio, with the article as a PDF; publish with the byline, no rewrite.
 **Change:** a `contribute` article type; skip repurpose; extract the author from the document; request
 the author's visual if no image.
 
-### N-6 — Open the original email from the prototype
+### N-6 — Open the original email from the prototype · 14:33–15:01; 39:49
 
 **Rule:** a row in the prototype should link to the original Gmail message so MSME can check the email
 without searching.
@@ -122,7 +122,7 @@ without searching.
 
 **Change:** a `mail.google.com/.../<messageId>` link in the checklist/editor row.
 
-### N-7 — Chunk and image rules for the draft
+### N-7 — Chunk and image rules for the draft · 57:24–63:31; 77:32–78:26
 
 **Rule:** 4–5 chunks; 2–3 paragraphs per chunk; 2–3 lines per paragraph; maximum 6 images
 (1 masthead + 1 per chunk); keep the information, reduce duplication, add no new facts.
@@ -130,14 +130,14 @@ without searching.
 **Example:** a 7-chart release → choose the relevant charts, keep all the information, do not exceed
 5 chunks; Tealive F1 repeats the same story → remove the repetition, keep the name.
 
-**Change:** engine/draft rules; the receive side only needs to pass the article type and media.
+**Change:** vendored engine/draft rules; the receive side only needs to pass the article type and media.
 
-### N-8 — Agent name
+### N-8 — Agent name · 03:19, 23:35
 
 **Rule:** the call tried **IAN/AIN** and did not settle it cleanly. Confirm the spelling before using it
 in the UI or emails.
 
-### N-9 — Cost and credit (operational)
+### N-9 — Cost and credit (operational) · 19:55–23:07
 
 **Rule:** image evaluation is the expensive part; the call's preliminary figure was about **7 US cents
 per article** (≈30 sen). The prototype ran out of DeepSeek credit during the demo, so the failed row was
@@ -172,10 +172,10 @@ an AI-credit issue, not an email issue.
 | N-2 library update | receive | new `library_update` category; skip article/reply |
 | N-3 report | receive + draft | `report` type + `reportUrl` |
 | N-4 government summary | receive + draft | `government_summary` + `speechUrl`; fetch the speech if the body is short |
-| N-5 contribute | receive + engine | `contribute` type; skip repurpose; author + visual |
+| N-5 contribute | receive + vendored engine | `contribute` type; skip repurpose; author + visual |
 | N-6 email link | dashboard/editor | Gmail message link on the row |
-| N-7 chunk rules | engine | draft rules (4–5 chunks, 2–3 paras, 2–3 lines, max 6 images) |
-| AG-01…AG-08 | engine/image skill | image choice, captions, naming, max images, no AI images |
+| N-7 chunk rules | vendored engine | draft rules (4–5 chunks, 2–3 paras, 2–3 lines, max 6 images) |
+| AG-01…AG-08 | vendored engine skills | image choice, captions, naming, max images, no AI images |
 | AG-09/AG-10 | receive + MSME | embedded-media scope; missing-logo ruling |
 | AG-12…AG-14, AG-16 | MSME | answers only |
 | Filter cut 62 / determinism / c10 | filter engine | threshold + determinism fix |

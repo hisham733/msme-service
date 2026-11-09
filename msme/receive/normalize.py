@@ -334,6 +334,7 @@ def build_email_model(service, msg_id, message=None):
         "subject": subject,
         "threadId": thread_id,
         "messageId": msg_id_str,
+        "rfc822MessageId": headers.get("message-id", "") or "",
         "date": date,
         "bodyText": body_text,
         "cleanBody": _clean_body(body_text),

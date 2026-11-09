@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-store">
+<title>MSME — Repurpose queue</title>
+<style>
+  :root{--bg:#f8fafc;--card:#fff;--line:#e2e8f0;--txt:#1f2937;--mut:#64748b;--primary:#0c599e;
+        --ok:#166534;--okbg:#dcfce7;--warn:#92400e;--warnbg:#fef3c7;--bad:#991b1b;--badbg:#fee2e2}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font:15px/1.55 "Inter",-apple-system,"Segoe UI",Roboto,sans-serif;padding:24px}
+  a{color:var(--primary);text-decoration:none} a:hover{text-decoration:underline}
+  .top{max-width:1100px;margin:0 auto 18px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  h1{font-size:22px;letter-spacing:-.02em}
+  .sub{color:var(--mut);font-size:13px}
+  .spacer{flex:1}
+  button{border:1px solid var(--line);background:var(--card);border-radius:9px;padding:9px 16px;font:13px inherit;font-weight:700;cursor:pointer;color:var(--txt)}
+  button.primary{background:var(--primary);border-color:var(--primary);color:#fff}
+  button:disabled{opacity:.5;cursor:not-allowed}
+  .wrap{max-width:1100px;margin:0 auto}
+  .kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:18px}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+  .kpi .n{font-size:24px;font-weight:800;letter-spacing:-.03em}
+  .kpi .l{font-size:12px;color:var(--mut);margin-top:2px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px}
+  .card h2{font-size:15px;margin-bottom:10px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--mut);font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+  tr:last-child td{border-bottom:0}
+  .pill{display:inline-block;border-radius:999px;padding:2px 9px;font-size:12px;font-weight:700;background:#eef2f7;color:#475569}
+  .pill.ok{background:var(--okbg);color:var(--ok)} .pill.warn{background:var(--warnbg);color:var(--warn)}
+  .pill.bad{background:var(--badbg);color:var(--bad)}
+  .empty{color:var(--mut);font-size:13px;padding:8px 0}
+  .err{color:var(--bad);font-size:13px;margin-top:8px}
+  code{background:#f1f5f9;border-radius:5px;padding:1px 5px;font-size:12px}
+</style>
+</head>
+<body>
+<div class="top">
+  <div>
+    <h1>Repurpose — engine queue</h1>
+    <div class="sub">In-process engine (T-050 / D40) · one article at a time · <a href="/editor.html">Editor</a> · <a href="/">Checklist</a></div>
+  </div>
+  <div class="spacer"></div>
+  <button id="run" class="primary">Run pending</button>
+  <button id="refresh">Refresh</button>
+</div>
+
+<div class="wrap">
+  <div class="kpis">
+    <div class="kpi"><div class="n" id="k-pending">–</div><div class="l">pending folders</div></div>
+    <div class="kpi"><div class="n" id="k-running">–</div><div class="l">engine busy</div></div>
+    <div class="kpi"><div class="n" id="k-inprocess">–</div><div class="l">in-process worker</div></div>
+  </div>
+
+  <div class="card">
+    <h2>Runs</h2>
+    <table>
+      <thead><tr><th>folder</th><th>status</th><th>model</th><th>updated</th><th>error</th></tr></thead>
+      <tbody id="runs"><tr><td colspan="5" class="empty">loading…</td></tr></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Exports (ACCEPT → inbox)</h2>
+    <table>
+      <thead><tr><th>checklist</th><th>folder</th><th>weighted</th><th>exported</th></tr></thead>
+      <tbody id="exports"><tr><td colspan="4" class="empty">loading…</td></tr></tbody>
+    </table>
+  </div>
+
+  <div class="err" id="err"></div>
+</div>
+
+<script>
+function pill(s){
+  var v=String(s||'').toLowerCase();
+  var cls=(v==='validated'||v==='rendered'||v==='done'||v==='exported')?'ok':
+          (v==='hold'||v==='validate-failed'||v==='queued'||v==='drafting')?'warn':
+          (v==='error'||v==='image-error')?'bad':'';
+  return '<span class="pill '+cls+'">'+(s||'—')+'</span>';
+}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function rows(id, items, cols){
+  var el=document.getElementById(id);
+  if(!items||!items.length){el.innerHTML='<tr><td colspan="'+cols.length+'" class="empty">nothing yet</td></tr>';return;}
+  el.innerHTML=items.map(function(r){
+    return '<tr>'+cols.map(function(c){return '<td>'+(c.f?c.f(r):esc(r[c.k]))+'</td>';}).join('')+'</tr>';
+  }).join('');
+}
+async function load(){
+  try{
+    var r=await fetch('/api/repurpose/status');
+    if(!r.ok) throw new Error('status '+r.status);
+    var d=await r.json();
+    document.getElementById('k-pending').textContent=d.pending;
+    document.getElementById('k-running').textContent=d.running?('yes · '+d.folder):'no';
+    document.getElementById('k-inprocess').textContent=d.inprocess?'on':'off';
+    document.getElementById('err').textContent=d.last_error||'';
+    rows('runs', d.runs, [
+      {k:'folder'}, {k:'status', f:function(r){return pill(r.status);}},
+      {k:'model'}, {k:'updated_at'}, {k:'error'}
+    ]);
+    rows('exports', d.exports, [
+      {k:'checklist_id'}, {k:'folder'}, {k:'weighted'}, {k:'exported_at'}
+    ]);
+  }catch(e){
+    document.getElementById('err').textContent=String(e.message||e);
+  }
+}
+document.getElementById('refresh').onclick=load;
+document.getElementById('run').onclick=async function(){
+  this.disabled=true;
+  try{ await fetch('/api/repurpose/run',{method:'POST'}); await load(); }
+  finally{ setTimeout(()=>{this.disabled=false;},800); }
+};
+load();
+setInterval(load, 5000);
+</script>
+<script src="/auth.js"></script>
+</body>
+</html>
