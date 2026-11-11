@@ -39,6 +39,12 @@ flowchart TD
 |---|---|---|---|
 | **`checklist`** | one row per processed email: the 14 checklist columns + reply + Gmail ids | `pipeline` → `checklist.save_checklist` → `db.save_checklist` | `/checklist.json`, editor, filter history, repurpose export |
 | **`emails`** | one compact row per received email: `message_id`, from name/email, subject, `received_at`, `links_json`, `attachment_count` (no body) | `pipeline` → `db.save_email`; `tools/backfill_emails.py` | receive rows on the AI Model page (`/ai-model.html`, sender column after backfill) |
+| **`email_links`** | the report/speech/source link per email (`link_type`, `url`, `source`, `anchor`, `confidence`, `is_primary`, `candidates_json`) — N-3/N-4 | `pipeline` → `checklist.save_checklist` → `db.save_email_link` | `repurpose_export` (writes `meta.json`), editor |
+| **`email_media`** | one row per collected image/logo (`name`, `kind`, `source`, `role`, `path`, `width`, `height`, `bytes`, `sha1`, `usable`, `chosen`); `source='gallery'` = the N-1 fallback; `path` = the archived file | `pipeline` → `checklist.save_checklist` → `db.save_email_media` | editor (media summary); `repurpose_export` (copies the chosen image by `path` into the inbox) |
+| **`stage_runs`** | one row per stage execution (`run_id` PK, `article_id`, stage, service, status, timestamps, error) — P0-1 | `db.add_stage_run` | dashboard (stage timeline) |
+| **`article_events`** | append-only dashboard event log (`article_id`, stage, status, reason, actor, payload) — P0-1 | `db.add_article_event` | dashboard (article timeline) |
+| **`validation_results`** | per-rule validator results for an article (`article_id`, `run_id`, rule, level, ok, detail) — P0-1 | `db.add_validation_results` (and `tools/backfill_repurpose.py`) | dashboard / “why fail” |
+| **`images`** | image-selection provenance (`article_id`, path, role, rung, selected, reason) — P0-1 | `db.add_image` (and the backfill) | dashboard / image audit |
 | **`runs`** | one row per receive attempt: `email_id` (Gmail id), subject, status, model, error | `db.log_run_start` / `db.log_run_end` | logs page, editor |
 | **`pipeline_results`** | the full stage trace + the row JSON for one run | `db.save_pipeline_result` | flow page, editor |
 | **`filter_results`** | one filter verdict per run: outcome, score, gates, battery, article hash/text | `db.save_filter_result` (receive + filter re-runs) | filter history, editor, repurpose export |
@@ -86,6 +92,8 @@ flowchart LR
 | From | To | Key | Meaning |
 |---|---|---|---|
 | `emails.message_id` | `checklist.messageId` | 1:1 | the received-email envelope for a checklist row |
+| `email_links.message_id` | `emails.message_id` | N:1 | report/speech/source link captured for an email (N-3/N-4) |
+| `email_media.message_id` | `emails.message_id` | N:1 | image/logo index incl. the N-1 gallery fallback (`source='gallery'`) |
 | `emails.message_id` | `runs.email_id` | 1:1 | the run that processed that email |
 | `pipeline_results.run_id` | `runs.id` | 1:1 | one stage trace per run |
 | `filter_results.checklist_id` | `checklist.id` | N:1 | the latest row is the current verdict |
@@ -105,7 +113,17 @@ Note: `checklist` has **no `run_id` column**. The run is found through
 `checklist.messageId`/`threadId` → `runs.email_id`, and the row's `_runId` is kept inside
 `pipeline_results.row` (JSON).
 
-### 2.2 Table graph — every column and every link
+### 2.2 Article-keyed dashboard tables (P0-1, `D46`)
+
+The canonical key is **`checklist.id`** (`article_id`), not a folder name. `stage_runs`,
+`article_events`, `validation_results` and `images` all join on it; `checklist.article_hash` flags
+duplicate emails; `repurpose_runs.article_id` / `repurpose_events.article_id` mirror `checklist_id`.
+`_connect()` sets `PRAGMA busy_timeout = 5000`. The acceptance query is `db.article_timeline(article_id)`
+(receive → filter → repurpose → validation + events). On a fresh install, `tools/backfill_repurpose.py
+--apply` rebuilds the mirror (`repurpose_exports/runs/events`, `validation_results`, `images`) from
+`data/repurpose_export.json` + each `repurpose_inbox/<folder>/run.json`.
+
+### 2.3 Table graph — every column and every link
 
 ![Database tables and relationships](database-schema.svg)
 

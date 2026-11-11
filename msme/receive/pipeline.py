@@ -1548,6 +1548,59 @@ def _run_pipeline(service, email_id, model, run_id, dry_run=False, trace=None, c
             print(f"[pipeline] archive failed: {e}")
     _emit(trace, "archive", stages["archive"]["status"], stages["archive"]["detail"])
 
+    # 7b) N-3/N-4 — capture the report/speech link and index the collected media so
+    #     repurpose can find the image (incl. the gallery fallback) and the link.
+    #     Capture-only for N-4: no fetch, no article/needs-human override.
+    _report = _gov = None
+    _media = []
+    try:
+        from msme.receive import gov_summary, media_index, report_link
+        if verdict.get("hasArticle"):
+            _report = report_link.detect(
+                subject=model.get("subject", ""),
+                body=body_text,
+                links=model.get("linksFound") or [],
+                files=files,
+            )
+        _gov = gov_summary.capture(
+            subject=model.get("subject", ""),
+            body=body_text or model.get("bodyText", ""),
+            links=model.get("linksFound") or [],
+            files=files,
+            from_email=model.get("fromEmail", ""),
+        )
+        _media = media_index.build_rows([
+            (files, "email_attachment", None),
+            (embed_images, "doc_embed", None),
+            (box_images, "box", None),
+            (body_pics, "body", "photo"),
+            (body_logos, "body", "logo"),
+            (asset_pics, "asset_link", "photo"),
+            (asset_logos, "asset_link", "logo"),
+            (drive_file_pics, "drive", "photo"),
+            (drive_file_logos, "drive", "logo"),
+            (onedrive_images, "onedrive", None),
+            (web_images, "web", "photo"),
+            (web_logos, "web", "logo"),
+            (attachment_logos, "email_attachment", "logo"),
+            (gallery_logos, "gallery", "logo"),
+        ], archive_dir=local_path)
+        stages["report"] = {
+            "status": "done" if (_report or _gov) else "empty",
+            "detail": {
+                "reportUrl": (_report or {}).get("url", ""),
+                "reportCandidates": (_report or {}).get("candidates", []),
+                "speechUrl": (_gov or {}).get("url", ""),
+                "media": len(_media),
+                "galleryMedia": sum(1 for m in _media if m.get("source") == "gallery"),
+            },
+        }
+    except Exception as e:  # noqa: BLE001 — capture must not fail the run
+        _report = _gov = None
+        _media = []
+        stages["report"] = {"status": "error", "detail": {"error": str(e)[:300]}}
+    _emit(trace, "report", stages["report"]["status"], stages["report"]["detail"])
+
     # 8) Build the 14-column checklist row (stored as strings for the sheet).
     row = {
         "subject": model["subject"],
@@ -1574,8 +1627,15 @@ def _run_pipeline(service, email_id, model, run_id, dry_run=False, trace=None, c
         "subjectMatch": "true" if verdict.get("subjectMatch") else "false",
         "subjectScore": str(verdict.get("subjectScore", 0) or 0),
         "readyToFilter": "true" if verdict.get("readyToFilter") else "false",
+        "emailType": ("report" if _report else
+                      "government_summary" if _gov else "press_release"),
     }
     row["_runId"] = run_id
+    if _report:
+        row["_link"] = _report
+    elif _gov:
+        row["_link"] = _gov
+    row["_media"] = _media
     if needs_human:
         row["articleFile"] = ""
         row["_status"] = "needs_human"

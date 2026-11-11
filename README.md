@@ -19,7 +19,7 @@
 | `session-analysis/` | one folder per working day; the numbered reply per turn |
 | `msme/` | the service package — receive, filtering (Jev), repurpose, legacy — see `docs/workflow/CODE-MAP.md` (`D38`) |
 | `run.py` | the one entrypoint: scheduler + `msme.combined:app` on :8899 |
-| `tests/` | unittest suite (191 tests) |
+| `tests/` | unittest suite (297 tests) |
 | `tools/` | ops + one-off developer scripts, `build_register_indexes.py` |
 | `msme/repurpose/` | ACCEPT → inbox export, the in-process engine runner and the vendored engine (D40) |
 | `pyproject.toml` · `Makefile` · `.github/workflows/ci.yml` | ruff config, dev commands, CI |
@@ -50,7 +50,7 @@
 ```bash
 python3 tools/build_register_indexes.py         # regenerate decisions/ + todo/ INDEX.md
 python3 -m compileall -q msme run.py tools tests   # syntax check after edits
-python3 -m unittest discover -s tests -p 'test_*.py' -v   # 191 tests
+python3 -m unittest discover -s tests -p 'test_*.py' -v   # 297 tests
 python run.py                                   # start one combined app (or: docker compose up -d --build)
 curl -s localhost:8899/health
 python3 -m msme.repurpose.repurpose_export --apply   # manual export (auto when ENABLE_AUTO_REPURPOSE)

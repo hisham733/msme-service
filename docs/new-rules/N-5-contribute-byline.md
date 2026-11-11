@@ -1,6 +1,6 @@
 # N-5 — Contributed / byline pieces
 
-_Status: spec for the 2026-11-11 MSME call · 2026-11-05 · no code written yet._
+_Status: spec for the 2026-11-11 MSME call · 2026-11-05 · **PARKED 2026-11-07 pending MSME** (behaviour questions; evidence: `docs/meetings/2026-11-09/N-5-contributed-evidence-and-questions.md`)._
 _Source: 30-Oct 2026 MSME call `[39:16–46:12]`; `docs/meetings/2026-11-09/MEETING-BRIEF-2026-11.md:104`._
 
 ## 1. The rule

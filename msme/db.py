@@ -49,6 +49,10 @@ def _connect():
     os.makedirs(os.path.dirname(config.SQLITE_PATH) or ".", exist_ok=True)
     c = sqlite3.connect(config.SQLITE_PATH)
     c.row_factory = sqlite3.Row
+    try:
+        c.execute("PRAGMA busy_timeout = 5000")
+    except Exception:
+        pass
     return c
 
 
@@ -108,6 +112,57 @@ def init_db():
     )
     try:
         c.execute("CREATE INDEX IF NOT EXISTS idx_checklist_message_id ON checklist(messageId)")
+    except Exception:
+        pass
+    # N-3/N-4: links (report/speech/source) and media (images/logos incl. the gallery
+    # fallback) captured for an email. Both are keyed by message_id; checklist_id is
+    # the latest row. The repurpose export materialises them into the inbox folder.
+    c.execute(
+        """
+        CREATE TABLE IF NOT EXISTS email_links (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            message_id TEXT,
+            checklist_id INTEGER,
+            link_type TEXT,
+            url TEXT,
+            source TEXT,
+            anchor TEXT,
+            confidence REAL,
+            is_primary INTEGER DEFAULT 0,
+            candidates_json TEXT,
+            created_at TEXT
+        )
+        """
+    )
+    for _idx in ("idx_email_links_msg", "idx_email_links_type"):
+        try:
+            _col = "message_id" if _idx == "idx_email_links_msg" else "link_type"
+            c.execute(f"CREATE INDEX IF NOT EXISTS {_idx} ON email_links({_col})")
+        except Exception:
+            pass
+    c.execute(
+        """
+        CREATE TABLE IF NOT EXISTS email_media (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            message_id TEXT,
+            checklist_id INTEGER,
+            name TEXT,
+            kind TEXT,
+            source TEXT,
+            role TEXT,
+            path TEXT,
+            width INTEGER,
+            height INTEGER,
+            bytes INTEGER,
+            sha1 TEXT,
+            usable INTEGER,
+            chosen INTEGER,
+            created_at TEXT
+        )
+        """
+    )
+    try:
+        c.execute("CREATE INDEX IF NOT EXISTS idx_email_media_msg ON email_media(message_id)")
     except Exception:
         pass
     c.execute(
@@ -265,8 +320,190 @@ def init_db():
         )"""
     )
     c.execute("CREATE INDEX IF NOT EXISTS idx_repurpose_events_folder ON repurpose_events(folder)")
+    # P0-1 (partner handoff 2026-11-11): article-keyed stage / event / validation / image tables.
+    # article_id = checklist.id (the canonical key); article_hash flags duplicate emails.
+    c.execute(
+        """CREATE TABLE IF NOT EXISTS stage_runs (
+            run_id TEXT PRIMARY KEY,
+            article_id TEXT,
+            stage TEXT,
+            service TEXT,
+            status TEXT,
+            started_at TEXT,
+            ended_at TEXT,
+            error_code TEXT,
+            error_text TEXT
+        )"""
+    )
+    c.execute(
+        """CREATE TABLE IF NOT EXISTS article_events (
+            event_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            article_id TEXT,
+            stage TEXT,
+            status TEXT,
+            reason_code TEXT,
+            reason_text TEXT,
+            notes TEXT,
+            actor TEXT,
+            created_at TEXT,
+            payload_json TEXT
+        )"""
+    )
+    c.execute(
+        """CREATE TABLE IF NOT EXISTS validation_results (
+            result_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            article_id TEXT,
+            run_id TEXT,
+            rule_code TEXT,
+            level TEXT,
+            ok INTEGER,
+            detail TEXT
+        )"""
+    )
+    c.execute(
+        """CREATE TABLE IF NOT EXISTS images (
+            image_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            article_id TEXT,
+            path TEXT,
+            role TEXT,
+            rung TEXT,
+            selected INTEGER,
+            reason TEXT
+        )"""
+    )
+    for _t in ("stage_runs", "article_events", "validation_results", "images"):
+        try:
+            c.execute(f"CREATE INDEX IF NOT EXISTS idx_{_t}_article ON {_t}(article_id)")
+        except Exception:
+            pass
+    # migrations + backfill (idempotent: fills only empty values)
+    try:
+        ccols = [r[1] for r in c.execute("PRAGMA table_info(checklist)")]
+        if "article_hash" not in ccols:
+            c.execute("ALTER TABLE checklist ADD COLUMN article_hash TEXT")
+    except Exception:
+        pass
+    for _t in ("repurpose_runs", "repurpose_events"):
+        try:
+            _cols = [r[1] for r in c.execute(f"PRAGMA table_info({_t})")]
+            if "article_id" not in _cols:
+                c.execute(f"ALTER TABLE {_t} ADD COLUMN article_id TEXT")
+        except Exception:
+            pass
+    try:
+        c.execute("UPDATE repurpose_runs SET article_id = CAST(checklist_id AS TEXT) "
+                  "WHERE (article_id IS NULL OR article_id='') AND checklist_id IS NOT NULL")
+        c.execute("UPDATE repurpose_events SET article_id = (SELECT CAST(re.checklist_id AS TEXT) "
+                  "FROM repurpose_exports re WHERE re.folder = repurpose_events.folder LIMIT 1) "
+                  "WHERE (article_id IS NULL OR article_id='')")
+        c.execute("UPDATE checklist SET article_hash = (SELECT f.article_hash FROM filter_results f "
+                  "WHERE f.checklist_id = checklist.id AND f.article_hash IS NOT NULL "
+                  "ORDER BY f.id DESC LIMIT 1) WHERE (article_hash IS NULL OR article_hash='')")
+    except Exception:
+        pass
     c.commit()
     c.close()
+
+
+# --- P0-1: article-keyed stage / event / validation / image writers ---------
+
+def add_stage_run(run_id, article_id, stage, service="", status="", started_at="",
+                  ended_at="", error_code="", error_text=""):
+    """Record one stage execution (`article_id` = checklist.id)."""
+    c = _connect()
+    try:
+        c.execute(
+            """insert or replace into stage_runs
+               (run_id, article_id, stage, service, status, started_at, ended_at, error_code, error_text)
+               values (?,?,?,?,?,?,?,?,?)""",
+            (str(run_id), str(article_id or ""), stage or "", service or "", status or "",
+             started_at or "", ended_at or "", error_code or "", error_text or ""),
+        )
+        c.commit()
+    finally:
+        c.close()
+
+
+def add_article_event(article_id, stage, status, reason_code="", reason_text="", notes="",
+                      actor="", payload=None):
+    """Append one dashboard event; returns the event_id."""
+    c = _connect()
+    try:
+        payload_json = json.dumps(payload) if payload is not None else ""
+        cur = c.execute(
+            """insert into article_events
+               (article_id, stage, status, reason_code, reason_text, notes, actor, created_at, payload_json)
+               values (?,?,?,?,?,?,?,?,?)""",
+            (str(article_id or ""), stage or "", status or "", reason_code or "", reason_text or "",
+             notes or "", actor or "", datetime.now(timezone.utc).isoformat(), payload_json),
+        )
+        c.commit()
+        return cur.lastrowid
+    finally:
+        c.close()
+
+
+def add_validation_results(article_id, run_id, results):
+    """Store a validator run's per-rule results (list of {code, level, ok, detail})."""
+    c = _connect()
+    try:
+        n = 0
+        for r in results or []:
+            c.execute(
+                """insert into validation_results (article_id, run_id, rule_code, level, ok, detail)
+                   values (?,?,?,?,?,?)""",
+                (str(article_id or ""), str(run_id or ""),
+                 r.get("code") or r.get("rule_code") or "", r.get("level") or "",
+                 1 if r.get("ok") else 0, str(r.get("detail") or "")[:500]),
+            )
+            n += 1
+        c.commit()
+        return n
+    finally:
+        c.close()
+
+
+def add_image(article_id, path, role="", rung="", selected=0, reason=""):
+    """Record one image-selection provenance row."""
+    c = _connect()
+    try:
+        c.execute(
+            "insert into images (article_id, path, role, rung, selected, reason) values (?,?,?,?,?,?)",
+            (str(article_id or ""), path or "", role or "", rung or "", 1 if selected else 0, reason or ""),
+        )
+        c.commit()
+    finally:
+        c.close()
+
+
+def article_timeline(article_id):
+    """The acceptance join: receive → filter → repurpose → validation for one article_id."""
+    c = _connect()
+    try:
+        aid = str(article_id)
+        chk = c.execute(
+            "select id, subject, hasArticle, hasPic, hasLogo, readyToFilter, emailType, article_hash, messageId "
+            "from checklist where id=? limit 1", (aid,)).fetchone()
+        if not chk:
+            return None
+        fil = c.execute(
+            "select outcome, weighted, gate, confidence, created_at from filter_results "
+            "where checklist_id=? order by id desc limit 1", (chk["id"],)).fetchone()
+        rep = c.execute(
+            "select folder, status, model, usage_json, started_at, finished_at from repurpose_runs "
+            "where checklist_id=? or article_id=? order by id desc limit 1", (chk["id"], aid)).fetchone()
+        vals = [dict(r) for r in c.execute(
+            "select rule_code, level, ok, detail from validation_results "
+            "where article_id=? order by result_id", (aid,))]
+        events = [dict(r) for r in c.execute(
+            "select stage, status, reason_code, reason_text, actor, created_at "
+            "from article_events where article_id=? order by event_id", (aid,))]
+        return {"article_id": aid, "checklist": dict(chk),
+                "filter": dict(fil) if fil else None,
+                "repurpose": dict(rep) if rep else None,
+                "validation": vals, "events": events}
+    finally:
+        c.close()
 
 
 def log_run_start(email_id, subject, model=""):
@@ -620,6 +857,113 @@ def save_checklist(row):
     return rid
 
 
+def save_email_link(checklist_id, message_id, subject, meta):
+    """Insert one N-3/N-4 link (report/speech/source) for an email.
+
+    `meta` carries the detector output: linkType, url, source, anchor, confidence,
+    candidates. A re-run deletes the same (message_id, link_type) row first so the
+    table keeps one current row per kind. Returns True on success.
+    """
+    meta = meta or {}
+    link_type = str(meta.get("linkType") or meta.get("articleType") or "report").lower()
+    cands = meta.get("reportCandidates") or meta.get("candidates") or []
+    if not isinstance(cands, str):
+        cands = json.dumps(cands)
+    c = _connect()
+    try:
+        c.execute(
+            """CREATE TABLE IF NOT EXISTS email_links (
+                id INTEGER PRIMARY KEY AUTOINCREMENT, message_id TEXT, checklist_id INTEGER,
+                link_type TEXT, url TEXT, source TEXT, anchor TEXT, confidence REAL,
+                is_primary INTEGER DEFAULT 0, candidates_json TEXT, created_at TEXT)"""
+        )
+        if message_id:
+            c.execute("delete from email_links where message_id=? and link_type=?",
+                      (message_id, link_type))
+        c.execute(
+            """insert into email_links
+               (message_id, checklist_id, link_type, url, source, anchor, confidence,
+                is_primary, candidates_json, created_at)
+               values (?,?,?,?,?,?,?,?,?,?)""",
+            (message_id or "", checklist_id, link_type, meta.get("url") or "",
+             meta.get("source") or meta.get("detectedBy") or "", meta.get("anchor") or "",
+             meta.get("confidence"), 1, cands,
+             datetime.now(timezone.utc).isoformat()),
+        )
+        c.commit()
+        return True
+    finally:
+        c.close()
+
+
+def list_email_links(message_id):
+    """All link rows for one email (dicts)."""
+    c = _connect()
+    try:
+        rows = c.execute("select * from email_links where message_id=? order by id",
+                         (message_id or "",)).fetchall()
+        return [dict(r) for r in rows]
+    except Exception:
+        return []
+    finally:
+        c.close()
+
+
+def primary_links(message_id):
+    """Convenience: {link_type: url} for the primary link of each type."""
+    out = {}
+    for row in list_email_links(message_id):
+        t = str(row.get("link_type") or "").lower()
+        if t and t not in out and row.get("url"):
+            out[t] = row["url"]
+    return out
+
+
+def save_email_media(checklist_id, message_id, rows):
+    """Replace the media index for one email (one row per collected image/logo)."""
+    rows = rows or []
+    c = _connect()
+    try:
+        c.execute(
+            """CREATE TABLE IF NOT EXISTS email_media (
+                id INTEGER PRIMARY KEY AUTOINCREMENT, message_id TEXT, checklist_id INTEGER,
+                name TEXT, kind TEXT, source TEXT, role TEXT, path TEXT,
+                width INTEGER, height INTEGER, bytes INTEGER, sha1 TEXT,
+                usable INTEGER, chosen INTEGER, created_at TEXT)"""
+        )
+        if message_id:
+            c.execute("delete from email_media where message_id=?", (message_id,))
+        now = datetime.now(timezone.utc).isoformat()
+        for r in rows:
+            c.execute(
+                """insert into email_media
+                   (message_id, checklist_id, name, kind, source, role, path, width, height,
+                    bytes, sha1, usable, chosen, created_at)
+                   values (?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                (message_id or "", checklist_id, r.get("name") or "", r.get("kind") or "",
+                 r.get("source") or "", r.get("role") or "", r.get("path") or "",
+                 r.get("width"), r.get("height"), r.get("bytes"), r.get("sha1") or "",
+                 1 if r.get("usable") else 0, 1 if r.get("chosen") else 0, now),
+            )
+        c.commit()
+        return len(rows)
+    finally:
+        c.close()
+
+
+def list_email_media(message_id):
+    """All media rows for one email (dicts)."""
+    c = _connect()
+    try:
+        rows = c.execute("select * from email_media where message_id=? order by id",
+                         (message_id or "",)).fetchall()
+        return [dict(r) for r in rows]
+    except Exception:
+        return []
+    finally:
+        c.close()
+
+
 def save_filter_result(checklist_id, run_id, thread_id, result, status="ok", error=""):
     """Persist one filter verdict linked to a checklist row.
 
@@ -698,7 +1042,11 @@ def list_checklist():
                        f.status as filterStatus, f.outcome as filterOutcome,
                        f.weighted as filterWeighted, f.gate as filterGate,
                        f.confidence as filterConfidence, f.error as filterError,
-                       f.verdict as filterVerdict, f.created_at as filteredAt
+                       f.verdict as filterVerdict, f.created_at as filteredAt,
+                       (select url from email_links where message_id=c.messageId and link_type='report' limit 1) as reportUrl,
+                       (select url from email_links where message_id=c.messageId and link_type='speech' limit 1) as speechUrl,
+                       (select count(*) from email_media where message_id=c.messageId) as mediaCount,
+                       (select count(*) from email_media where message_id=c.messageId and source='gallery') as galleryMedia
                 from checklist c
                 left join emails e on e.message_id = c.messageId
                 left join filter_results f on f.id = (
@@ -1269,7 +1617,8 @@ def get_filter_version(version_id):
 # --- Repurpose engine state (T-050 / D40) ------------------------------------
 
 _REPURPOSE_RUN_FIELDS = ("checklist_id", "filter_result_id", "status", "model", "started_at",
-                         "finished_at", "error", "usage_json", "run_json", "draft_path", "site_path")
+                         "finished_at", "error", "usage_json", "run_json", "draft_path", "site_path",
+                         "article_id")
 
 
 def save_repurpose_export(checklist_id, filter_result_id=None, folder="", dest="",
@@ -1341,11 +1690,11 @@ def list_repurpose_runs(limit=200):
     return [dict(r) for r in rows]
 
 
-def add_repurpose_event(folder, stage, status, detail=""):
+def add_repurpose_event(folder, stage, status, detail="", article_id=""):
     c = _connect()
-    c.execute("insert into repurpose_events (folder,stage,status,detail,created_at) "
-              "values (?,?,?,?,?)", (folder or "", stage or "", status or "",
-                                     detail or "", _now_iso()))
+    c.execute("insert into repurpose_events (folder,stage,status,detail,article_id,created_at) "
+              "values (?,?,?,?,?,?)", (folder or "", stage or "", status or "",
+                                       detail or "", str(article_id or ""), _now_iso()))
     c.commit()
     c.close()
 

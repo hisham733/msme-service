@@ -23,6 +23,7 @@ import argparse
 import json
 import shutil
 import sqlite3
+from pathlib import Path
 
 from msme import config, db, paths
 from msme.receive import archive
@@ -45,7 +46,7 @@ def _accepted_latest():
     rows = c.execute(
         """select f.id, f.checklist_id, f.threadId, f.outcome, f.weighted,
                   f.article_hash, f.config_hash, f.created_at,
-                  c.subject, c.articleFile
+                  c.subject, c.articleFile, c.messageId
            from filter_results f join checklist c on c.id = f.checklist_id
            order by f.id desc"""
     ).fetchall()
@@ -95,6 +96,65 @@ def _copy_tree(src_dir, dest_dir):
     return n
 
 
+def _write_meta(dest, report_url, speech_url):
+    """Write the engine's meta.json (report/speech link). Safe to call on an existing folder."""
+    if not (report_url or speech_url):
+        return False
+    meta = {}
+    if report_url:
+        meta["articleType"] = "report"
+        meta["reportUrl"] = report_url
+    if speech_url:
+        meta.setdefault("articleType", "government_summary")
+        meta["speechUrl"] = speech_url
+    dest.mkdir(parents=True, exist_ok=True)
+    (dest / "meta.json").write_text(
+        json.dumps(meta, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    return True
+
+
+def _media_source(row):
+    """The archived file for one email_media row (uses `path`, else searches the archive)."""
+    raw = str(row.get("path") or row.get("name") or "").strip()
+    if not raw:
+        return None
+    p = Path(raw)
+    if p.is_file():
+        return p
+    name = Path(raw).name
+    hits = [h for h in ARCHIVE_ROOT.rglob(name) if h.is_file()]
+    if not hits:
+        return None
+    hits.sort(key=lambda h: h.stat().st_mtime, reverse=True)
+    return hits[0]
+
+
+def _copy_media(dest, media_rows):
+    """Copy the email's indexed media (from `email_media`) into `dest/images/`.
+
+    This is the table-driven bridge: the image the receive stage chose (including the
+    N-1 gallery fallback) is copied from its stored path, not from a guessed folder.
+    """
+    n = 0
+    if not media_rows:
+        return n
+    images = dest / "images"
+    images.mkdir(parents=True, exist_ok=True)
+    for row in media_rows:
+        src = _media_source(row)
+        if not src:
+            continue
+        target = images / src.name
+        if target.exists():
+            continue
+        try:
+            shutil.copy2(src, target)
+            n += 1
+        except Exception as e:
+            print(f"[export] media copy failed {src.name}: {e}")
+    return n
+
+
 def export(apply=False):
     rows = _accepted_latest()
     plan = []
@@ -118,25 +178,41 @@ def export(apply=False):
         plan.append({
             "status": "export", "checklist_id": row["checklist_id"],
             "filter_result_id": row["id"], "subject": row.get("subject"),
+            "messageId": row.get("messageId", ""),
             "articleFile": row["articleFile"], "source": str(src), "dest": str(dest),
             "article_hash": row.get("article_hash"), "config_hash": row.get("config_hash"),
             "weighted": row.get("weighted"),
         })
+        # N-3/N-4: report / speech link captured for this email.
+        links = db.primary_links(row.get("messageId") or "")
+        report_url = links.get("report", "")
+        speech_url = links.get("speech", "")
+        plan[-1]["reportUrl"] = report_url
+        plan[-1]["speechUrl"] = speech_url
+        # Table-driven media: the receive stage's chosen media (incl. the gallery fallback).
+        media_rows = db.list_email_media(row.get("messageId") or "")
         if not apply:
             continue
         if dest.exists() and ((dest / "run.json").exists() or (dest / "draft.md").exists()):
+            # keep the engine work; add any missing media + the link so the next build can pass.
+            _write_meta(dest, report_url, speech_url)
+            added = _copy_media(dest, media_rows)
             plan[-1]["status"] = "skip"
             plan[-1]["reason"] = "engine work already exists"
+            if added:
+                plan[-1]["reason"] += f" (added {added} media)"
             continue
         if dest.exists():
             shutil.rmtree(dest)
         dest.mkdir(parents=True)
         shutil.copy2(article, dest / article.name)
-        n_images = _copy_tree(src / "images", dest / "images")
+        n_images = _copy_media(dest, media_rows) if media_rows else _copy_tree(src / "images", dest / "images")
         n_originals = _copy_tree(src / "originals", dest / "originals")
         link = src / "link.md"
         if link.is_file():
             shutil.copy2(link, dest / "link.md")
+        # N-3/N-4 engine bridge: the link the validator forbids in draft.md.
+        _write_meta(dest, report_url, speech_url)
         plan[-1]["images"] = n_images
         plan[-1]["originals"] = n_originals
         try:

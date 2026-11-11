@@ -52,6 +52,43 @@ def prices():
     }
 
 
+def real_balance():
+    """Fetch the **real** DeepSeek account balance (the only vendor money figure).
+
+    The per-article numbers on the Cost page are estimates from stored tokens at the
+    editable rates; this is the actual remaining credit. Never raises; returns
+    ``{"available", "balance", "currency", "error", "checked_at"}``.
+    """
+    import json
+    import urllib.request
+
+    result = {"available": None, "balance": None, "currency": CURRENCY,
+              "error": "", "checked_at": datetime.now(timezone.utc).isoformat()}
+    try:
+        from msme import creds
+        key = creds.deepseek_api_key() or settings_store.get("DEEPSEEK_API_KEY") or ""
+    except Exception:
+        key = settings_store.get("DEEPSEEK_API_KEY") or ""
+    if not key:
+        result["error"] = "no DeepSeek key configured"
+        return result
+    try:
+        req = urllib.request.Request(
+            "https://api.deepseek.com/user/balance",
+            headers={"Authorization": f"Bearer {key}"},
+        )
+        with urllib.request.urlopen(req, timeout=20) as r:
+            data = json.loads(r.read())
+        infos = data.get("balance_infos") or []
+        if infos:
+            result["balance"] = float(infos[0].get("total_balance") or 0)
+            result["currency"] = infos[0].get("currency") or CURRENCY
+        result["available"] = bool(data.get("is_available"))
+    except Exception as e:  # noqa: BLE001 — a balance fetch must never break the page
+        result["error"] = f"{type(e).__name__}: {str(e)[:160]}"
+    return result
+
+
 def _model_lower(model):
     return str(model or "").lower()
 

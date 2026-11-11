@@ -1045,6 +1045,12 @@ def api_costs(page: int = 1, page_size: int = 20, q: str = ""):
             "total": total, "page": page, "pages": pages, "page_size": page_size, "q": q}
 
 
+@app.get("/api/costs/balance")
+def api_costs_balance():
+    """The REAL DeepSeek balance (vendor figure) for the Cost page (admin only)."""
+    return cost.real_balance()
+
+
 @app.get("/api/senders.json")
 def api_senders():
     """One row per sender for the (legacy) by-sender view."""

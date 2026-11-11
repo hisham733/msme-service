@@ -239,6 +239,10 @@ def _item_for(row, run, pr, rep, version_count, accept=None):
         "runStatus": run_status, "runError": (run or {}).get("error", ""),
         "runModel": (run or {}).get("model", ""),
         "emailType": row.get("emailType", ""),
+        "reportUrl": row.get("reportUrl", ""),
+        "speechUrl": row.get("speechUrl", ""),
+        "mediaCount": row.get("mediaCount"),
+        "galleryMedia": row.get("galleryMedia"),
     })
 
 

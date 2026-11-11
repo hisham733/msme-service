@@ -12,7 +12,9 @@ _Source: 30-Oct 2026 MSME call `[57:24–63:31]`, `[77:32–78:26]`; `docs/meeti
 - Paragraphs are **~50–60 words** (the live median is 56), not the call's 2–3 lines.
 - **Images: 6 total maximum** — 1 masthead + at most 5 in-body; **most releases have 1**; never add an
   image the sender did not supply.
-- **Features** (long profiles / interviews / event pieces) are **exempt** from the 4–5 chunk rule.
+- **Features** (profiles, interviews, event write-ups, photo essays, explainers, study features) are
+  **exempt** from the 4–5 chunk rule. Types + a live example of each:
+  `docs/meetings/2026-11-09/N-7-examples-follow-vs-not.md` §0.
 - **Commentary / byline** are exempt from all chunk rules.
 - A chart is never the masthead; it may sit in the body.
 - Keep the information, remove duplication, never add facts.
@@ -57,6 +59,29 @@ stays in the body — the live APAC page lost all 3 charts.
 
 **Sample note:** 30 posts (6 features, 24 releases). Expand to **50–100** before freezing the ranges.
 
+### 2.2 Re-measurement — 100 posts (2026-11-07)
+
+Ran on the latest **100 published posts** (2026-10-07 → 2026-11-06) with `tools/n7_measure.py`
+(read-only REST API; no AI tokens). 48 releases / 52 features by the ≥17-paragraph proxy.
+
+| Measure | 100-post result | Earlier 30-post claim | Note |
+|---|---|---|---|
+| H2 (releases) | median **2.5**; 65% in 1–3; 19% >3 | 1–3 | **confirms** 1–3 (but ~1/5 exceed 3) |
+| Paragraphs (releases) | median **9**; 52% in 8–15 (4–5 chunks) | median 7–9; 70% in 4–5 | confirms target, but only **half** land in 4–5 |
+| **Words per paragraph** | median **~40** (releases ~33) | **~56** | **contradicts** — live paragraphs are shorter, closer to "2–3 lines" |
+| Images (releases) | **92% exactly 1**; **0** releases >6 | 1 normal, 6 max | **confirms** |
+| Features | ~half the sample by the proxy | 6/30 | features are **common**, not rare |
+| Charts | **0** of 100 live pages show a chart image | APAC lost 3 charts | confirms charts are dropped |
+
+**Consequences for the open questions:**
+- **Q1 (chunks vs H2):** the data backs **1–3 H2 + 4–5 chunks**.
+- **Q2 (paragraph length):** the data **argues for ~2–3 lines / ~30–45 words**, not ~56 — this is the point to settle with MSME.
+- **Q3 (short release):** 4–5 chunks should be a **target with a warning**, not a hard fail (about half of real releases are shorter).
+- **Q5 (images):** 1 normal, 6 max — confirmed; only features exceed 6 (exempt).
+
+Evidence with live links: [`docs/meetings/2026-11-09/N-7-examples-follow-vs-not.md`](../meetings/2026-11-09/N-7-examples-follow-vs-not.md)
+and [`docs/meetings/2026-11-09/N-7-single-article-explainer.md`](../meetings/2026-11-09/N-7-single-article-explainer.md).
+
 ## 3. What the engine does today (`msme/repurpose/engine/`)
 
 | Rule | Today | Gap |
@@ -100,25 +125,31 @@ stays in the body — the live APAC page lost all 3 charts.
 
 ## 6. Questions for MSME (2026-11-11)
 
-Recorded in `docs/meetings/2026-10-30/NEXT_MEETING.md` §2 (N-7).
+Recorded in `docs/meetings/2026-10-30/NEXT_MEETING.md` §9 (N-7). Evidence links:
+[examples follow vs not](../meetings/2026-11-09/N-7-examples-follow-vs-not.md) ·
+[single-article explainer](../meetings/2026-11-09/N-7-single-article-explainer.md) ·
+[rule vs live vs engine](../meetings/2026-11-09/N-7-rule-live-engine-compare.md).
 
-1. **Chunks or H2?** The live site uses **1–3 H2** with **7–9 paragraphs** (4–5 chunks of 2–3). Is that
-   the target, rather than 4–5 H2 headings?
-2. **Paragraph length:** the live median is **~56 words**; the call said 2–3 lines. Which should the
-   engine follow?
+1. **Chunks or H2?** The 100-post re-measurement (§2.2) shows **1–3 H2** with **7–9 paragraphs**
+   (4–5 chunks of 2–3). Is that the target, rather than 4–5 H2 headings?
+2. **Paragraph length:** the earlier note said **~56 words**; the 100-post median is **~40 (releases
+   ~33)** and the call said 2–3 lines. Should the engine follow **~2–3 lines (~30–45 words)** or
+   longer (~50–60)?
 3. **Short release:** is a **3-chunk** article acceptable with a warning, or must it always reach 4?
-4. **Features:** confirm that long profiles/interviews/event pieces are **exempt** from the 4–5 rule.
+4. **Features:** confirm that long profiles/interviews/event pieces/photo essays/explainers/study
+   features are **exempt** from the 4–5 rule, and how to distinguish a feature from a *long press
+   release* (length alone over-counts).
 5. **Images:** confirm **6 total** (1 masthead + 5 in-body) and that **1 image is the normal case**.
 6. **Charts in the published article — the APAC case.** The 30-Oct call said a chart goes in the body,
    never as the masthead. The APAC CEO release has **3 charts** (`image001/004/005`); the engine draft
-   lists all 3 in-body, but the live article has **0 charts** and still shows the chart captions. Did
-   MSME expect to add them manually, or should the system publish them? Who uploads them — the editor
-   or the system?
+   lists all 3 in-body, but the live article has **0 images/charts** (0 of 100 live pages show a
+   chart). Did MSME expect to add them manually, or should the system publish them? Who uploads them —
+   the editor or the system?
    - Live: https://www.malaysiasme.com.my/apac-ceos-face-ai-and-geopolitical-pressures-but-are-confident-in-navigating-complexities/
    - Email: https://mail.google.com/mail/u/0/#all/1a15cd202b2900a9
    - Draft proof: `repurpose_inbox/APAC CEOs face the same AI and geopolitical pressures as their global peers but are more c/draft.md` → `## Images` lists `image001`, `image005`, `image004` in-body.
-7. **About sections:** do “About the Study” / “About <org>” count as H2/chunks? The live APAC page has
-   3 H2 without them; the engine draft has both as H2.
+7. **About sections:** do “About the Study” / “About <org>” count as H2/chunks, or should they be plain
+   text? The live APAC page has 3 H2 without them; the engine draft has both as H2.
 
 ## 7. Tests (engine repo, when built)
 

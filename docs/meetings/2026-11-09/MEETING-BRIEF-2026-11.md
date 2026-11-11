@@ -113,6 +113,9 @@ Studio, with the article as a PDF; publish with the byline, no rewrite.
 **Change:** a `contribute` article type; skip repurpose; extract the author from the document; request
 the author's visual if no image.
 
+**Evidence + examples:** [`N-5-contributed-evidence-and-questions.md`](N-5-contributed-evidence-and-questions.md)
+— four real emails next to their live MSME pages (one as-is, three rewritten) with the open questions.
+
 ### N-6 — Open the original email from the prototype · 14:33–15:01; 39:49
 
 **Rule:** a row in the prototype should link to the original Gmail message so MSME can check the email
@@ -131,6 +134,11 @@ without searching.
 5 chunks; Tealive F1 repeats the same story → remove the repetition, keep the name.
 
 **Change:** vendored engine/draft rules; the receive side only needs to pass the article type and media.
+
+**Live examples (100 posts, 2026-11-07):** [`N-7-examples-follow-vs-not.md`](N-7-examples-follow-vs-not.md)
+(one follows / one does not, per point), [`N-7-single-article-explainer.md`](N-7-single-article-explainer.md)
+(one article explained point by point), and [`N-7-rule-live-engine-compare.md`](N-7-rule-live-engine-compare.md)
+(rule vs live vs current engine).
 
 ### N-8 — Agent name · 03:19, 23:35
 

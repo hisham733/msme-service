@@ -28,6 +28,20 @@
   `deepseek-v4-pro` (`deepseek-v4-flash` does not exist). `deepseek-flash` returns **HTTP 500 on
   `response_format={"type":"json_object"}`**, so `msme/deepseek.py` no longer sends it (the prompts
   ask for JSON and `_parse_json` tolerates prose/fences). All three places now use `deepseek-flash`.
+- **N-3 report link + N-4 speech capture built (2026-11-07)**: a wide `email_links` table
+  (`link_type=report|speech`) + `email_media` index (source incl. **gallery** fallback) under the
+  email; `report_link.py` reads DOCX rels / PDF `/URI` / body links; export writes `meta.json`;
+  the engine appends "Read the full report/speech" **at build** (the validator forbids URLs in
+  `draft.md`); N-4 is capture-only (branch/fetch waits for MSME); **287 tests pass** (`D45`).
+- **Table-driven export built (2026-11-07)**: the repurpose export now reads `email_media` (the
+  stored archive path) + `email_links` instead of guessing an archive folder, and adds missing media
+  to an existing draft — this fixed the wrong-folder HOLD. **Live proof: the Xendit email published**
+  after the gallery logo reached the engine (`T-056` Phase 3, `D45`); **297 tests pass**.
+- **Partner handoff P0-1/P0-2 built (2026-11-11)**: article-keyed schema — `stage_runs`,
+  `article_events`, `validation_results`, `images`, `checklist.article_hash`, `repurpose_*`
+  `article_id`, `busy_timeout`; `db.article_timeline(id)` is the acceptance join;
+  `tools/backfill_repurpose.py` rebuilt 20 folders (407 validation rows, 19 images);
+  `opencode.json` now commit allow / push+pull ask; `COLLABORATION.md` at root; **297 tests pass** (`D46`).
 - **Receive is built**: Gmail → normalize → decide/extract/verify → 14-col checklist (SQLite) →
   archive to `all_emails/` (live; legacy `emails/` kept for the test pages); dashboard pages on :8899.
 - **Filter is built**: Jev runs inside receive when `readyToFilter=true`; 3 Critical Gates

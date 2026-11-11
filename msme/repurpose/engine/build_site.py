@@ -116,8 +116,28 @@ def _quote_html(qlines):
     return out + "</blockquote>"
 
 
-def render_article(draft: dict, assets: dict) -> str:
+def _links_html(links):
+    """N-3/N-4: the report/speech line, appended at BUILD time so draft.md stays URL-free."""
+    links = links or {}
+    parts = []
+    style = 'style="margin-top:1.6em;border-top:1px solid #eee;padding-top:1em"'
+    if links.get("reportUrl"):
+        u = links["reportUrl"]
+        parts.append(f'<p {style}><strong>Read the full report:</strong> '
+                     f'<a href="{esc(u)}" target="_blank" rel="noopener">{esc(u)}</a></p>')
+    if links.get("speechUrl"):
+        u = links["speechUrl"]
+        parts.append(f'<p {style}><strong>Read the minister&rsquo;s speech:</strong> '
+                     f'<a href="{esc(u)}" target="_blank" rel="noopener">{esc(u)}</a></p>')
+    return "\n".join(parts)
+
+
+def render_article(draft: dict, assets: dict, links=None) -> str:
     """Render one article. assets = {"cover": rel-src|None, "in_body": {key: rel-src}}.
+
+    `links` (optional) is the folder's meta.json (reportUrl/speechUrl); it is appended
+    at the end of the body AFTER validation, because the validator rejects URLs in the
+    draft body (`NO_CONTACTS_BOILERPLATE`).
 
     The page lives in DLW\\articles\\, so every asset path is short and relative (../images/…) —
     Windows browsers refuse file paths over ~260 characters (measured 2026-10-23: a 272-char path
@@ -155,6 +175,9 @@ def render_article(draft: dict, assets: dict) -> str:
             parts.append(f"<p>{esc(p)}</p>")
         parts += inserts.get(i, [])
     body_html = "\n".join(parts)
+    links_html = _links_html(links)
+    if links_html:
+        body_html = body_html + "\n" + links_html
 
     date = ""
     m = re.search(r"(\d{1,2} [A-Z]+ \d{4})", draft["excerpt"])
@@ -231,6 +254,10 @@ def build_all(cfg):
         if not run.get("validator", {}).get("ok"):
             continue
         draft = load_draft(folder / "draft.md")
+        try:
+            report_links = json.loads((folder / "meta.json").read_text(encoding="utf-8")) or {}
+        except Exception:
+            report_links = {}
         assets = {"cover": None, "in_body": {}}
         for im, key in [(draft["images"]["featured"], "cover")] + [
                 (x, x.get("file") or x.get("renamed")) for x in draft["images"]["in_body"]]:
@@ -246,7 +273,7 @@ def build_all(cfg):
                 assets["in_body"][key] = ref
         slug = slugify(draft["title"])
         page = dlw / "articles" / f"{slug}.html"
-        page.write_text(render_article(draft, assets), encoding="utf-8")
+        page.write_text(render_article(draft, assets, links=report_links), encoding="utf-8")
         pages.add(page.name)
         old_site = folder / "site"
         if old_site.is_dir():

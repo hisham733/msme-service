@@ -14,6 +14,8 @@ _Icons: 🟢 open · 🚧 in progress · ⏳ awaiting user · ⏸️ parked · �
 | T-048 | Hand over the service to the partner developer | open | [operations, documentation, security] | 2026-10-31 | [🟢 T-048.md](🟢 T-048.md) |
 | T-049 | Deliver the N-rules from the 30-Oct MSME call | open | [receive, draft, dashboard, engine, operations] | 2026-11-04 | [🟢 T-049.md](🟢 T-049.md) |
 | T-050 | Merge the repurpose engine into msme-service — one repo, one process, one DB | open | [repurpose, structure, database, deployment] | 2026-11-03 | [🟢 T-050.md](🟢 T-050.md) |
+| T-056 | Repurpose image/link discovery — email_media + email_links (N-3/N-4 data model) | open | [receive, repurpose, database, gallery, engine, ui, docs] | 2026-11-07 | [🟢 T-056.md](🟢 T-056.md) |
+| T-057 | Human "Approve & publish" for borderline (EDITOR REVIEW) articles | open | [filter, receive, repurpose, ui, security, audit] | 2026-11-10 | [🟢 T-057.md](🟢 T-057.md) |
 
 ## Parked / closed
 
