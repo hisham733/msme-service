@@ -72,6 +72,50 @@ digraph database_schema {
     </table>
   >];
 
+  // ------------------------------------------------------------ email_links
+  email_links [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="3">
+      <tr><td bgcolor="#1f6feb" colspan="2"><font color="white"><b>email_links</b></font></td></tr>
+      <tr><td align="left" bgcolor="#fff8c5"><b>id</b></td><td align="left">INTEGER PK</td></tr>
+      <tr><td align="left" bgcolor="#ddf4ff">message_id</td><td align="left">TEXT FK</td></tr>
+      <tr><td align="left" bgcolor="#ddf4ff">checklist_id</td><td align="left">INTEGER FK</td></tr>
+      <tr><td align="left">link_type</td><td align="left">report/speech/source</td></tr>
+      <tr><td align="left">url</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">source</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">anchor</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">confidence</td><td align="left">REAL</td></tr>
+      <tr><td align="left">is_primary</td><td align="left">INTEGER</td></tr>
+      <tr><td align="left">candidates_json</td><td align="left">JSON</td></tr>
+      <tr><td align="left">created_at</td><td align="left">TEXT</td></tr>
+    </table>
+  >];
+
+  // ------------------------------------------------------------ email_media
+  email_media [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="3">
+      <tr><td bgcolor="#1f6feb" colspan="2"><font color="white"><b>email_media</b></font></td></tr>
+      <tr><td align="left" bgcolor="#fff8c5"><b>id</b></td><td align="left">INTEGER PK</td></tr>
+      <tr><td align="left" bgcolor="#ddf4ff">message_id</td><td align="left">TEXT FK</td></tr>
+      <tr><td align="left" bgcolor="#ddf4ff">checklist_id</td><td align="left">INTEGER FK</td></tr>
+      <tr><td align="left">name</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">kind</td><td align="left">photo/logo/unknown</td></tr>
+      <tr><td align="left">source</td><td align="left">email/doc/body/drive/web/gallery</td></tr>
+      <tr><td align="left">role</td><td align="left">featured/logo/candidate</td></tr>
+      <tr><td align="left">path</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">width / height</td><td align="left">INTEGER</td></tr>
+      <tr><td align="left">bytes</td><td align="left">INTEGER</td></tr>
+      <tr><td align="left">sha1</td><td align="left">TEXT</td></tr>
+      <tr><td align="left">usable / chosen</td><td align="left">INTEGER</td></tr>
+      <tr><td align="left">created_at</td><td align="left">TEXT</td></tr>
+    </table>
+  >];
+
+  // ------------------------------------------------ P0-1 (article-keyed)
+  stage_runs [shape=box, style="rounded,filled", fillcolor="#eef6ff", label="stage_runs\nrun_id PK · article_id · stage · service · status"];
+  article_events [shape=box, style="rounded,filled", fillcolor="#eef6ff", label="article_events\nevent_id PK · article_id · stage · status · reason"];
+  validation_results [shape=box, style="rounded,filled", fillcolor="#eef6ff", label="validation_results\nresult_id PK · article_id · run_id · rule · ok"];
+  images [shape=box, style="rounded,filled", fillcolor="#eef6ff", label="images\nimage_id PK · article_id · path · rung · selected"];
+
   // ----------------------------------------------------- pipeline_results
   pipeline_results [label=<
     <table border="0" cellborder="1" cellspacing="0" cellpadding="3">
@@ -230,10 +274,16 @@ digraph database_schema {
   >];
 
   // ------------------------------------------------------------ relations
+  checklist -> stage_runs [label="1 : N   article_id = id", style=dashed];
+  checklist -> article_events [label="1 : N   article_id = id", style=dashed];
+  checklist -> validation_results [label="1 : N   article_id = id", style=dashed];
+  checklist -> images [label="1 : N   article_id = id", style=dashed];
   runs -> pipeline_results [label="1 : 1   run_id"];
   runs -> filter_results [label="1 : N   run_id"];
   checklist -> filter_results [label="1 : N   checklist_id"];
   emails -> checklist [label="1 : 1   message_id = messageId", style=dashed];
+  emails -> email_links [label="1 : N   message_id", style=dashed];
+  emails -> email_media [label="1 : N   message_id", style=dashed];
   emails -> runs [label="1 : 1   message_id = email_id", style=dashed];
   webhook_events -> webhook_messages [label="1 : N   event_id"];
   webhook_messages -> runs [label="1 : 1   message_id = email_id", style=dashed];

@@ -184,6 +184,13 @@ LIBRARY_UPDATE_NEGATIVE = tuple(
     ).split(",") if p.strip()
 )
 
+# --- N-3 report link / N-4 speech link (docs/new-rules/N-3, N-4) ---
+# When an email offers a press release + a full report (or a government speech),
+# capture the URL (DOCX rels / PDF /URI / body links) and publish it with the
+# article. The engine appends it at build time (never in draft.md: the validator
+# rejects URLs in the draft body).
+REPORT_LINK_MAX_PDF_PAGES = int(os.environ.get("REPORT_LINK_MAX_PDF_PAGES", "10"))
+
 # --- Direct asset links (e.g. a "Click to download" image/logo) ---
 ASSET_LINK_MAX_BYTES = int(os.environ.get("ASSET_LINK_MAX_BYTES", str(15 * 1024 * 1024)))
 ASSET_LINK_TIMEOUT = int(os.environ.get("ASSET_LINK_TIMEOUT", "25"))

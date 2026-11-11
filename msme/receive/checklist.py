@@ -44,6 +44,18 @@ def save_checklist(row):
     except Exception as e:
         print(f"[checklist] sqlite save failed: {e}")
         return
+    # N-3/N-4: persist the captured link + the media index (outside the 14-col contract).
+    try:
+        link = row.get("_link")
+        if link:
+            db.save_email_link(checklist_id, row.get("messageId", ""),
+                               row.get("subject", ""), link)
+        media = row.get("_media")
+        if "_media" in row:
+            # always replace, even with an empty list, so a re-run clears stale rows
+            db.save_email_media(checklist_id, row.get("messageId", ""), media or [])
+    except Exception as e:
+        print(f"[checklist] link/media save failed: {e}")
     result = row.get("_filter") or {}
     if not result:
         return

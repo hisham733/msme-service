@@ -1,6 +1,7 @@
 # N-3 — Report emails are valid articles, and the report link is published
 
-_Status: spec for the 2026-11-11 MSME call · 2026-11-05 · no code written yet._
+_Status: spec for the 2026-11-11 MSME call · 2026-11-05 · **built 2026-11-07** (`D45`)._
+_Built note: the link is stored in the `email_links` table (not archive `meta.json`); the export writes `meta.json` into the engine inbox and the engine appends the line at build (the validator rejects URLs in the draft)._
 _Source: 30-Oct 2026 MSME call `[15:42–18:42]`; `docs/meetings/2026-11-09/MEETING-BRIEF-2026-11.md:82`._
 
 ## 1. The rule

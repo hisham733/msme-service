@@ -45,8 +45,9 @@
       "/tmp/opencode/*/bin/pip *": "allow",
       "/tmp/opencode/*/bin/ruff *": "allow",
       "git add*": "allow",
-      "git commit*": "deny",
-      "git push*": "deny",
+      "git commit*": "allow",
+      "git push*": "ask",
+      "git pull*": "ask",
       "rm *": "deny"
     },
     "external_directory": "allow"

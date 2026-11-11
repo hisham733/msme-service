@@ -284,6 +284,9 @@ function renderDetail(i){
         <div class="kv"><span class="k">Ready to filter</span><span class="v">${esc(i.readyToFilter==='true'?'yes':'no')}</span></div>
         <div class="kv"><span class="k">Article</span><span class="v">${esc(i.hasArticle==='true'?'yes':'no')}</span></div>
         <div class="kv"><span class="k">Picture / logo</span><span class="v">${esc(i.hasPic==='true'?'picture':'no picture')} · ${esc(i.hasLogo==='true'?'logo':'no logo')}</span></div>
+        ${i.mediaCount?`<div class="kv"><span class="k">Media</span><span class="v">${esc(i.mediaCount)} file(s)${Number(i.galleryMedia)>0?' · gallery fallback':''}</span></div>`:''}
+        ${i.reportUrl?`<div class="kv"><span class="k">Report link</span><span class="v"><a href="${esc(i.reportUrl)}" target="_blank" rel="noopener">${esc(i.reportUrl)}</a></span></div>`:''}
+        ${i.speechUrl?`<div class="kv"><span class="k">Speech link</span><span class="v"><a href="${esc(i.speechUrl)}" target="_blank" rel="noopener">${esc(i.speechUrl)}</a></span></div>`:''}
       </div>
     </div>
     <div class="section"><h3>Filter result</h3>
